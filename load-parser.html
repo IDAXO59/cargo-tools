@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RChief — Ursa Express</title>
+<style>
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --card: #0a0a0a;
+  --card-2: #111111;
+  --border: #1f1f1f;
+  --border-strong: #2a2a2a;
+  --text: #ffffff;
+  --text-muted: #71717a;
+  --text-dim: #52525b;
+  --accent: #5b6ef5;
+  --accent-hover: #6f80ff;
+  --accent-soft: rgba(91,110,245,0.12);
+  --input-bg: #0a0a0a;
+  --success: #22c55e;
+  --success-soft: rgba(34,197,94,0.12);
+  --danger: #ef4444;
+  --shadow: 0 0 0 1px rgba(255,255,255,0.04);
+}
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --card: #fafafa;
+  --card-2: #f4f4f5;
+  --border: #e5e7eb;
+  --border-strong: #d4d4d8;
+  --text: #0a0a0a;
+  --text-muted: #6b7280;
+  --text-dim: #a1a1aa;
+  --accent: #5b6ef5;
+  --accent-hover: #4f5ee0;
+  --accent-soft: rgba(91,110,245,0.10);
+  --input-bg: #ffffff;
+  --success: #16a34a;
+  --success-soft: rgba(22,163,74,0.10);
+  --danger: #dc2626;
+  --shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+.wrap { max-width: 1280px; margin: 0 auto; padding: 32px 40px 60px; }
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.topbar { position: relative; text-align: center; margin-bottom: 28px; min-height: 48px; }
+.brand { display: inline-flex; flex-direction: column; gap: 4px; align-items: center; }
+.brand-row { display: flex; align-items: center; gap: 10px; justify-content: center; }
+.brand-logo-link { position: absolute; top: 0; left: 0; display: inline-flex; transition: opacity 0.15s; }
+.brand-logo-link:hover { opacity: 0.8; }
+.controls { position: absolute; top: 0; right: 0; display: flex; gap: 8px; }
+@media (max-width: 600px) {
+  .topbar { padding-top: 56px; }
+  .brand-logo-link { left: 50%; transform: translateX(-50%); }
+}
+.brand-emoji { font-size: 28px; line-height: 1; }
+.brand-logo { height: 38px; width: auto; display: block; }
+.brand-title {
+  font-size: 28px; font-weight: 700; letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.brand-sub { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; color: var(--text-muted); text-align: center; }
+.brand-sub a { color: #ef4444; text-decoration: none; transition: opacity 0.15s; }
+.brand-sub a:hover { opacity: 0.8; text-decoration: underline; }
+.tagline { color: var(--text-muted); font-size: 14px; margin-top: 14px; }
+.divider-line { height: 1px; background: var(--border); margin-top: 18px; }
+
+.icon-btn {
+  width: 44px; height: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); cursor: pointer; transition: all 0.15s;
+  font-size: 13px; font-weight: 600;
+}
+.icon-btn:hover { border-color: var(--border-strong); }
+.icon-btn.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* History dropdown (#8) */
+.history-wrap { position: relative; }
+.history-panel {
+  position: absolute; top: 52px; right: 0;
+  width: 360px; max-height: 420px; overflow-y: auto;
+  background: var(--card); border: 1px solid var(--border-strong);
+  border-radius: 12px; padding: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 50;
+}
+.history-empty { padding: 16px; color: var(--text-muted); text-align: center; font-size: 13px; }
+.history-item {
+  padding: 10px 12px; border-radius: 8px; cursor: pointer;
+  display: flex; flex-direction: column; gap: 3px;
+  transition: background 0.1s;
+}
+.history-item:hover { background: var(--card-2); }
+.history-route { font-size: 13px; font-weight: 600; color: var(--text); }
+.history-meta { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; }
+.history-clear {
+  width: 100%; padding: 8px; margin-top: 6px;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted); border-radius: 7px; cursor: pointer; font-size: 12px;
+}
+.history-clear:hover { color: var(--danger); border-color: var(--danger); }
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
+.section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.6px;
+  color: var(--text-muted); margin: 28px 0 14px;
+}
+
+/* ── Grid ────────────────────────────────────────────────────────────────── */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  transition: border-color 0.15s;
+}
+.panel-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px;
+  color: var(--text-muted); margin-bottom: 16px;
+}
+.panel-head .dot { font-size: 14px; }
+.format-badge {
+  margin-left: auto;
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  padding: 3px 8px; border-radius: 6px;
+  background: var(--accent-soft); color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.format-badge:empty { display: none; }
+.format-badge.low-confidence { background: rgba(245,158,11,0.12); color: #f59e0b; border-color: #f59e0b; }
+
+/* Sample loads dropdown (#6) */
+.examples-wrap { position: relative; margin-left: auto; }
+.examples-btn {
+  font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 6px;
+  background: var(--card-2); color: var(--text-muted);
+  border: 1px solid var(--border); cursor: pointer; transition: all 0.15s;
+}
+.examples-btn:hover { color: var(--text); border-color: var(--accent); }
+.examples-panel {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  width: 220px; background: var(--card); border: 1px solid var(--border-strong);
+  border-radius: 10px; padding: 6px; z-index: 30;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.examples-panel button {
+  display: block; width: 100%; text-align: left; padding: 8px 10px;
+  background: transparent; border: none; color: var(--text);
+  border-radius: 6px; cursor: pointer; font-size: 12px;
+}
+.examples-panel button:hover { background: var(--card-2); }
+
+/* Help overlay (#7) */
+.help-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+.help-backdrop.show { opacity: 1; pointer-events: auto; }
+.help-modal {
+  background: var(--card); border: 1px solid var(--border-strong);
+  border-radius: 14px; padding: 24px 28px; max-width: 480px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.help-modal h3 { font-size: 16px; margin-bottom: 14px; color: var(--text); }
+.help-modal .help-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 0; font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.help-modal .help-row:last-child { border-bottom: none; }
+.help-modal .help-keys { display: flex; gap: 4px; }
+.help-modal .help-desc { color: var(--text-muted); }
+.help-modal .help-close {
+  margin-top: 16px; width: 100%; padding: 10px;
+  background: var(--card-2); border: 1px solid var(--border);
+  color: var(--text-muted); border-radius: 8px; cursor: pointer; font-size: 12px;
+}
+
+/* Multi-load tabs (#7) */
+.loads-tabs { display: flex; gap: 6px; margin: 0 0 12px 0; flex-wrap: wrap; }
+.loads-tabs:empty { display: none; }
+.loads-tab {
+  padding: 6px 14px; background: var(--card-2); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600;
+  color: var(--text-muted); transition: all 0.15s;
+}
+.loads-tab:hover { color: var(--text); border-color: var(--border-strong); }
+.loads-tab.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+kbd {
+  display: inline-block;
+  padding: 1px 5px; font-size: 10px; font-family: 'SF Mono',monospace;
+  background: var(--card-2); border: 1px solid var(--border-strong);
+  border-radius: 4px; color: var(--text-muted);
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
+.input, .textarea {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-family: 'SF Mono','Monaco','Consolas',monospace;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: all 0.15s;
+}
+.input::placeholder, .textarea::placeholder { color: var(--text-dim); }
+.input:focus, .textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.textarea-big { height: 380px; resize: vertical; line-height: 1.6; }
+.textarea-note { resize: vertical; min-height: 60px; }
+
+/* ── Field rows ──────────────────────────────────────────────────────────── */
+.field { display: flex; align-items: center; margin-bottom: 10px; gap: 8px; }
+.field-top { align-items: flex-start; }
+.field-label {
+  width: 70px; flex-shrink: 0;
+  font-family: 'SF Mono','Monaco',monospace;
+  font-size: 13px; font-weight: 700; color: var(--text);
+}
+.field-label-top { padding-top: 9px; }
+.field-sep { color: var(--text); font-family: 'SF Mono',monospace; font-size: 13px; flex-shrink: 0; }
+.field-suffix { color: var(--text-muted); font-family: 'SF Mono',monospace; font-size: 13px; flex-shrink: 0; }
+.input-narrow { max-width: 110px; }
+.map-btn {
+  padding: 6px 10px; font-size: 11px; font-weight: 600;
+  background: var(--card-2); color: var(--text-muted);
+  border: 1px solid var(--border); border-radius: 7px; cursor: pointer;
+  transition: all 0.15s;
+}
+.map-btn:hover { color: var(--text); border-color: var(--accent); }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 14px;
+}
+.btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn-row { display: flex; gap: 8px; margin-top: 12px; }
+.btn-secondary {
+  padding: 10px 18px;
+  background: var(--card-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-secondary:hover { border-color: var(--border-strong); }
+.btn-success {
+  background: var(--success-soft);
+  color: var(--success);
+  border-color: transparent;
+}
+.btn-success:hover { background: var(--success); color: #fff; border-color: transparent; }
+.btn-success.ok { background: var(--success); color: #fff; }
+.btn-danger:hover { color: var(--danger); border-color: var(--danger); }
+
+/* ── Preview ─────────────────────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 18px 0; }
+.preview {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  font-family: 'SF Mono','Monaco',monospace;
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  min-height: 120px;
+  color: var(--text);
+}
+.preview-empty { color: var(--text-dim); font-style: italic; }
+
+/* Warnings (#16) */
+.warnings { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.warning {
+  font-size: 12px; color: #f59e0b;
+  background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 8px; padding: 8px 10px;
+}
+
+/* sun/moon icon swap */
+:root[data-theme="dark"] .icon-sun { display: block; }
+:root[data-theme="dark"] .icon-moon { display: none; }
+:root[data-theme="light"] .icon-sun { display: none; }
+:root[data-theme="light"] .icon-moon { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Help overlay (#7) -->
+<div class="help-backdrop" id="helpBackdrop" onclick="if (event.target.id==='helpBackdrop') toggleHelp()">
+  <div class="help-modal">
+    <h3>⌨️  Keyboard shortcuts</h3>
+    <div class="help-row"><span class="help-keys"><kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd></span><span class="help-desc">Parse current input</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Esc</kbd></span><span class="help-desc">Reset form fields</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>?</kbd></span><span class="help-desc">Toggle this help</span></div>
+    <div class="help-row"><span class="help-keys">Paste</span><span class="help-desc">Auto-parse after 300ms</span></div>
+    <h3 style="margin-top:18px">🎯  Buttons</h3>
+    <div class="help-row"><span class="help-keys">📋 Examples</span><span class="help-desc">Load a sample for each format</span></div>
+    <div class="help-row"><span class="help-keys">📍 Maps</span><span class="help-desc">Open PU→DEL route in Google Maps</span></div>
+    <div class="help-row"><span class="help-keys">📍 from last DEL</span><span class="help-desc">Calc empty miles from prev DEL</span></div>
+    <div class="help-row"><span class="help-keys">🕐 History</span><span class="help-desc">Last 10 parsed loads</span></div>
+    <button class="help-close" onclick="toggleHelp()">Close (Esc)</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <a href="https://ursaexpress.com" target="_blank" rel="noopener" class="brand-logo-link" aria-label="URSA Express">
+      <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" width="121" height="49" viewBox="0 0 121 49" fill="none"><g clip-path="url(#clip0_26_2)"><mask id="mask0_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="14" y="28" width="21" height="21"><path d="M34.3989 29.9898C33.2971 30.7423 30.5334 31.3951 28.9904 33.2356C27.5914 34.9061 28.4715 37.719 27.6052 39.5935C26.8874 41.1416 25.9753 41.8375 25.0381 42.4517C24.0963 43.0682 23.7123 43.6916 24.6975 44.4464C27.1891 46.3571 25.4358 48.864 24.5649 48.8822C23.0333 48.9139 19.9382 48.8822 18.4867 48.8822C17.0351 48.8822 14.0246 46.7583 15.3915 41.8987C15.7527 40.6158 15.2658 39.2988 14.7949 38.0114C16.171 37.5059 17.7735 36.9461 18.9987 36.2298C22.7247 34.0493 25.4221 30.6471 26.4439 29.3393C27.5069 27.9793 32.2981 28.4417 34.4012 29.9921" fill="white"/></mask><g mask="url(#mask0_26_2)"><path d="M34.3984 27.977H14.0195V48.9116H34.3984V27.977Z" fill="url(#paint0_linear_26_2)"/></g><mask id="mask1_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="4" width="79" height="45"><path d="M75.5444 18.5614C78.9184 15.7281 78.6829 14.7013 77.6223 14.3704C76.6027 14.0531 74.9157 13.5136 73.6814 13.2348C73.2105 13.1283 74.0448 12.0041 69.8525 9.62183C69.3084 9.3113 70.6548 7.96946 69.3633 7.4096C68.2546 6.92681 65.7813 8.35252 64.5697 8.20065C56.8845 7.23734 48.1569 4.57631 40.3277 4.39498C33.7991 4.24312 27.8192 4.43805 20.8952 6.12215C6.20819 9.68983 2.94162 26.8868 1.01232 35.8807C0.751723 37.0979 -0.000340768 39.6116 0.125384 40.8197C0.408837 43.5419 2.26271 48.8821 5.62757 48.8821H11.1823C14.9724 48.8821 13.4888 44.8181 11.6944 42.6058C10.5994 41.2572 15.7359 40.448 18.6938 38.7186C22.4199 36.5381 25.1172 33.1358 26.139 31.828C27.4123 30.1983 34.0323 31.182 34.9809 33.5234C35.5707 34.9786 33.5705 36.9982 33.1042 39.7997C32.4687 43.6213 32.9396 48.9116 34.8118 48.8844C37.532 48.8436 39.7173 48.8844 40.858 48.8844C42.1312 48.8844 41.8752 45.9627 40.8786 45.0719C39.8316 44.1381 40.9083 42.6081 41.7312 40.0536C42.721 45.4595 44.6526 48.8821 46.8676 48.8821H52.4155C53.6728 48.8821 54.0111 45.659 51.2223 44.1811C48.0129 42.4789 54.85 25.6854 61.4197 22.315C66.1904 19.867 73.8368 20.0007 75.5467 18.5637" fill="white"/></mask><g mask="url(#mask1_26_2)"><path d="M78.9187 4.24084H0V48.9093H78.9187V4.24084Z" fill="url(#paint1_linear_26_2)"/></g><mask id="mask2_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="60" y="7" width="10" height="3"><path d="M69.8946 7.90826C69.8238 7.71333 69.666 7.5388 69.362 7.40734C68.2533 6.92454 65.78 8.35025 64.5685 8.19839C63.2861 8.03746 61.974 7.82893 60.6436 7.5932C62.8655 8.79451 65.7434 9.94596 67.4556 9.44957C67.9402 9.30904 68.3311 9.03931 68.5871 8.60185C68.8454 8.16439 69.3734 7.89466 69.8992 7.92866L69.8923 7.90599L69.8946 7.90826Z" fill="white"/></mask><g mask="url(#mask2_26_2)"><path d="M69.9015 6.92456H60.6436V9.94598H69.9015V6.92456Z" fill="url(#paint2_linear_26_2)"/></g><mask id="mask3_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="22" y="5" width="32" height="44"><path d="M22.7383 35.6201C24.3613 34.081 25.5362 32.5941 26.1374 31.8257C27.4107 30.196 34.0307 31.1797 34.9793 33.5212C35.5691 34.9764 33.5689 36.9959 33.1026 39.7975C32.4671 43.619 32.938 48.9093 34.8102 48.8821C37.5304 48.8413 39.7157 48.8821 40.8564 48.8821C42.1296 48.8821 41.8736 45.9604 40.877 45.0697C39.83 44.1358 40.9067 42.6058 41.7296 40.0513C42.7194 45.4572 44.651 48.8799 46.866 48.8799H52.4139C53.6712 48.8799 54.0095 45.6567 51.2207 44.1789C50.1486 43.6099 50.1989 41.3524 50.9853 38.476C49.7554 36.9755 48.8708 34.7769 50.192 31.2613C55.6531 16.7254 53.8838 13.5522 52.5877 11.2062C50.9304 8.20292 39.2654 -1.11064e-05 29.2737 9.63543C21.0833 17.5324 30.7778 24.228 22.7406 35.6201" fill="white"/></mask><g mask="url(#mask3_26_2)"><path d="M55.6531 -6.10352e-05H21.0811V48.9093H55.6531V-6.10352e-05Z" fill="url(#paint3_linear_26_2)"/></g><mask id="mask4_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="7" y="5" width="40" height="44"><path d="M10.0009 48.8798H11.1804C14.9705 48.8798 13.4869 44.8158 11.6925 42.6035C10.5975 41.2549 15.734 40.4457 18.6919 38.7163C22.418 36.5358 25.1153 33.1336 26.1371 31.8257C27.4104 30.196 34.0304 31.1797 34.979 33.5212C35.5688 34.9763 33.5686 36.9959 33.1023 39.7975C32.4668 43.619 32.9377 48.9093 34.8099 48.8821C37.5301 48.8413 39.7154 48.8821 40.8561 48.8821C42.1293 48.8821 41.8733 45.9604 40.8767 45.0696C39.8297 44.1358 40.9064 42.6058 41.7293 40.0513C42.7191 45.4572 44.6507 48.8798 46.8657 48.8798C41.1281 43.075 42.5797 34.5003 42.1773 27.1406C41.6882 18.201 50.1917 9.05289 41.4756 5.94761C37.1118 4.3927 31.6713 5.73001 26.8046 9.16622C16.1751 16.6756 20.9618 24.6972 16.7009 32.814C13.8572 38.2312 11.3404 37.277 8.15617 42.0505C6.48289 44.5619 13.0846 44.9087 10.0032 48.8798" fill="white"/></mask><g mask="url(#mask4_26_2)"><path d="M50.1874 4.3927H6.47852V48.9093H50.1874V4.3927Z" fill="url(#paint4_linear_26_2)"/></g><mask id="mask5_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="22" y="5" width="25" height="44"><path d="M22.7383 35.6201C24.3613 34.0811 25.5362 32.5942 26.1374 31.8258C27.4107 30.1961 34.0307 31.1798 34.9793 33.5212C35.5691 34.9764 33.5689 36.996 33.1026 39.7975C32.4671 43.619 32.938 48.9094 34.8102 48.8822C37.5304 48.8414 39.7157 48.8822 40.8564 48.8822C42.1296 48.8822 41.8736 45.9605 40.877 45.0697C39.83 44.1358 40.9067 42.6059 41.7296 40.0514C42.7194 45.4573 44.651 48.8799 46.866 48.8799C41.1284 43.0751 42.58 34.5004 42.1776 27.1406C41.6885 18.2011 50.192 9.05294 41.4759 5.94766C40.1798 5.48527 38.7876 5.27901 37.343 5.30621C34.6799 5.78446 31.9185 7.08551 29.276 9.63547C21.0856 17.5324 30.7801 24.228 22.7429 35.6201" fill="white"/></mask><g mask="url(#mask5_26_2)"><path d="M50.1898 5.27899H21.0811V48.9093H50.1898V5.27899Z" fill="url(#paint5_linear_26_2)"/></g><mask id="mask6_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="58" y="7" width="21" height="16"><path d="M75.5453 18.5614C78.9193 15.7281 78.6838 14.7013 77.6232 14.3704C76.6036 14.0531 74.9166 13.5136 73.6822 13.2348C73.2113 13.1283 74.0457 12.004 69.8533 9.62182C69.4419 9.38835 70.1117 8.5633 69.9036 7.93091C69.3779 7.89464 68.8498 8.16437 68.5915 8.6041C68.3332 9.04156 67.9423 9.31355 67.46 9.45182C65.7456 9.94594 62.8676 8.7945 60.648 7.59545C59.9142 7.46625 59.1736 7.32799 58.4307 7.18292C59.8891 7.95358 61.192 9.05969 61.951 10.737C63.6974 14.5948 61.3452 19.0261 60.616 22.7932C60.8834 22.6141 61.1532 22.4509 61.4206 22.3127C66.1913 19.8647 73.8377 19.9984 75.5475 18.5614" fill="white"/></mask><g mask="url(#mask6_26_2)"><path d="M78.9189 7.18292H58.4258V22.7932H78.9189V7.18292Z" fill="url(#paint6_linear_26_2)"/></g><mask id="mask7_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="18" width="59" height="31"><path d="M2.50044 29.3279C1.88325 31.7396 1.41921 33.9926 1.01232 35.8808C0.751723 37.0979 -0.000340768 39.6116 0.125384 40.8197C0.408837 43.542 2.26271 48.8821 5.62757 48.8821H11.1823C14.9724 48.8821 13.4888 44.8181 11.6944 42.6058C10.5994 41.2572 15.7359 40.448 18.6938 38.7186C22.4199 36.5381 25.1172 33.1359 26.139 31.828C27.4123 30.1983 34.0323 31.182 34.9809 33.5235C35.5707 34.9786 33.5705 36.9982 33.1042 39.7998C32.4687 43.6213 32.9396 48.9116 34.8118 48.8844C37.532 48.8436 39.7173 48.8844 40.858 48.8844C42.1312 48.8844 41.8752 45.9627 40.8786 45.0719C39.8316 44.1381 40.9083 42.6081 41.7312 40.0536C42.721 45.4595 44.6526 48.8821 46.8676 48.8821H52.4155C53.6728 48.8821 54.0111 45.659 51.2223 44.1811C48.5546 42.7668 52.8293 30.9259 58.1212 25.0327C56.0501 24.9737 53.7482 24.6609 51.4143 23.8631C41.8204 20.5833 36.8531 18.124 26.1162 18.473C20.3877 18.6589 14.7849 20.8462 9.19816 25.8418C6.28134 28.4485 4.15773 29.3053 2.5073 29.3302" fill="white"/></mask><g mask="url(#mask7_26_2)"><path d="M58.1147 18.1217H0V48.9093H58.1147V18.1217Z" fill="url(#paint7_linear_26_2)"/></g><mask id="mask8_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="25" y="21" width="34" height="28"><path d="M25.7275 32.3448C25.8853 32.1499 26.0224 31.9753 26.1367 31.8258C27.41 30.196 34.03 31.1798 34.9786 33.5212C35.5684 34.9764 33.5682 36.9959 33.1019 39.7975C32.4664 43.619 32.9373 48.9093 34.8095 48.8821C37.5297 48.8413 39.715 48.8821 40.8557 48.8821C42.1289 48.8821 41.8729 45.9605 40.8763 45.0697C39.8293 44.1358 40.906 42.6058 41.7289 40.0513C42.7187 45.4573 44.6503 48.8799 46.8653 48.8799H52.4132C53.6705 48.8799 54.0088 45.6567 51.22 44.1789C48.5523 42.7645 52.827 30.9236 58.1189 25.0304C56.0478 24.9715 53.7459 24.6587 51.412 23.8608C48.7649 22.9564 46.4699 22.1132 44.3097 21.3766C35.5981 22.1019 28.4158 26.4765 25.7321 32.3448" fill="white"/></mask><g mask="url(#mask8_26_2)"><path d="M58.1166 21.3766H25.7275V48.9093H58.1166V21.3766Z" fill="url(#paint8_linear_26_2)"/></g><mask id="mask9_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="22" y="18" width="32" height="31"><path d="M22.7383 35.6201C24.3613 34.0811 25.5362 32.5941 26.1374 31.8258C27.4107 30.1961 34.0307 31.1798 34.9793 33.5212C35.5691 34.9764 33.5689 36.9959 33.1026 39.7975C32.4671 43.619 32.938 48.9094 34.8102 48.8822C37.5304 48.8414 39.7157 48.8822 40.8564 48.8822C42.1296 48.8822 41.8736 45.9605 40.877 45.0697C39.83 44.1358 40.9067 42.6059 41.7296 40.0514C42.7194 45.4573 44.651 48.8799 46.866 48.8799H52.4139C53.6712 48.8799 54.0095 45.6567 51.2207 44.1789C50.1486 43.61 50.1989 41.3524 50.9853 38.4761C49.7554 36.9755 48.8708 34.7769 50.192 31.2614C51.2161 28.5369 51.9865 26.2091 52.5534 24.2144C52.1739 24.1079 51.7922 23.9923 51.4104 23.8608C41.8165 20.581 36.8492 18.1217 26.1123 18.4708C25.9866 18.4753 25.8585 18.4798 25.7328 18.4866C25.902 23.3327 27.7101 28.5777 22.7406 35.6201" fill="white"/></mask><g mask="url(#mask9_26_2)"><path d="M54.0072 18.1217H22.7383V48.9093H54.0072V18.1217Z" fill="url(#paint9_linear_26_2)"/></g><mask id="mask10_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="7" y="18" width="40" height="31"><path d="M10.0009 48.8799H11.1804C14.9705 48.8799 13.4869 44.8158 11.6925 42.6036C10.5975 41.2549 15.734 40.4457 18.6919 38.7163C22.418 36.5358 25.1153 33.1336 26.1371 31.8257C27.4104 30.196 34.0304 31.1798 34.979 33.5212C35.5688 34.9764 33.5686 36.9959 33.1023 39.7975C32.4668 43.619 32.9377 48.9093 34.8099 48.8821C37.5301 48.8413 39.7154 48.8821 40.8561 48.8821C42.1293 48.8821 41.8733 45.9604 40.8767 45.0697C39.8297 44.1358 40.9064 42.6058 41.7293 40.0513C42.7191 45.4573 44.6507 48.8799 46.8657 48.8799C41.1281 43.075 42.5797 34.5004 42.1773 27.1406C42.0631 25.0531 42.4379 22.9564 42.9706 20.9255C37.8616 19.2527 33.2692 18.2373 26.112 18.4685C23.9198 18.5388 21.7459 18.9037 19.5834 19.6063C18.6531 23.9333 19.0371 28.3601 16.7009 32.814C13.8572 38.2312 11.3404 37.277 8.15617 42.0505C6.48289 44.5619 13.0846 44.9087 10.0032 48.8799" fill="white"/></mask><g mask="url(#mask10_26_2)"><path d="M46.8637 18.2396H6.47852V48.9093H46.8637V18.2396Z" fill="url(#paint10_linear_26_2)"/></g><mask id="mask11_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="22" y="18" width="25" height="31"><path d="M22.7383 35.6201C24.3613 34.081 25.5362 32.5941 26.1374 31.8257C27.4107 30.196 34.0307 31.1798 34.9793 33.5212C35.5691 34.9764 33.5689 36.9959 33.1026 39.7975C32.4671 43.619 32.938 48.9093 34.8102 48.8821C37.5304 48.8413 39.7157 48.8821 40.8564 48.8821C42.1296 48.8821 41.8736 45.9604 40.877 45.0697C39.83 44.1358 40.9067 42.6058 41.7296 40.0513C42.7194 45.4573 44.651 48.8799 46.866 48.8799C41.1284 43.075 42.58 34.5004 42.1776 27.1406C42.0634 25.0531 42.4382 22.9564 42.9709 20.9255C37.8619 19.2527 33.2695 18.2373 26.1123 18.4685C25.9866 18.473 25.8585 18.4776 25.7328 18.4844C25.902 23.3304 27.7101 28.5777 22.7406 35.6201" fill="white"/></mask><g mask="url(#mask11_26_2)"><path d="M46.8638 18.2396H22.7383V48.9093H46.8638V18.2396Z" fill="url(#paint11_linear_26_2)"/></g><mask id="mask12_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="1" y="6" width="19" height="30"><path d="M19.1828 6.61401C5.94964 11.0589 2.86366 27.2471 1.01207 35.8807L1.00293 35.9215C2.86137 35.9102 5.13357 34.0312 7.81265 29.3823C9.67567 26.1456 9.81282 21.2066 12.6268 14.5971C13.5229 12.4937 15.8705 9.65356 19.185 6.61628" fill="white"/></mask><g mask="url(#mask12_26_2)"><path d="M19.185 6.61401H1.00293V35.9215H19.185V6.61401Z" fill="url(#paint12_linear_26_2)"/></g><mask id="mask13_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="52" y="12" width="27" height="22"><path d="M75.5448 18.5615C78.9188 15.7282 78.6833 14.7014 77.6227 14.3705C76.6032 14.0531 74.9162 13.5137 73.6818 13.2349C70.4701 14.5677 70.2163 12.5776 67.935 13.0354C66.6937 13.2847 64.9222 14.4317 64.225 14.7875C62.4282 15.7078 58.3319 18.328 57.1592 20.6445C58.6039 19.8444 60.2292 19.9237 59.884 20.2886C59.2897 20.9233 56.7409 22.3467 55.5042 24.4955C56.1626 24.0988 56.8781 23.7294 57.3192 23.8382C57.1409 24.7811 52.8663 28.2241 52.6377 33.9065C54.7659 29.065 58.1262 24.0036 61.4179 22.315C66.1886 19.867 73.8349 20.0008 75.5448 18.5637" fill="white"/></mask><g mask="url(#mask13_26_2)"><path d="M78.9168 12.5776H52.6357V33.9043H78.9168V12.5776Z" fill="url(#paint13_linear_26_2)"/></g><mask id="mask14_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="60" y="12" width="19" height="11"><path d="M75.5452 18.5615C78.9192 15.7282 78.6837 14.7014 77.6231 14.3705C76.6035 14.0531 74.9165 13.5137 73.6822 13.2349C70.4705 14.5677 70.2167 12.5776 67.9354 13.0354C66.6941 13.2847 64.9226 14.4317 64.2253 14.7875C63.7453 15.0323 63.103 15.3995 62.3966 15.8483C61.9943 18.226 61.0319 20.6196 60.6113 22.7933C60.8788 22.6119 61.1485 22.451 61.416 22.3127C66.1867 19.8648 73.833 19.9985 75.5429 18.5615" fill="white"/></mask><g mask="url(#mask14_26_2)"><path d="M78.9192 12.5776H60.6113V22.7933H78.9192V12.5776Z" fill="url(#paint14_linear_26_2)"/></g><mask id="mask15_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="59" y="24" width="61" height="14"><path d="M115.703 37.2452H119.601L114.268 24.7878H109.454L104.288 37.2452H107.941L108.811 35.0851H114.817L115.703 37.2452ZM113.701 32.3403H109.927L111.792 27.6846L113.703 32.3403H113.701ZM97.4254 37.4628C102.804 37.4628 103.6 35.237 103.6 33.3104V33.1086C103.6 30.9984 102.592 29.5432 98.358 29.4095L96.7533 29.3596C95.0274 29.3098 94.6434 28.8564 94.6434 28.2875C94.6434 27.6846 95.0412 27.2653 96.9819 27.2653H97.119C99.1512 27.2653 99.4415 28.0178 99.5192 28.5369H103.401V28.4031C103.401 26.6623 102.621 24.6201 97.3636 24.6201H96.783C91.9392 24.6201 90.8374 26.2952 90.8374 28.3533V28.5029C90.8374 30.4295 91.9826 32.0864 95.9578 32.2201L97.5168 32.27C99.3958 32.3199 99.7478 32.7732 99.7478 33.426C99.7478 34.0788 99.4575 34.7316 97.2425 34.7316H97.151C94.8903 34.7316 94.6914 33.6254 94.6457 33.1064H90.7025V33.256C90.7025 34.8471 91.3128 37.4583 97.0139 37.4583H97.4254V37.4628ZM79.7896 27.7843H83.8402C84.9854 27.7843 85.3832 28.3193 85.3832 29.0559V29.1058C85.3832 29.8923 84.9854 30.4114 83.8402 30.4114H79.7896V27.7821V27.7843ZM87.8908 37.2452L86.2038 33.1766C88.4486 32.6259 89.1732 31.0891 89.1732 29.1602V28.9584C89.1732 26.5128 88.0577 24.7901 84.1465 24.7901H76.139V37.2475H79.7919V33.3965H82.6904L84.2425 37.2475H87.8954L87.8908 37.2452ZM66.9839 37.4288C72.8061 37.4288 73.5239 33.3942 73.5239 30.9168V24.7878H69.887V30.8647C69.887 32.27 69.535 34.1286 66.801 34.1286H66.7256C63.9894 34.1286 63.5939 32.27 63.5939 30.8647V24.7878H59.957V30.9168C59.957 33.3784 60.4919 37.4288 66.5427 37.4288H66.9862H66.9839Z" fill="white"/></mask><g mask="url(#mask15_26_2)"><path d="M119.599 24.6223H59.9551V37.465H119.599V24.6223Z" fill="url(#paint15_linear_26_2)"/></g><mask id="mask16_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="83" y="24" width="38" height="14"><path d="M113.702 32.3403H109.928L111.793 27.6846L113.704 32.3403H113.702ZM97.4259 37.4628C102.805 37.4628 103.6 35.237 103.6 33.3104V33.1086C103.6 30.9984 102.592 29.5432 98.3585 29.4095L96.7538 29.3596C95.028 29.3098 94.6439 28.8564 94.6439 28.2875C94.6439 27.6846 95.0417 27.2653 96.9824 27.2653H97.1196C99.1517 27.2653 99.442 28.0178 99.5198 28.5369H103.401V28.4031C103.401 26.6623 102.622 24.6201 97.3642 24.6201H96.7835C91.9397 24.6201 90.8379 26.2952 90.8379 28.3533V28.5029C90.8379 30.4295 91.9831 32.0864 95.9583 32.2201L97.5173 32.27C99.3963 32.3199 99.7484 32.7732 99.7484 33.426C99.7484 34.0788 99.458 34.7316 97.243 34.7316H97.1516C94.8908 34.7316 94.6919 33.6254 94.6462 33.1064H90.703V33.256C90.703 34.8471 91.3134 37.4583 97.0144 37.4583H97.4259V37.4628ZM89.1669 29.4503C87.5233 30.6811 84.9357 32.5647 83.3584 35.0625L83.4361 35.2551C84.4511 34.6636 85.5072 34.1649 86.1815 34.3326C85.7563 34.9605 84.9905 35.8059 84.1013 36.903L84.2385 37.2452H87.8914L86.2044 33.1766C88.3348 32.6553 89.096 31.2432 89.1669 29.4503ZM118.125 33.5008C118.859 34.3145 120.285 35.0058 120.998 34.9242C120.39 35.5883 119.679 35.8671 119.005 35.8558L119.599 37.243H115.702L114.815 35.0829H108.81L107.939 37.243H104.286L109.452 24.7856H114.266L116.355 29.6656C117.544 32.44 118.797 32.9432 119.64 33.1494C119.101 33.3829 118.584 33.4872 118.125 33.4985V33.5008ZM87.8022 25.6854C86.9198 26.583 86.0878 27.5871 85.3494 28.7159C85.3723 28.8247 85.3837 28.938 85.3837 29.0582V29.108C85.3837 29.176 85.3814 29.244 85.3746 29.3098C86.6158 28.7295 88.0811 28.3487 89.1326 28.1923C89.0137 27.1519 88.6228 26.2838 87.8022 25.6854Z" fill="white"/></mask><g mask="url(#mask16_26_2)"><path d="M121 24.6223H83.3604V37.465H121V24.6223Z" fill="url(#paint16_linear_26_2)"/></g><mask id="mask17_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="59" y="41" width="61" height="8"><path d="M115.882 49C119.123 49 119.601 47.6581 119.601 46.4976V46.3775C119.601 45.1059 118.993 44.2287 116.444 44.1494L115.477 44.1199C114.437 44.0905 114.206 43.8185 114.206 43.4739C114.206 43.1113 114.446 42.8597 115.614 42.8597H115.697C116.922 42.8597 117.096 43.313 117.141 43.6258H119.48V43.5442C119.48 42.4948 119.011 41.264 115.843 41.264H115.493C112.574 41.264 111.911 42.2726 111.911 43.5125V43.6031C111.911 44.7637 112.602 45.761 114.995 45.8426L115.934 45.872C117.066 45.9015 117.278 46.1758 117.278 46.5679C117.278 46.96 117.102 47.3544 115.77 47.3544H115.715C114.353 47.3544 114.234 46.688 114.204 46.3752H111.829V46.4659C111.829 47.4247 112.197 48.9977 115.63 48.9977H115.879L115.882 49ZM107.072 49C110.313 49 110.791 47.6581 110.791 46.4976V46.3775C110.791 45.1059 110.183 44.2287 107.634 44.1494L106.667 44.1199C105.627 44.0905 105.396 43.8185 105.396 43.4739C105.396 43.1113 105.636 42.8597 106.804 42.8597H106.887C108.112 42.8597 108.286 43.313 108.331 43.6258H110.67V43.5442C110.67 42.4948 110.201 41.264 107.033 41.264H106.683C103.764 41.264 103.101 42.2726 103.101 43.5125V43.6031C103.101 44.7637 103.792 45.761 106.185 45.8426L107.124 45.872C108.256 45.9015 108.469 46.1758 108.469 46.5679C108.469 46.96 108.295 47.3544 106.96 47.3544H106.905C105.543 47.3544 105.424 46.688 105.394 46.3752H103.019V46.4659C103.019 47.4247 103.387 48.9977 106.82 48.9977H107.07L107.072 49ZM95.2423 41.3637V48.8685H101.862V47.1232H97.4254V45.9627H101.67V44.1766H97.4254V43.0863H101.807V41.3614H95.2446L95.2423 41.3637ZM88.3297 43.1702H90.7688C91.4591 43.1702 91.6992 43.4921 91.6992 43.9363V43.9658C91.6992 44.4395 91.4591 44.7523 90.7688 44.7523H88.3297V43.1679V43.1702ZM79.2158 43.1702H81.6549C82.3452 43.1702 82.5852 43.4921 82.5852 43.9363V43.9658C82.5852 44.4395 82.3452 44.7523 81.6549 44.7523H79.2158V43.1679V43.1702ZM81.84 46.5498C84.1785 46.5498 84.8689 45.4595 84.8689 43.9975V43.8774C84.8689 42.4041 84.1968 41.366 81.84 41.366H77.0168V48.8708H79.2158V46.552H81.84V46.5498ZM73.5445 48.8685H76.187L73.277 45.0062L76.0293 41.366H73.517L71.7957 43.6349L70.0745 41.366H67.3222L70.1385 45.0175L67.2377 48.8708H69.8253L71.6952 46.45L73.5445 48.8708V48.8685ZM93.2101 48.8685L92.1929 46.416C93.5462 46.0851 93.9828 45.158 93.9828 43.9953V43.8751C93.9828 42.4018 93.3107 41.3637 90.954 41.3637H86.1307V48.8685H88.3297V46.5498H90.0762L91.0111 48.8685H93.2101ZM59.957 41.3637V48.8685H66.577V47.1232H62.1401V45.9627H66.385V44.1766H62.1401V43.0863H66.5222V41.3614H59.9593L59.957 41.3637Z" fill="white"/></mask><g mask="url(#mask17_26_2)"><path d="M119.599 41.264H59.9551V49H119.599V41.264Z" fill="url(#paint17_linear_26_2)"/></g><mask id="mask18_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="78" y="41" width="42" height="8"><path d="M111.831 46.518C113.959 47.2864 115.916 48.1047 117.667 48.8141C119.311 48.4084 119.601 47.3975 119.601 46.4976V46.3775C119.601 45.1059 118.993 44.2287 116.444 44.1494L115.477 44.1199C114.437 44.0905 114.206 43.8185 114.206 43.474C114.206 43.1113 114.446 42.8597 115.614 42.8597H115.697C116.922 42.8597 117.095 43.313 117.141 43.6258H119.48V43.5442C119.48 42.4948 119.011 41.264 115.843 41.264H115.493C112.574 41.264 111.911 42.2726 111.911 43.5125V43.6031C111.911 44.7637 112.601 45.761 114.995 45.8426L115.934 45.872C117.066 45.9015 117.278 46.1758 117.278 46.5679C117.278 46.96 117.102 47.3544 115.77 47.3544H115.715C114.352 47.3544 114.234 46.688 114.204 46.3752H111.829V46.518H111.831ZM103.17 44.1789C105.872 44.6163 108.425 45.3394 110.784 46.1486C110.711 45.0017 110.03 44.2219 107.634 44.1471L106.667 44.1177C105.627 44.0882 105.396 43.8162 105.396 43.4717C105.396 43.109 105.636 42.8574 106.804 42.8574H106.887C108.112 42.8574 108.286 43.3108 108.331 43.6235H110.67V43.542C110.67 42.4925 110.201 41.2617 107.033 41.2617H106.683C103.764 41.2617 103.101 42.2704 103.101 43.5102V43.6009C103.101 43.7981 103.122 43.993 103.167 44.1766L103.17 44.1789ZM95.2422 43.8593C95.976 43.7935 96.7029 43.755 97.423 43.7437V43.0886H101.805V41.3637H95.2422V43.8593ZM86.1283 46.2755C87.541 45.6363 88.9422 45.1331 90.3252 44.7523H88.3296V43.168H90.7687C91.459 43.168 91.699 43.4898 91.699 43.9341V43.9635C91.699 44.1494 91.6625 44.3103 91.5756 44.4373C92.3848 44.2537 93.1872 44.1063 93.9827 43.9975V43.8729C93.9827 42.3996 93.3106 41.3615 90.9538 41.3615H86.1306V46.2732L86.1283 46.2755ZM81.0558 41.3637C80.745 41.9326 80.4478 42.5333 80.1689 43.1702H81.6548C82.3451 43.1702 82.5851 43.4921 82.5851 43.9363V43.9658C82.5851 44.4395 82.3451 44.7523 81.6548 44.7523H79.5449C79.106 46.0058 78.7562 47.3748 78.5391 48.8685H79.2134V46.5498H81.8376C84.1761 46.5498 84.8665 45.4595 84.8665 43.9975V43.8774C84.8665 42.4041 84.1944 41.366 81.8376 41.366H81.0536L81.0558 41.3637Z" fill="white"/></mask><g mask="url(#mask18_26_2)"><path d="M119.601 41.2639H78.5391V48.8685H119.601V41.2639Z" fill="url(#paint18_linear_26_2)"/></g><path d="M111.925 27.7452L113.437 31.4946H110.412L111.925 27.7452Z" fill="white"/></g><defs><linearGradient id="paint0_linear_26_2" x1="38.7028" y1="34.3304" x2="11.5653" y2="42.163" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="0.6" stop-color="#30348A"/><stop offset="1" stop-color="#0C0224"/></linearGradient><linearGradient id="paint1_linear_26_2" x1="10.2614" y1="30.4454" x2="66.8321" y2="22.8169" gradientUnits="userSpaceOnUse"><stop stop-color="#5992CD"/><stop offset="0.37" stop-color="#4E2482"/><stop offset="0.63" stop-color="#CA1574"/><stop offset="1" stop-color="#DA5845"/></linearGradient><linearGradient id="paint2_linear_26_2" x1="68.8317" y1="8.18934" x2="55.8259" y2="9.10449" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="1" stop-color="#2B348B"/></linearGradient><linearGradient id="paint3_linear_26_2" x1="54.0073" y1="13.5974" x2="38.6045" y2="24.4729" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="1" stop-color="#2B348B"/></linearGradient><linearGradient id="paint4_linear_26_2" x1="75.6021" y1="13.636" x2="13.4648" y2="31.0386" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="1" stop-color="#2B348B"/></linearGradient><linearGradient id="paint5_linear_26_2" x1="69.9721" y1="20.0144" x2="27.6624" y2="28.886" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="1" stop-color="#2B348B"/></linearGradient><linearGradient id="paint6_linear_26_2" x1="77.2205" y1="11.0974" x2="62.103" y2="18.0918" gradientUnits="userSpaceOnUse"><stop stop-color="#ED7952"/><stop offset="1" stop-color="#B2092C"/></linearGradient><linearGradient id="paint7_linear_26_2" x1="24.4158" y1="39.4008" x2="3.58562" y2="66.2571" gradientUnits="userSpaceOnUse"><stop stop-color="#362483"/><stop offset="1" stop-color="#060019"/></linearGradient><linearGradient id="paint8_linear_26_2" x1="65.4818" y1="18.9196" x2="34.4902" y2="40.6237" gradientUnits="userSpaceOnUse"><stop stop-color="#ED7952"/><stop offset="1" stop-color="#B2092C"/></linearGradient><linearGradient id="paint9_linear_26_2" x1="42.0405" y1="32.2405" x2="52.8007" y2="28.4369" gradientUnits="userSpaceOnUse"><stop stop-color="#6F356F"/><stop offset="1" stop-color="#E62630"/></linearGradient><linearGradient id="paint10_linear_26_2" x1="64.6023" y1="25.7693" x2="-7.1018" y2="40.7735" gradientUnits="userSpaceOnUse"><stop stop-color="#392483"/><stop offset="1" stop-color="#4B56A2"/></linearGradient><linearGradient id="paint11_linear_26_2" x1="51.4287" y1="27.3922" x2="21.7493" y2="38.6164" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="0.56" stop-color="#393487"/><stop offset="1" stop-color="#130834"/></linearGradient><linearGradient id="paint12_linear_26_2" x1="28.0018" y1="13.6632" x2="-5.37326" y2="28.0773" gradientUnits="userSpaceOnUse"><stop stop-color="#392483"/><stop offset="1" stop-color="#4B56A2"/></linearGradient><linearGradient id="paint13_linear_26_2" x1="72.866" y1="19.5067" x2="55.1482" y2="28.9944" gradientUnits="userSpaceOnUse"><stop stop-color="#ED7952"/><stop offset="1" stop-color="#B2092C"/></linearGradient><linearGradient id="paint14_linear_26_2" x1="76.5875" y1="16.8139" x2="53.4286" y2="19.8216" gradientUnits="userSpaceOnUse"><stop stop-color="#ED7952"/><stop offset="1" stop-color="#B2092C"/></linearGradient><linearGradient id="paint15_linear_26_2" x1="120.301" y1="19.6923" x2="53.9161" y2="44.7978" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="0.44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><linearGradient id="paint16_linear_26_2" x1="120.746" y1="19.681" x2="80.5165" y2="44.7213" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="0.44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><linearGradient id="paint17_linear_26_2" x1="120.07" y1="42.5084" x2="1.79856" y2="52.9226" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="0.44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><linearGradient id="paint18_linear_26_2" x1="119.969" y1="38.3808" x2="74.2443" y2="53.2563" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="0.44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><clipPath id="clip0_26_2"><rect width="121" height="49" fill="white"/></clipPath></defs></svg>
+    </a>
+    <div class="brand">
+      <div class="brand-row">
+        <span class="brand-title">RChief</span>
+      </div>
+      <div class="tagline">Paste raw load text — get a clean, ready-to-send summary.</div>
+    </div>
+    <div class="controls">
+      <div class="history-wrap">
+        <button class="icon-btn" id="historyBtn" onclick="toggleHistory()" title="History">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+        </button>
+        <div class="history-panel" id="historyPanel" hidden></div>
+      </div>
+      <button class="icon-btn active" id="themeBtn" onclick="toggleTheme()" title="Theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- Section: Parser -->
+  <div class="section-title" id="sec1">1. <span>Paste & Parse</span></div>
+
+  <div class="grid">
+
+    <!-- LEFT: Raw input -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="dot">📋</span><span>Raw Load Text</span>
+        <div class="examples-wrap">
+          <button class="examples-btn" onclick="toggleExamples()" title="Load a sample">📋 Examples</button>
+          <div class="examples-panel" id="examplesPanel" hidden></div>
+        </div>
+      </div>
+      <textarea class="textarea textarea-big" id="rawInput"
+        placeholder="Paste raw load text here...&#10;&#10;Supported formats:&#10;• Chat style (City → City)&#10;• Structured (Shipper: / Consignee:)"></textarea>
+      <button class="btn" onclick="doParse()">Parse →</button>
+    </div>
+
+    <!-- RIGHT: Form + preview -->
+    <div class="panel">
+      <div class="panel-head"><span class="dot">📦</span><span>Formatted Output</span><span class="format-badge" id="formatBadge"></span></div>
+      <div class="loads-tabs" id="loadsTabs"></div>
+
+      <div class="field">
+        <span class="field-label">PU</span><span class="field-sep">:</span>
+        <input class="input" id="f_pu" placeholder="City, State ZIP" oninput="renderPreview()">
+      </div>
+      <div class="field">
+        <span class="field-label">Date</span><span class="field-sep">:</span>
+        <input class="input" id="f_puDate" placeholder="MM/DD/YY HH:MM TZ" oninput="renderPreview()">
+      </div>
+      <div class="field">
+        <span class="field-label">DEL</span><span class="field-sep">:</span>
+        <input class="input" id="f_del" placeholder="City, State ZIP" oninput="renderPreview()">
+      </div>
+      <div class="field">
+        <span class="field-label">Date</span><span class="field-sep">:</span>
+        <input class="input" id="f_delDate" placeholder="MM/DD/YY HH:MM TZ" oninput="renderPreview()">
+      </div>
+      <div class="field">
+        <span class="field-label">Empty</span><span class="field-sep">:</span>
+        <input class="input input-narrow" id="f_empty" placeholder="0" oninput="renderPreview()">
+        <span class="field-suffix">mi</span>
+        <button class="map-btn" type="button" onclick="emptyFromLastDel()" title="Open Maps from last DEL → current PU">📍 from last DEL</button>
+      </div>
+      <div class="field">
+        <span class="field-label">Loaded</span><span class="field-sep">:</span>
+        <input class="input input-narrow" id="f_loaded" placeholder="0" oninput="renderPreview()">
+        <span class="field-suffix">mi</span>
+        <button class="map-btn" type="button" onclick="openInMaps()" title="Open route in Google Maps">📍 Maps</button>
+      </div>
+      <div class="field">
+        <span class="field-label">Pieces</span><span class="field-sep"> </span>
+        <input class="input input-narrow" id="f_pieces" placeholder="count" oninput="renderPreview()">
+      </div>
+      <div class="field">
+        <span class="field-label">Dims</span><span class="field-sep"> </span>
+        <input class="input" id="f_dims" placeholder="L x W x H" oninput="renderPreview()">
+        <span class="field-suffix">in</span>
+      </div>
+      <div class="field">
+        <span class="field-label">Weight</span><span class="field-sep"> </span>
+        <input class="input input-narrow" id="f_weight" placeholder="0" oninput="renderPreview()">
+        <span class="field-suffix">lbs</span>
+      </div>
+      <div class="field">
+        <span class="field-label">Rate</span><span class="field-sep">:</span>
+        <span class="field-suffix">$</span>
+        <input class="input input-narrow" id="f_rate" placeholder="0" oninput="renderPreview()">
+      </div>
+      <div class="field">
+        <span class="field-label">Equip</span><span class="field-sep">:</span>
+        <input class="input" id="f_equipment" placeholder="Sprinter Van / Straight / Box Truck" oninput="renderPreview()">
+      </div>
+      <div class="field field-top">
+        <span class="field-label field-label-top">NOTE</span>
+        <span class="field-sep field-label-top">:</span>
+        <textarea class="textarea textarea-note" id="f_note" placeholder="Optional notes..." oninput="renderPreview()"></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="panel-head"><span class="dot">✨</span><span>Preview</span></div>
+      <div class="preview" id="preview"><span class="preview-empty">Output appears here after parsing...</span></div>
+      <div class="warnings" id="warnings"></div>
+
+      <div class="btn-row">
+        <button class="btn-secondary btn-success" id="copyBtn" onclick="doCopy(event)" title="Click to copy preview · Cmd/Ctrl+Click for shareable URL">Copy</button>
+        <button class="btn-secondary" onclick="doReset()">Reset</button>
+        <button class="btn-secondary btn-danger" onclick="doClear()">Clear</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── Theme ─────────────────────────────────────────────────────────────── */
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('lp_theme', next);
+}
+(function initTheme() {
+  const saved = localStorage.getItem('lp_theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+})();
+
+/* ── Date utils ────────────────────────────────────────────────────────── */
+const MON = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+const YR2 = () => String(new Date().getFullYear()).slice(2);
+
+/* ── TZ normalization (#15) ────────────────────────────────────────────── */
+const TZ_MAP = {
+  EST:'ET', EDT:'ET', ET:'ET', EASTERN:'ET',
+  CST:'CT', CDT:'CT', CT:'CT', CENTRAL:'CT',
+  MST:'MT', MDT:'MT', MT:'MT', MOUNTAIN:'MT',
+  PST:'PT', PDT:'PT', PT:'PT', PACIFIC:'PT',
+  AKST:'AKT', AKDT:'AKT', AKT:'AKT', AT:'AT', AST:'AT', ADT:'AT',
+  HST:'HT', HT:'HT', HAST:'HT'
+};
+const normalizeTz = (s) => {
+  if (!s) return '';
+  const k = s.toUpperCase().trim();
+  return TZ_MAP[k] || k;
+};
+
+/* ── State → TZ inference (#6) ─────────────────────────────────────────── */
+const STATE_TZ = {
+  // Eastern
+  CT:'ET', DE:'ET', DC:'ET', FL:'ET', GA:'ET', IN:'ET', KY:'ET', ME:'ET',
+  MD:'ET', MA:'ET', MI:'ET', NH:'ET', NJ:'ET', NY:'ET', NC:'ET', OH:'ET',
+  PA:'ET', RI:'ET', SC:'ET', TN:'ET', VT:'ET', VA:'ET', WV:'ET',
+  // Central
+  AL:'CT', AR:'CT', IL:'CT', IA:'CT', KS:'CT', LA:'CT', MN:'CT', MS:'CT',
+  MO:'CT', NE:'CT', ND:'CT', OK:'CT', SD:'CT', TX:'CT', WI:'CT',
+  // Mountain
+  AZ:'MT', CO:'MT', ID:'MT', MT:'MT', NM:'MT', UT:'MT', WY:'MT',
+  // Pacific
+  CA:'PT', NV:'PT', OR:'PT', WA:'PT',
+  // Other
+  AK:'AKT', HI:'HT'
+};
+// City overrides for cities in split-zone states (#11)
+const CITY_TZ_OVERRIDE = {
+  // Texas — El Paso area is Mountain
+  'el paso,tx':'MT',
+  // Florida — Panhandle west of Apalachicola is Central
+  'pensacola,fl':'CT', 'panama city,fl':'CT', 'fort walton beach,fl':'CT', 'destin,fl':'CT',
+  // Tennessee — Middle/West is Central (most population)
+  'nashville,tn':'CT', 'memphis,tn':'CT', 'clarksville,tn':'CT', 'murfreesboro,tn':'CT',
+  'franklin,tn':'CT', 'jackson,tn':'CT', 'columbia,tn':'CT', 'cookeville,tn':'CT',
+  // Kentucky — Western is Central
+  'paducah,ky':'CT', 'bowling green,ky':'CT', 'owensboro,ky':'CT', 'hopkinsville,ky':'CT',
+  // Idaho — Northern is Pacific
+  "coeur d'alene,id":'PT', 'sandpoint,id':'PT', 'lewiston,id':'PT', 'moscow,id':'PT',
+  'post falls,id':'PT',
+  // Oregon — Malheur County is Mountain
+  'ontario,or':'MT', 'vale,or':'MT',
+  // Nebraska — Western is Mountain
+  'scottsbluff,ne':'MT', 'alliance,ne':'MT', 'sidney,ne':'MT', 'chadron,ne':'MT',
+  // North/South Dakota — Western is Mountain
+  'williston,nd':'MT', 'dickinson,nd':'MT',
+  'rapid city,sd':'MT', 'spearfish,sd':'MT', 'sturgis,sd':'MT',
+  // Indiana — Southwestern is Central
+  'evansville,in':'CT', 'jasper,in':'CT', 'vincennes,in':'CT',
+  // Michigan — Upper Peninsula 4 counties are Central
+  'iron mountain,mi':'CT', 'ironwood,mi':'CT', 'crystal falls,mi':'CT'
+};
+
+const tzFromCity = (city) => {
+  if (!city) return '';
+  // Try city+state override first
+  const cm = city.match(/^(.+?),\s*([A-Z]{2})\b/);
+  if (cm) {
+    const key = `${cm[1].trim().toLowerCase()},${cm[2].toLowerCase()}`;
+    if (CITY_TZ_OVERRIDE[key]) return CITY_TZ_OVERRIDE[key];
+  }
+  // Fall back to state-level default
+  const m = city.match(/\b([A-Z]{2})\b\s*\d{0,5}\s*$/);
+  return m ? (STATE_TZ[m[1]] || '') : '';
+};
+
+/* ── City normalization (#14, #9: comma-fix + ZIP autocomplete) ────────── */
+// Compact map of top US cities → primary ZIP (key: "city,state" lowercase, no spaces around comma)
+const CITY_ZIP = {
+  'new york,ny':'10001','buffalo,ny':'14201','rochester,ny':'14604','syracuse,ny':'13202','albany,ny':'12207',
+  'newark,nj':'07101','jersey city,nj':'07302','trenton,nj':'08608','edison,nj':'08817',
+  'philadelphia,pa':'19102','pittsburgh,pa':'15201','allentown,pa':'18101','erie,pa':'16501','king of prussia,pa':'19406',
+  'columbus,oh':'43215','cleveland,oh':'44113','cincinnati,oh':'45202','toledo,oh':'43604','dayton,oh':'45402','akron,oh':'44308',
+  'detroit,mi':'48226','grand rapids,mi':'49503','lansing,mi':'48933','flint,mi':'48502',
+  'chicago,il':'60601','aurora,il':'60505','rockford,il':'61101','joliet,il':'60431','peoria,il':'61602',
+  'indianapolis,in':'46204','fort wayne,in':'46802','evansville,in':'47708','south bend,in':'46601',
+  'milwaukee,wi':'53202','madison,wi':'53703','green bay,wi':'54301',
+  'minneapolis,mn':'55401','saint paul,mn':'55101','st paul,mn':'55101','duluth,mn':'55802',
+  'des moines,ia':'50309','cedar rapids,ia':'52401','davenport,ia':'52801',
+  'st louis,mo':'63101','saint louis,mo':'63101','kansas city,mo':'64108','springfield,mo':'65802',
+  'fargo,nd':'58102','bismarck,nd':'58501','sioux falls,sd':'57101','rapid city,sd':'57701',
+  'omaha,ne':'68102','lincoln,ne':'68508','wichita,ks':'67202','topeka,ks':'66603','kansas city,ks':'66101',
+  'oklahoma city,ok':'73102','tulsa,ok':'74103',
+  'houston,tx':'77002','dallas,tx':'75201','austin,tx':'78701','san antonio,tx':'78205','fort worth,tx':'76102',
+  'el paso,tx':'79901','laredo,tx':'78040','lubbock,tx':'79401','mcallen,tx':'78501',
+  'new orleans,la':'70112','baton rouge,la':'70801','shreveport,la':'71101',
+  'little rock,ar':'72201','fayetteville,ar':'72701',
+  'nashville,tn':'37201','memphis,tn':'38103','knoxville,tn':'37902','chattanooga,tn':'37402',
+  'louisville,ky':'40202','lexington,ky':'40507','bowling green,ky':'42101','owensboro,ky':'42301',
+  'jackson,ms':'39201','gulfport,ms':'39501',
+  'birmingham,al':'35203','montgomery,al':'36104','mobile,al':'36602','huntsville,al':'35801',
+  'atlanta,ga':'30303','savannah,ga':'31401','augusta,ga':'30901','macon,ga':'31201','columbus,ga':'31901',
+  'miami,fl':'33101','orlando,fl':'32801','tampa,fl':'33602','jacksonville,fl':'32202','tallahassee,fl':'32301',
+  'fort lauderdale,fl':'33301','st petersburg,fl':'33701','pensacola,fl':'32502','playa vista,ca':'90094',
+  'charleston,sc':'29401','columbia,sc':'29201','greenville,sc':'29601',
+  'charlotte,nc':'28202','raleigh,nc':'27601','greensboro,nc':'27401','durham,nc':'27701','winston-salem,nc':'27101','cary,nc':'27513',
+  'richmond,va':'23219','norfolk,va':'23510','virginia beach,va':'23451','roanoke,va':'24011',
+  'charleston,wv':'25301','huntington,wv':'25701',
+  'baltimore,md':'21201','washington,dc':'20001','wilmington,de':'19801','providence,ri':'02903',
+  'hartford,ct':'06103','new haven,ct':'06510','boston,ma':'02108','worcester,ma':'01608','springfield,ma':'01103',
+  'manchester,nh':'03101','nashua,nh':'03060','burlington,vt':'05401','portland,me':'04101',
+  'denver,co':'80202','colorado springs,co':'80903','aurora,co':'80012','cheyenne,wy':'82001',
+  'billings,mt':'59101','missoula,mt':'59802','boise,id':'83702','idaho falls,id':'83401',
+  'salt lake city,ut':'84101','albuquerque,nm':'87102','las cruces,nm':'88001','santa fe,nm':'87501',
+  'phoenix,az':'85003','tucson,az':'85701','mesa,az':'85201',
+  'las vegas,nv':'89101','reno,nv':'89501',
+  'los angeles,ca':'90001','san francisco,ca':'94103','san diego,ca':'92101','san jose,ca':'95113',
+  'sacramento,ca':'95814','oakland,ca':'94612','long beach,ca':'90802','fresno,ca':'93721',
+  'anaheim,ca':'92805','bakersfield,ca':'93301','city of industry,ca':'91745',
+  'portland,or':'97201','eugene,or':'97401','salem,or':'97301',
+  'seattle,wa':'98101','spokane,wa':'99201','tacoma,wa':'98402','redmond,wa':'98052',
+  'anchorage,ak':'99501','honolulu,hi':'96813',
+  'tolleson,az':'85353','enid,ok':'73703','flower mound,tx':'75022','sandusky,oh':'44870','waco,tx':'76712',
+  'baltimore,md':'21230','scott city,mo':'63780','fort myers,fl':'33913','sandusky,oh':'44870',
+  'big lake,mn':'55309','elmhurst,ny':'11373','owensboro,ky':'42301','n berwick,me':'03906',
+  'carteret,nj':'07008','punxsutawney,pa':'15767'
+};
+
+const normalizeCity = (s) => {
+  if (!s) return s;
+  s = s.trim();
+  // Already has ZIP — return as is
+  if (/,\s*[A-Z]{2}\s+\d{5}/.test(s)) return s;
+  // "City ST ZIP" without comma → add comma
+  const m1 = s.match(/^(.+?)\s+([A-Z]{2})\s+(\d{5})\b/);
+  if (m1) return `${m1[1].trim()}, ${m1[2]} ${m1[3]}`;
+  // "City, ST" without ZIP → try ZIP autocomplete (#9)
+  const m2 = s.match(/^(.+?),\s*([A-Z]{2})\b/);
+  if (m2) {
+    const key = `${m2[1].trim().toLowerCase()},${m2[2].toLowerCase()}`;
+    const zip = CITY_ZIP[key];
+    if (zip) return `${m2[1].trim()}, ${m2[2]} ${zip}`;
+  }
+  return s;
+};
+
+/* ── Shared date helpers (#11+12) ──────────────────────────────────────── */
+function formatTime(timeStr, minStr, ampmStr) {
+  let h, min;
+  if (minStr) { h = parseInt(timeStr); min = minStr; }
+  else if (timeStr.length === 4) { h = parseInt(timeStr.slice(0,2)); min = timeStr.slice(2); }
+  else { h = parseInt(timeStr); min = '00'; }
+  const ampm = (ampmStr || '').toLowerCase();
+  if (ampm === 'pm' && h < 12) h += 12;
+  else if (ampm === 'am' && h === 12) h = 0;
+  return `${String(h).padStart(2,'0')}:${min}`;
+}
+
+// Parse a flexible date expression to "MM/DD/YY HH:MM TZ" form.
+// Handles: "MM/DD/YYYY HH:MM TZ", "Monday 5/11 @ 8am", "5/11 @ 8am", "today at 9am-3pm", "ASAP"
+function parseDateExpr(rest, fallbackTz) {
+  let v = (rest || '').trim();
+  if (!v) return '';
+  if (/^ASAP/i.test(v)) return 'ASAP';
+  const tzSuffix = ` ${fallbackTz || '___'}`;
+  let m;
+  // 1. Full M/D/YYYY HH:MM [TZ]
+  if ((m = v.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{2,4})\s+(\d{1,4})(?::(\d{2}))?\s*(am|pm)?\s*([A-Z]{2,4})?/i))) {
+    const yr = m[3].length === 4 ? m[3].slice(2) : m[3];
+    const tz = (m[7] || fallbackTz || '___').toUpperCase();
+    return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${yr} ${formatTime(m[4], m[5], m[6])} ${tz}`;
+  }
+  // 2. Day name + M/D[/YY] [@/at] time
+  if ((m = v.match(/\b(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\s+(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?:\s+(?:@\s*|at\s+)?(\d{1,4})(?::(\d{2}))?\s*(am|pm)?)?/i))) {
+    const yr = m[3] ? (m[3].length === 4 ? m[3].slice(2) : m[3]) : YR2();
+    const t = m[4] ? `${formatTime(m[4], m[5], m[6])}${tzSuffix}` : `__:__${tzSuffix}`;
+    return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${yr} ${t}`;
+  }
+  // 3. M/D[/YY] [@/at/space] [time]
+  if ((m = v.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?:\s+(?:@\s*|at\s+)?(\d{1,4})(?::(\d{2}))?\s*(am|pm)?)?/i))) {
+    const yr = m[3] ? (m[3].length === 4 ? m[3].slice(2) : m[3]) : YR2();
+    const t = m[4] ? `${formatTime(m[4], m[5], m[6])}${tzSuffix}` : `__:__${tzSuffix}`;
+    return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${yr} ${t}`;
+  }
+  // 4. "today at HH(am|pm)?" → today's date + start time
+  if ((m = v.match(/\btoday\b\s*(?:at\s+|@\s*)?(\d{1,4})(?::(\d{2}))?\s*(am|pm)?/i))) {
+    const t = new Date();
+    const mm = String(t.getMonth()+1).padStart(2,'0');
+    const dd = String(t.getDate()).padStart(2,'0');
+    const yr = String(t.getFullYear()).slice(2);
+    let ampm = m[3];
+    if (!ampm) {
+      const end = v.match(/-\s*\d{1,4}(?::\d{2})?\s*(am|pm)/i);
+      ampm = end ? end[1] : '';
+    }
+    return `${mm}/${dd}/${yr} ${formatTime(m[1], m[2], ampm)}${tzSuffix}`;
+  }
+  return v;
+}
+
+function toDate(s) {
+  s = s.trim();
+  let m = s.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):?(\d{2})\s*([A-Z]{2,3})/i);
+  if (m) return `${m[1]}/${m[2]}/${m[3].slice(2)} ${m[4]}:${m[5]} ${m[6].toUpperCase()}`;
+  m = s.match(/^(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2})(?:,?\s*(\d{4}))?/i);
+  if (m) {
+    const mon = MON[m[1].slice(0,3).toLowerCase()];
+    const day = m[2].padStart(2,'0');
+    const yr  = m[3] ? m[3].slice(2) : YR2();
+    return `${mon}/${day}/${yr} __:__ ___`;
+  }
+  return s;
+}
+function firstDateAfter(lines, idx) {
+  for (let i = idx; i < lines.length; i++) {
+    const l = lines[i].trim();
+    if (/\d{2}\/\d{2}\/\d{4}\s+\d{2}:?\d{2}\s*[A-Z]{2,3}/i.test(l)) return toDate(l);
+  }
+  return '';
+}
+
+/* ── Labeled parser (PU AT / Pick-up at / pickup: / deliver: / ...) ────── */
+function parseLabeled(lines) {
+  const R = {};
+  const text = lines.join('\n');
+  const puTz  = (text.match(/(?:PU\s*DATE|Pick-?up\s*date)[^:]*\(([A-Z]{2,4})\)/i)  || [,''])[1].toUpperCase();
+  const delTz = (text.match(/(?:DEL\s*DATE|Delivery\s*date)[^:]*\(([A-Z]{2,4})\)/i) || [,''])[1].toUpperCase();
+
+  // Accept "City, ST" with or without ZIP — the post-step normalizeCity adds ZIP from the city map (#9)
+  const isCityLine = (s) => /(?:,\s*)[A-Z]{2}(?:\s+\d{5}\b|\b\s*$)/.test(s) || /(?:\s)[A-Z]{2}\s+\d{5}\b/.test(s);
+  const parseDateValue = (rest, tz) => parseDateExpr(rest, tz);
+
+  const leftovers = [];
+
+  for (const raw of lines) {
+    const l = raw.trim();
+    if (!l) continue;
+    let m, matched = false;
+
+    // PU date (explicit "date" label)
+    if ((m = l.match(/^(?:PU\s*DATE|Pick-?up\s*date)[^:]*:\s*(.+)$/i))) {
+      R.puDate = parseDateValue(m[1], puTz); matched = true;
+    }
+    // DEL date (explicit "date" label)
+    else if ((m = l.match(/^(?:DEL\s*DATE|Delivery\s*date)[^:]*:\s*(.+)$/i))) {
+      R.delDate = parseDateValue(m[1], delTz); matched = true;
+    }
+    // PU location/time (with colon)
+    else if ((m = l.match(/^(?:PU(?:\s*AT)?|Pick-?up(?:\s*(?:at|from|location|time))?|Pickup(?:\s*(?:at|from|location|time))?|Shipper|Origin|From)\s*:\s*(.+)$/i))) {
+      const v = m[1].trim();
+      if (isCityLine(v)) R.pu = v;
+      else if (!R.puDate) R.puDate = parseDateValue(v, puTz);
+      matched = true;
+    }
+    // DEL location/time (with colon)
+    else if ((m = l.match(/^(?:DEL(?:\s*TO)?|Deliver(?:y)?(?:\s*(?:to|location|time))?|Receiver|Consignee|Destination)\s*:\s*(.+)$/i))) {
+      const v = m[1].trim();
+      if (isCityLine(v)) R.del = v;
+      else if (!R.delDate) R.delDate = parseDateValue(v, delTz);
+      matched = true;
+    }
+    // PU date informal (line starts with "pickup" but no recognized colon-label)
+    else if (/^(?:PU|Pick-?up|Pickup)\b/i.test(l) && !isCityLine(l)) {
+      if (!R.puDate) {
+        const stripped = l.replace(/^(?:PU|Pick-?up|Pickup)\b[\s:]*/i, '').trim();
+        const parsed = parseDateValue(stripped, puTz);
+        if (parsed && parsed !== stripped) R.puDate = parsed;
+      }
+      matched = true;
+    }
+    // DEL date informal
+    else if (/^(?:DEL|Deliver(?:y)?)\b/i.test(l) && !isCityLine(l)) {
+      if (!R.delDate) {
+        const stripped = l.replace(/^(?:DEL|Deliver(?:y)?)\b[\s:]*/i, '').trim();
+        const parsed = parseDateValue(stripped, delTz);
+        if (parsed && parsed !== stripped) R.delDate = parsed;
+      }
+      matched = true;
+    }
+    // Miles
+    else if ((m = l.match(/^Miles?\s*:\s*([\d,]+)/i))) { R.loaded = m[1].replace(/,/g,''); matched = true; }
+    // Pieces (labeled)
+    else if ((m = l.match(/^Pieces?\s*:\s*(\d+)/i))) { R.pieces = m[1]; matched = true; }
+    // Weight (labeled)
+    else if ((m = l.match(/^Weight\s*:\s*([\d,]+)/i))) { R.weight = m[1].replace(/,/g,''); matched = true; }
+    // Dims (labeled)
+    else if ((m = l.match(/^Dims?\s*:\s*(.+)$/i))) {
+      const dm = m[1].match(/(\d+)\s*(?:in\s*)?L?\s*[xX×]\s*(\d+)\s*(?:in\s*)?W?\s*[xX×]\s*(\d+)\s*(?:in\s*)?H?/i);
+      R.dims = dm ? `${dm[1]} x ${dm[2]} x ${dm[3]}` : m[1].trim();
+      matched = true;
+    }
+    // Notes (labeled)
+    else if ((m = l.match(/^NOTES?\s*:\s*(.+)$/i))) {
+      R.note = m[1].replace(/[❗⏰️]/g, '').trim(); matched = true;
+    }
+    // Standalone weight: "3736 LBS"
+    else if ((m = l.match(/^([\d,]+)\s*lbs?\.?\s*$/i))) {
+      if (!R.weight) R.weight = m[1].replace(/,/g,'');
+      matched = true;
+    }
+    // Standalone pieces: "6 pallets", "1 case"
+    else if ((m = l.match(/^(\d+)\s+(?:pallets?|skids?|pcs?|pieces?|box(?:es)?|crates?|cases?|units?)\b/i))) {
+      if (!R.pieces) R.pieces = m[1];
+      matched = true;
+    }
+    // Other "Foo: bar" metadata lines (Stackable, Hazardous, etc.) — ignore
+    else if (/^[A-Za-z][\w\s\-]*:\s*\S/.test(l)) {
+      matched = true;
+    }
+
+    if (!matched) leftovers.push(l);
+  }
+
+  // If no explicit Notes was captured, fall back to free-form leftover text
+  if (!R.note && leftovers.length) R.note = leftovers.join(' / ');
+
+  return R;
+}
+
+/* ── Freeform parser (Origin: / Delivery: + natural language) ──────────── */
+function parseFreeform(lines) {
+  const R = {};
+  const text = lines.join('\n');
+
+  const STREET = /^(DR|ST|AVE?|RD|LN|BLVD|WAY|PKWY|CT|PL|HWY|EXPY?|TPKE|TRL|CIR|TER|SQ|PLZ|DRIVE|ROAD|STREET|AVENUE|BOULEVARD|HIGHWAY|LANE|PLACE|COURT|TERRACE|PARKWAY)\.?$/i;
+  const extractCity = (line) => {
+    const m = line.match(/(.+?)\s*,\s*([A-Z]{2})\s+(\d{5})\b/);
+    if (!m) return null;
+    let city = m[1].trim();
+    if (/^\d/.test(city) || /\./.test(city)) {
+      const words = city.split(/\s+/);
+      let start = -1;
+      for (let i = words.length - 1; i >= 0; i--) {
+        if (STREET.test(words[i])) { start = i + 1; break; }
+      }
+      city = (start > 0 && start < words.length) ? words.slice(start).join(' ') : words[words.length - 1];
+    }
+    return `${city}, ${m[2]} ${m[3]}`;
+  };
+
+  const SEC_FROM = /^(Origin|Pickup|Pick-?up\s*location|From|Shipper)\s*:?\s*$/i;
+  const SEC_TO   = /^(Delivery|Destination|Drop-?off|To|Receiver)\s*:?\s*$/i;
+  const fromIdx = lines.findIndex(l => SEC_FROM.test(l.trim()));
+  const toIdx   = lines.findIndex(l => SEC_TO.test(l.trim()));
+
+  if (fromIdx >= 0) {
+    const end = toIdx > fromIdx ? toIdx : lines.length;
+    for (let i = fromIdx + 1; i < end; i++) {
+      const c = extractCity(lines[i]);
+      if (c) { R.pu = c; break; }
+    }
+  }
+  if (toIdx >= 0) {
+    for (let i = toIdx + 1; i < lines.length; i++) {
+      const c = extractCity(lines[i]);
+      if (c) { R.del = c; break; }
+    }
+  }
+
+  // Date — first M/D[/YY] [at HH:MM(am|pm)] anywhere
+  const dm = text.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\s*(?:,?\s*at\s+)?(?:(\d{1,2})(?::(\d{2}))?\s*(am|pm))?/i);
+  if (dm) {
+    const mm = dm[1].padStart(2, '0');
+    const dd = dm[2].padStart(2, '0');
+    const yr = dm[3] ? (dm[3].length === 4 ? dm[3].slice(2) : dm[3]) : YR2();
+    let timeStr = '__:__ ___';
+    if (dm[4]) {
+      let h = parseInt(dm[4]);
+      const min = dm[5] || '00';
+      const ampm = (dm[6] || '').toLowerCase();
+      if (ampm === 'pm' && h < 12) h += 12;
+      if (ampm === 'am' && h === 12) h = 0;
+      timeStr = `${String(h).padStart(2,'0')}:${min} ___`;
+    }
+    R.puDate = `${mm}/${dd}/${yr} ${timeStr}`;
+  }
+
+  // Pieces — "3 pallets total", "5 skids", etc.
+  const pm = text.match(/(\d+)\s*(?:pallet|skid|pc|piece|box(?:es)?|crate)/i);
+  if (pm) R.pieces = pm[1];
+
+  // Dimensions — find largest by volume; convert cm/mm → in
+  const isCm = /\bcm\b/i.test(text);
+  const isMm = /\bmm\b/i.test(text) && !isCm;
+  let largest = null, largestVol = 0;
+  for (let line of lines) {
+    const cleaned = line.trim().replace(/^\d+\s*[xX×]\s+/, ''); // strip "Nx " count prefix
+    const matches = [...cleaned.matchAll(/(\d+)\s*[xX×]\s*(\d+)\s*[xX×]\s*(\d+)/gi)];
+    for (const m of matches) {
+      const l = parseInt(m[1]), w = parseInt(m[2]), h = parseInt(m[3]);
+      const vol = l * w * h;
+      if (vol > largestVol) { largestVol = vol; largest = [l, w, h]; }
+    }
+  }
+  if (largest) {
+    let [l, w, h] = largest;
+    if (isCm) {
+      R._dimsSrc = `${l}×${w}×${h} cm`;
+      l = Math.round(l*0.3937); w = Math.round(w*0.3937); h = Math.round(h*0.3937);
+    } else if (isMm) {
+      R._dimsSrc = `${l}×${w}×${h} mm`;
+      l = Math.round(l*0.03937); w = Math.round(w*0.03937); h = Math.round(h*0.03937);
+    }
+    R.dims = `${l} x ${w} x ${h}`;
+  }
+
+  // Weight — convert kg → lbs
+  const wm = text.match(/(\d[\d,]*(?:\.\d+)?)\s*(kgs?|kilos?|lbs?|pounds?)/i);
+  if (wm) {
+    let w = parseFloat(wm[1].replace(/,/g, ''));
+    if (/kg|kilo/i.test(wm[2])) {
+      R._weightSrc = `${wm[1].replace(/,/g,'')} kg`;
+      w *= 2.20462;
+    }
+    R.weight = String(Math.round(w));
+  }
+
+  // Note — include per-pallet breakdown lines
+  const noteParts = [];
+  for (const l of lines) {
+    if (/^\d+\s*[xX×]\s+\d+\s*[xX×]\s*\d+\s*[xX×]\s*\d+/i.test(l.trim())) noteParts.push(l.trim());
+  }
+  if (noteParts.length) R.note = noteParts.join(' / ');
+
+  return R;
+}
+
+/* ── Vertical parser (Origin/Destination/Total Weight/Loading Hours/...) ─ */
+function parseVertical(lines) {
+  const R = {};
+  const nextValue = (start) => {
+    for (let j = start; j < lines.length; j++) {
+      const v = lines[j].trim();
+      if (v) return { value: v, index: j };
+    }
+    return { value: '', index: lines.length };
+  };
+
+  const extractDate = (str) => {
+    const m = str.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+    if (!m) return null;
+    const yr = m[3].length === 4 ? m[3].slice(2) : m[3];
+    return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${yr}`;
+  };
+  const extractTime = (str) => {
+    const m = str.match(/(\d{1,2}):(\d{2})/);
+    return m ? `${m[1].padStart(2,'0')}:${m[2]}` : null;
+  };
+
+  let puFCFS = false, delFCFS = false, side = null;
+  let specialNote = '';
+
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i].trim();
+    if (!l) continue;
+    let m;
+
+    // Section markers (alone on line)
+    if (/^Origin$/i.test(l)) {
+      const nx = nextValue(i+1);
+      if (!R.pu && nx.value) R.pu = nx.value;
+      i = nx.index; side = 'pu'; continue;
+    }
+    if (/^Destination$/i.test(l)) {
+      const nx = nextValue(i+1);
+      if (!R.del && nx.value) R.del = nx.value;
+      i = nx.index; side = 'del'; continue;
+    }
+
+    // Repeat headers like "Origin Carteret, NJ" / "Destination Punxsutawney, PA" — skip
+    if (/^(Origin|Destination)\s+\S/i.test(l)) continue;
+
+    // Vertical labels (no colon) followed by value on next line
+    if (/^Miles$/i.test(l)) {
+      const nx = nextValue(i+1);
+      const num = nx.value.match(/[\d,]+/);
+      if (num) R.loaded = num[0].replace(/,/g,'');
+      i = nx.index; continue;
+    }
+    if (/^Total\s+Weight$/i.test(l)) {
+      const nx = nextValue(i+1);
+      const num = nx.value.match(/[\d,]+/);
+      if (num) R.weight = num[0].replace(/,/g,'');
+      i = nx.index; continue;
+    }
+    // Skip these labels and their values
+    if (/^(Equipment|Cargo\s+Feet\s+of\s+Space|Product\s+Category)$/i.test(l)) {
+      const nx = nextValue(i+1);
+      i = nx.index; continue;
+    }
+
+    // Inline labels with colon: value can be on same line or next non-empty line
+    const labelMatch = l.match(/^(Ship\s+Date|Delivery\s+Date|Loading\s+Hours?|Unloading\s+Hours?|Appointment|Special\s+Instructions?)\s*:\s*(.*)$/i);
+    if (labelMatch) {
+      const label = labelMatch[1].toLowerCase().replace(/\s+/g,' ');
+      let val = labelMatch[2].trim();
+      if (!val) {
+        const nx = nextValue(i+1);
+        val = nx.value;
+        i = nx.index;
+      }
+      if (/^ship\s+date$/.test(label)) {
+        const d = extractDate(val);
+        if (d) R.puDate = `${d} __:__ ___`;
+        side = 'pu';
+      } else if (/^delivery\s+date$/.test(label)) {
+        const d = extractDate(val);
+        if (d) R.delDate = `${d} __:__ ___`;
+        side = 'del';
+      } else if (/^loading\s+hour/.test(label)) {
+        const t = extractTime(val);
+        if (t && R.puDate) R.puDate = R.puDate.replace(/__:__/, t);
+      } else if (/^unloading\s+hour/.test(label)) {
+        const t = extractTime(val);
+        if (t && R.delDate) R.delDate = R.delDate.replace(/__:__/, t);
+      } else if (/^appointment$/.test(label)) {
+        if (/FCFS/i.test(val)) {
+          if (side === 'pu') puFCFS = true;
+          else if (side === 'del') delFCFS = true;
+        }
+      } else if (/^special\s+instruction/.test(label)) {
+        if (val && val !== '-' && val !== '–') specialNote = val;
+      }
+      continue;
+    }
+  }
+
+  // Compose note
+  const noteParts = [];
+  if (specialNote) noteParts.push(specialNote);
+  if (puFCFS && delFCFS) noteParts.push('FCFS both ways');
+  else if (puFCFS) noteParts.push('PU FCFS');
+  else if (delFCFS) noteParts.push('DEL FCFS');
+  if (noteParts.length) R.note = noteParts.join(' / ');
+
+  return R;
+}
+
+/* ── Structured parser ─────────────────────────────────────────────────── */
+function parseStructured(lines) {
+  const R = {};
+  const findLine = s => lines.findIndex(l => l.trim().toLowerCase() === s.toLowerCase());
+  const si = findLine('Shipper:');
+  if (si >= 0) {
+    for (let i = si+1; i < lines.length; i++) {
+      const v = lines[i].trim();
+      if (v && !/^\d{2}\/\d{2}\/\d{4}/.test(v)) { R.pu = v; break; }
+    }
+    R.puDate = firstDateAfter(lines, si+1);
+  }
+  const ci = findLine('Consignee:');
+  if (ci >= 0) {
+    for (let i = ci+1; i < lines.length; i++) {
+      const v = lines[i].trim();
+      if (v && !/^\d{2}\/\d{2}\/\d{4}/.test(v)) { R.del = v; break; }
+    }
+    R.delDate = firstDateAfter(lines, ci+1);
+  }
+  const di = findLine('Distance:');
+  if (di >= 0) for (let i = di+1; i < lines.length; i++) {
+    const v = lines[i].trim();
+    if (/^\d+\.?\d*$/.test(v)) { R.loaded = String(Math.round(parseFloat(v))); break; }
+  }
+  const wi = findLine('Weight:');
+  if (wi >= 0) for (let i = wi+1; i < lines.length; i++) {
+    const v = lines[i].trim();
+    if (/^\d+\.?\d*$/.test(v)) { R.weight = String(Math.round(parseFloat(v))); break; }
+  }
+  const ki = findLine('Comments:');
+  if (ki >= 0) {
+    const txt = lines.slice(ki+1).filter(l => l.trim()).join(' ');
+    R.note = txt;
+    const pm = txt.match(/(\d+)\s*(?:plt[s]?|pallet[s]?|pc[s]?|piece[s]?|box(?:es)?)/i);
+    if (pm) R.pieces = pm[1];
+    const dm = txt.match(/(\d+)[xX](\d+)[xX](\d+)/);
+    if (dm) R.dims = `${dm[1]} x ${dm[2]} x ${dm[3]}`;
+  }
+  return R;
+}
+
+/* ── Chat parser ───────────────────────────────────────────────────────── */
+const LABELS = ['Load','Truck','Length','Weight','Commodity','Reference ID'];
+function parseChat(lines) {
+  const R = {};
+
+  // Predicates
+  const isCity = (s) => /^[A-Za-z][A-Za-z\s'.\-]*,\s*[A-Z]{2}\b/.test(s.trim());
+  const KNOWN_LABELS = /^(VIEW\s*ROUTE|Equipment|Load|Truck|Length|Weight|Commodity|Reference\s*ID|CONTACT|COMMENTS|Full|Partial|Sprinter|Cargo\s+Van|Straight|Box\s+Truck)/i;
+  const isDateLike = (s) => {
+    s = s.trim();
+    if (!s || KNOWN_LABELS.test(s)) return false;
+    return /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/i.test(s)
+        || /\b\d{1,2}\/\d{1,2}\b/.test(s)
+        || /\b\d{1,2}(?::\d{2})?\s*(am|pm)\b/i.test(s)
+        || /\b(ASAP|FCFS|Appt\.?|Appointment|tomorrow|today)\b/i.test(s)
+        || /^\d{1,2}:\d{2}\b/.test(s);
+  };
+  const pickDate = (arr) => {
+    if (!arr.length) return '';
+    let best = '';
+    for (const s of arr) {
+      const parsed = parseDateExpr(s, '');
+      if (!parsed || parsed === s) continue;
+      // Prefer entry with explicit time (no __:__ placeholder)
+      if (/\d{1,2}:\d{2}/.test(parsed) && !/__:__/.test(parsed)) return parsed;
+      if (!best) best = parsed;
+    }
+    return best || toDate(arr[0]);
+  };
+
+  let idx = 0;
+  const skipBlanks = () => { while (idx < lines.length && !lines[idx].trim()) idx++; };
+
+  // 1. PU city (first non-blank line)
+  skipBlanks();
+  if (idx < lines.length) {
+    const raw = lines[idx++].trim();
+    const dh = raw.match(/\(\s*(\d+)\s*\)\s*$/); // DAT-style "(NN)" deadhead miles
+    if (dh) R.empty = dh[1];
+    R.pu = raw.replace(/\s*\(\d+\)\s*$/, '').trim();
+  }
+
+  // 2. PU date area: collect every date-like line until the next city or known label
+  const puDateLines = [];
+  while (idx < lines.length) {
+    const l = lines[idx].trim();
+    if (!l) { idx++; continue; }
+    if (isCity(l) || KNOWN_LABELS.test(l)) break;
+    if (!isDateLike(l)) break;
+    puDateLines.push(l);
+    idx++;
+  }
+  R.puDate = pickDate(puDateLines);
+
+  // 3. DEL city
+  skipBlanks();
+  if (idx < lines.length && !KNOWN_LABELS.test(lines[idx].trim())) {
+    R.del = lines[idx++].trim().replace(/\s*\(\d+\)\s*$/, '').trim();
+  }
+
+  // 4. DEL date area: collect every date-like line until VIEW ROUTE / labels
+  const delDateLines = [];
+  while (idx < lines.length) {
+    const l = lines[idx].trim();
+    if (!l) { idx++; continue; }
+    if (KNOWN_LABELS.test(l)) break;
+    if (!isDateLike(l)) break;
+    delDateLines.push(l);
+    idx++;
+  }
+  R.delDate = pickDate(delDateLines);
+  const vrIdx = lines.findIndex(l => /VIEW ROUTE/i.test(l.trim()));
+  const start = vrIdx >= 0 ? vrIdx : idx;
+  let labelEnd = -1;
+  for (let i = start; i < lines.length; i++) {
+    if (LABELS.includes(lines[i].trim())) labelEnd = i;
+    else if (labelEnd >= 0 && lines[i].trim() && !LABELS.includes(lines[i].trim()) && !/^Equipment$/i.test(lines[i].trim())) break;
+  }
+  if (labelEnd >= 0) {
+    const labelsFound = [];
+    for (let i = start; i <= labelEnd; i++) if (LABELS.includes(lines[i].trim())) labelsFound.push(lines[i].trim());
+    const vals = [];
+    for (let i = labelEnd+1; i < lines.length && vals.length < labelsFound.length; i++) {
+      const l = lines[i].trim();
+      if (!l) continue;                                    // skip blank lines between values
+      if (/CONTACT INFORMATION|COMMENTS/i.test(l)) break;
+      vals.push(l);
+    }
+    labelsFound.forEach((lbl, i) => {
+      if (!vals[i] || vals[i] === '–' || vals[i] === '-') return;
+      if (lbl === 'Weight') {
+        const m = vals[i].match(/([\d,]+)\s*lbs/i);
+        R.weight = m ? m[1].replace(/,/g,'') : vals[i];
+      }
+    });
+  }
+  if (!R.weight) for (const l of lines) {
+    const m = l.trim().match(/^([\d,]+)\s*lbs$/i);
+    if (m) { R.weight = m[1].replace(/,/g,''); break; }
+  }
+  const ci = lines.findIndex(l => /^COMMENTS$/i.test(l.trim()));
+  if (ci >= 0) {
+    const txt = lines.slice(ci+1).filter(l => l.trim()).join(' ');
+    if (txt) R.note = txt;
+  }
+  return R;
+}
+
+/* ── Main ──────────────────────────────────────────────────────────────── */
+function doParse() {
+  const raw = document.getElementById('rawInput').value;
+  if (!raw.trim()) return;
+  LOADS = splitLoads(raw);
+  activeLoad = 0;
+  renderLoadsTabs();
+  parseChunk(LOADS[0]);
+}
+
+function parseChunk(raw) {
+  if (!raw || !raw.trim()) return;
+  // Clear all auto-parsed fields so a previous parse doesn't leak through
+  ['f_pu','f_puDate','f_del','f_delDate','f_empty','f_loaded','f_pieces','f_dims','f_weight','f_rate','f_equipment','f_note']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  const lines = raw.split(/\r?\n/);
+  const fmt = detectFormat(lines);
+  let detectedFormat, R;
+  try {
+    R = fmt.vertical ? (detectedFormat='Vertical',  parseVertical(lines))
+      : fmt.labeled  ? (detectedFormat='Labeled',   parseLabeled(lines))
+      : fmt.struct   ? (detectedFormat='Structured',parseStructured(lines))
+      : fmt.freeform ? (detectedFormat='Freeform',  parseFreeform(lines))
+      :                (detectedFormat='Chat',      parseChat(lines));
+  } catch (err) {
+    console.error('[RChief] Parse failed:', err);
+    detectedFormat = 'Error';
+    R = { note: 'Parser error — please fill manually. See console for details.' };
+  }
+  // Confidence score (#10): count of populated key fields
+  const SCORE_FIELDS = ['pu','puDate','del','delDate','loaded','pieces','dims','weight','rate','equipment'];
+  const filled = SCORE_FIELDS.filter(k => R[k]).length;
+  const fb = document.getElementById('formatBadge');
+  fb.textContent = `${detectedFormat} · ${filled}/${SCORE_FIELDS.length}`;
+  fb.classList.toggle('low-confidence', filled < 4);
+
+  // Multi-stop detection (#5): "N PICK M DROP" pattern → prepend note marker
+  const mstop = raw.match(/\b(\d+)\s*pick[s]?\s*(\d+)\s*drop[s]?\b/i);
+  if (mstop) {
+    const picks = parseInt(mstop[1]), drops = parseInt(mstop[2]);
+    if (picks > 1 || drops > 1) {
+      const tag = `⚠ MULTI-STOP: ${picks} pick${picks > 1 ? 's' : ''}, ${drops} drop${drops > 1 ? 's' : ''} — verify additional stops manually`;
+      R.note = R.note ? `${tag} | ${R.note}` : tag;
+    }
+  }
+
+  // Post-processing: extract Rate and Equipment from raw if parser didn't (#1, #2)
+  if (!R.rate) {
+    const rm = raw.match(/Rate\s*[:#]?\s*\$?\s*([\d,]+(?:\.\d+)?)/i)
+            || raw.match(/(?:^|[\s\n])\$\s*([\d,]+(?:\.\d+)?)\b/);
+    if (rm) R.rate = rm[1].replace(/,/g,'').replace(/\.0+$/,'');
+  }
+  if (!R.equipment) {
+    const em = raw.match(/\b(Sprinter\s*Van|Cargo\s*Van|Straight\s*Box\s*Truck|Straight\s*Truck|Box\s*Truck|Reefer|Flatbed|Step\s*Deck|Tractor)\b/i)
+            || raw.match(/\bSRT\b[\s\-]*([A-Za-z\s]*?Truck)?/i);
+    if (em) R.equipment = (em[1] || em[0]).replace(/^SRT\s*-?\s*/i,'').trim().replace(/\s+/g,' ');
+  }
+
+  // Post-processing: normalize cities, normalize TZs, infer TZ from state if missing
+  if (R.pu)  R.pu  = normalizeCity(R.pu);
+  if (R.del) R.del = normalizeCity(R.del);
+  const fixDate = (date, city) => {
+    if (!date) return date;
+    // Normalize TZ token
+    let out = date.replace(/\b(EST|EDT|ET|CST|CDT|CT|MST|MDT|MT|PST|PDT|PT|AKST|AKDT|AKT|AST|ADT|AT|HST|HAST|HT|EASTERN|CENTRAL|MOUNTAIN|PACIFIC)\b/gi,
+                            (m) => normalizeTz(m));
+    // If TZ is still placeholder, infer from city's state
+    if (/___\s*$/.test(out)) {
+      const tz = tzFromCity(city);
+      if (tz) out = out.replace(/___\s*$/, tz);
+    }
+    return out;
+  };
+  R.puDate  = fixDate(R.puDate,  R.pu);
+  R.delDate = fixDate(R.delDate, R.del);
+
+  // Year auto-correction (#3): if parser defaulted year to current and date is >7 days
+  // in the past, bump +1 year. Only triggers when year token equals current year (i.e.,
+  // parser likely filled it in because input had no explicit year).
+  const fixPastYear = (date) => {
+    if (!date) return date;
+    const m = date.match(/^(\d{2})\/(\d{2})\/(\d{2})/);
+    if (!m) return date;
+    const curYr = parseInt(YR2());
+    if (parseInt(m[3]) !== curYr) return date;
+    const parsed = parseDateString(date);
+    if (!parsed) return date;
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+    if (parsed >= cutoff) return date;
+    const newYr = String((curYr + 1) % 100).padStart(2, '0');
+    return date.replace(/^(\d{2})\/(\d{2})\/\d{2}/, `$1/$2/${newYr}`);
+  };
+  R.puDate  = fixPastYear(R.puDate);
+  R.delDate = fixPastYear(R.delDate);
+
+  const set = (id, v) => { if (v) document.getElementById(id).value = v; };
+  set('f_pu', R.pu); set('f_puDate', R.puDate);
+  set('f_del', R.del); set('f_delDate', R.delDate);
+  set('f_empty', R.empty);
+  set('f_loaded', R.loaded); set('f_pieces', R.pieces);
+  set('f_dims', R.dims); set('f_weight', R.weight);
+  set('f_rate', R.rate); set('f_equipment', R.equipment);
+  set('f_note', R.note);
+  // Track unit-conversion sources so the preview can show originals (#4)
+  const wEl = document.getElementById('f_weight');
+  const dEl = document.getElementById('f_dims');
+  if (R._weightSrc) wEl.dataset.src = R._weightSrc; else delete wEl.dataset.src;
+  if (R._dimsSrc)   dEl.dataset.src = R._dimsSrc;   else delete dEl.dataset.src;
+  renderPreview();
+  pushHistory(R, raw, detectedFormat);
+}
+
+// Parse "MM/DD/YY HH:MM TZ" back to a Date (best-effort)
+function parseDateString(s) {
+  if (!s) return null;
+  const m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if (!m) return null;
+  const mo = parseInt(m[1]) - 1;
+  const da = parseInt(m[2]);
+  let yr = parseInt(m[3]);
+  if (yr < 100) yr = yr < 50 ? 2000 + yr : 1900 + yr;
+  const hh = m[4] ? parseInt(m[4]) : 0;
+  const mm = m[5] ? parseInt(m[5]) : 0;
+  return new Date(yr, mo, da, hh, mm);
+}
+
+function renderPreview() {
+  const g = id => document.getElementById(id).value.trim();
+  const pu=g('f_pu'), puDate=g('f_puDate'), del=g('f_del'), delDate=g('f_delDate');
+  const empty=g('f_empty'), loaded=g('f_loaded');
+  const pieces=g('f_pieces'), dims=g('f_dims'), weight=g('f_weight');
+  const rate=g('f_rate'), equipment=g('f_equipment'), note=g('f_note');
+  const out = [];
+  if (pu)      out.push(`PU: ${pu}`);
+  if (puDate)  out.push(`Date: ${puDate}`);
+  if (del)     out.push(`DEL: ${del}`);
+  if (delDate) out.push(`Date: ${delDate}`);
+  if (empty)   out.push(`Empty: ${empty} mi`);
+  if (loaded)  out.push(`Loaded: ${loaded} mi`);
+  if (pieces)  out.push(`${pieces} pieces`);
+  // Original-unit annotations from data-src attributes (#4)
+  const dSrc = document.getElementById('f_dims').dataset.src || '';
+  const wSrc = document.getElementById('f_weight').dataset.src || '';
+  const dimsTxt   = dims   ? `${dims} in${dSrc ? ` (${dSrc})` : ''}` : '';
+  const weightTxt = weight ? `${weight} lbs${wSrc ? ` (${wSrc})` : ''}` : '';
+  if (dimsTxt && weightTxt) out.push(`${dimsTxt}, ${weightTxt}`);
+  else if (dimsTxt)         out.push(dimsTxt);
+  else if (weightTxt)       out.push(weightTxt);
+  if (equipment) out.push(`Equipment: ${equipment}`);
+  if (rate)      out.push(`Rate: $${rate}`);
+  if (note) { out.push(''); out.push(`NOTE: ${note}`); }
+  const el = document.getElementById('preview');
+  if (out.length === 0) {
+    el.innerHTML = '<span class="preview-empty">Output appears here after parsing...</span>';
+  } else {
+    el.textContent = out.join('\n');
+  }
+
+  // Date validation warnings (#16)
+  const warnEl = document.getElementById('warnings');
+  if (warnEl) {
+    const warns = [];
+    const puD  = parseDateString(puDate);
+    const delD = parseDateString(delDate);
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (puD && delD && puD > delD) warns.push('PU date is after DEL date');
+    if (puD && puD < today)  warns.push('PU date is in the past');
+    if (delD && delD < today) warns.push('DEL date is in the past');
+    warnEl.innerHTML = warns.map(w => `<div class="warning">⚠️ ${w}</div>`).join('');
+  }
+}
+
+function doCopy(ev) {
+  // #8 Cmd/Ctrl+Click → copy shareable URL instead of preview text
+  if (ev && (ev.metaKey || ev.ctrlKey)) return doCopyShareUrl();
+  const el = document.getElementById('preview');
+  if (el.querySelector('.preview-empty')) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const b = document.getElementById('copyBtn');
+    b.textContent = '✓ Copied!';
+    b.classList.add('ok');
+    setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('ok'); }, 2000);
+  });
+}
+
+function doCopyShareUrl() {
+  const raw = document.getElementById('rawInput').value;
+  if (!raw.trim()) return;
+  // base64 encoding that handles unicode safely
+  const encoded = btoa(unescape(encodeURIComponent(raw)));
+  const url = `${location.origin}${location.pathname}?raw=${encodeURIComponent(encoded)}`;
+  navigator.clipboard.writeText(url).then(() => {
+    const b = document.getElementById('copyBtn');
+    b.textContent = '🔗 URL copied!';
+    b.classList.add('ok');
+    setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('ok'); }, 2000);
+  });
+}
+
+function doReset() {
+  // Clear only the form output fields and preview, keep the raw input
+  ['f_pu','f_puDate','f_del','f_delDate','f_empty','f_loaded','f_pieces','f_dims','f_weight','f_rate','f_equipment','f_note']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('formatBadge').textContent = '';
+  document.getElementById('loadsTabs').innerHTML = '';
+  LOADS = []; activeLoad = 0;
+  renderPreview();
+}
+
+function doClear() {
+  // Clear everything: raw input, form fields, preview
+  document.getElementById('rawInput').value = '';
+  doReset();
+}
+
+/* ── Format detection — single-pass (#13) ─────────────────────────────── */
+const SIG_VERTICAL = /^(Total\s+Weight|Loading\s+Hours?|Unloading\s+Hours?|Ship\s+Date|Delivery\s+Date)\s*:?$/i;
+// Require non-whitespace content after the colon — bare "Delivery:" / "Origin:" stays in Freeform
+const SIG_LABELED  = /^(?:PU|DEL|Pick-?up|Pickup|Deliver(?:y)?)(?:\s+(?:AT|TO|DATE|at|to|date|time|from|location))?\s*:.*\S/i;
+const SIG_STRUCT   = /^(Shipper|Consignee|Distance):?\s*$/;
+const SIG_FREEFORM = /^(Origin|Delivery|Destination|Pickup|Pick-?up\s*location|Drop-?off|From|To|Receiver)\s*:?\s*$/i;
+
+function detectFormat(lines) {
+  let vertical=false, labeled=false, struct=false, freeform=false;
+  for (const raw of lines) {
+    const l = raw.trim();
+    if (!l) continue;
+    if (!vertical && SIG_VERTICAL.test(l)) vertical = true;
+    if (!labeled  && SIG_LABELED.test(l))  labeled  = true;
+    if (!struct   && SIG_STRUCT.test(l))   struct   = true;
+    if (!freeform && SIG_FREEFORM.test(l)) freeform = true;
+    if (vertical && labeled && struct && freeform) break;
+  }
+  return { vertical, labeled, struct, freeform };
+}
+
+/* ── Multi-load detection (#7) ─────────────────────────────────────────── */
+let LOADS = [];
+let activeLoad = 0;
+
+function splitLoads(text) {
+  const lines = text.split(/\r?\n/);
+
+  // Structured format: each card starts with "Load:\n<digits>"
+  const loadIdxs = [];
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (/^Load:\s*$/i.test(lines[i].trim()) && /^\d+$/.test((lines[i+1] || '').trim())) {
+      loadIdxs.push(i);
+    }
+  }
+  if (loadIdxs.length >= 2) {
+    return loadIdxs.map((s, i) =>
+      lines.slice(s, loadIdxs[i+1] ?? lines.length).join('\n').trim()
+    ).filter(Boolean);
+  }
+
+  // Chat format (DAT): each card has "VIEW ROUTE"; split midway between consecutive VRs at nearest blank
+  const vrIdxs = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (/^VIEW ROUTE$/i.test(lines[i].trim())) vrIdxs.push(i);
+  }
+  if (vrIdxs.length >= 2) {
+    const chunks = [];
+    let start = 0;
+    for (let n = 0; n < vrIdxs.length; n++) {
+      let end;
+      if (n === vrIdxs.length - 1) {
+        end = lines.length;
+      } else {
+        const mid = Math.floor((vrIdxs[n] + vrIdxs[n+1]) / 2);
+        let bound = mid;
+        for (let off = 0; off < (vrIdxs[n+1] - vrIdxs[n]); off++) {
+          if (mid + off < vrIdxs[n+1] && !lines[mid+off].trim()) { bound = mid+off; break; }
+          if (mid - off > vrIdxs[n] && !lines[mid-off].trim()) { bound = mid-off; break; }
+        }
+        end = bound;
+      }
+      chunks.push(lines.slice(start, end).join('\n').trim());
+      start = end;
+    }
+    return chunks.filter(Boolean);
+  }
+
+  return [text];
+}
+
+function renderLoadsTabs() {
+  const tabsEl = document.getElementById('loadsTabs');
+  if (LOADS.length <= 1) { tabsEl.innerHTML = ''; return; }
+  tabsEl.innerHTML = LOADS.map((c, i) => {
+    // Try to extract a short label: first non-empty City line
+    const firstCity = (c.split(/\r?\n/).find(l => /[A-Z][a-z]+,\s*[A-Z]{2}/.test(l.trim())) || '').trim();
+    const short = firstCity.length > 22 ? firstCity.slice(0, 20) + '…' : firstCity;
+    return `<button class="loads-tab ${i === activeLoad ? 'active' : ''}" onclick="selectLoad(${i})">Load ${i+1}${short ? ' · ' + short : ''}</button>`;
+  }).join('');
+}
+
+function selectLoad(i) {
+  activeLoad = i;
+  renderLoadsTabs();
+  parseChunk(LOADS[i]);
+}
+
+/* ── History (#8) ──────────────────────────────────────────────────────── */
+let HISTORY = [];
+try { HISTORY = JSON.parse(localStorage.getItem('lp_history') || '[]'); } catch {}
+
+function pushHistory(R, raw, format) {
+  if (!R.pu && !R.del) return; // skip empty
+  const entry = { ts: Date.now(), format, raw, ...R };
+  // De-dup: drop existing entry with same raw
+  HISTORY = HISTORY.filter(e => e.raw !== raw);
+  HISTORY.unshift(entry);
+  if (HISTORY.length > 10) HISTORY.length = 10;
+  try { localStorage.setItem('lp_history', JSON.stringify(HISTORY)); } catch {}
+}
+
+function toggleHistory() {
+  const p = document.getElementById('historyPanel');
+  if (p.hidden) renderHistory();
+  p.hidden = !p.hidden;
+}
+
+function renderHistory() {
+  const p = document.getElementById('historyPanel');
+  if (!HISTORY.length) {
+    p.innerHTML = '<div class="history-empty">No parsed loads yet. Parse something to build history.</div>';
+    return;
+  }
+  const fmt = (ts) => {
+    const d = new Date(ts);
+    return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  };
+  p.innerHTML = HISTORY.map((e, i) => `
+    <div class="history-item" onclick="loadHistory(${i})">
+      <div class="history-route">${e.pu || '?'} → ${e.del || '?'}</div>
+      <div class="history-meta"><span>${fmt(e.ts)} · ${e.format || ''}</span><span>${e.weight ? e.weight+' lbs' : ''}</span></div>
+    </div>
+  `).join('')
+    + '<button class="history-clear" onclick="exportHistoryCsv()" style="margin-top:6px;color:var(--text-muted)">📥 Export CSV</button>'
+    + '<button class="history-clear" onclick="clearHistory()">Clear history</button>';
+}
+
+// CSV export (#15)
+function exportHistoryCsv() {
+  if (!HISTORY.length) return;
+  const cols = ['ts','format','pu','puDate','del','delDate','empty','loaded','pieces','dims','weight','rate','equipment','note'];
+  const escape = (v) => {
+    if (v === null || v === undefined) return '';
+    const s = String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+  };
+  const rows = [cols.join(',')];
+  for (const e of HISTORY) {
+    const row = cols.map(c => {
+      if (c === 'ts') return new Date(e.ts).toISOString();
+      return escape(e[c] || '');
+    });
+    rows.push(row.join(','));
+  }
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rchief-history-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function loadHistory(i) {
+  const e = HISTORY[i];
+  if (!e) return;
+  document.getElementById('rawInput').value = e.raw || '';
+  ['pu','puDate','del','delDate','empty','loaded','pieces','dims','weight','rate','equipment','note'].forEach(k => {
+    document.getElementById('f_'+k).value = e[k] || '';
+  });
+  document.getElementById('formatBadge').textContent = e.format || '';
+  renderPreview();
+  document.getElementById('historyPanel').hidden = true;
+}
+
+function clearHistory() {
+  if (!confirm('Clear all history?')) return;
+  HISTORY = [];
+  try { localStorage.removeItem('lp_history'); } catch {}
+  renderHistory();
+}
+
+// Close history panel on outside click
+document.addEventListener('click', (e) => {
+  const wrap = document.querySelector('.history-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('historyPanel').hidden = true;
+  }
+});
+
+/* ── Help overlay (#7) ─────────────────────────────────────────────────── */
+function toggleHelp() {
+  const el = document.getElementById('helpBackdrop');
+  el.classList.toggle('show');
+}
+
+/* ── Sample loads (#6) ─────────────────────────────────────────────────── */
+const SAMPLES = {
+  Labeled: `Pick-up at: Las Vegas, NV 89115
+Pick-up date (PT): 05/12/2026 11:00
+Deliver to: Playa Vista, CA 90094
+Delivery date (PT): 05/12/2026 19:00
+Miles: 298
+Pieces: 3
+Weight: 2231 lbs
+Dims: 48 x 40 x 65
+Rate: $1,400
+Notes: rush load`,
+  Vertical: `Origin
+Carteret, NJ
+Destination
+Punxsutawney, PA
+Miles
+309
+Total Weight
+300
+Equipment
+Sprinter
+Ship Date:
+Friday, 05/15/26
+Loading Hours:
+08:00 - 18:00
+Appointment:
+FCFS
+Special Instructions:
+ppwk in hand
+Delivery Date:
+Monday, 05/18/26
+Unloading Hours:
+08:00 - 15:00
+Appointment:
+FCFS`,
+  Chat: `Laredo, TX
+May 12
+05/12 3PM Appt
+Jacksonville, FL
+05/14 8AM-5PM FCFS
+VIEW ROUTE
+Equipment
+Load
+Truck
+Length
+Weight
+Commodity
+Reference ID
+Full
+Sprinter Van
+10 ft
+1,400 lbs
+–
+–
+CONTACT INFORMATION
+ops@example.com
+COMMENTS
+NO TOUCH - Palletized`,
+  Freeform: `Please provide rate and confirm capacity for TEAM driver to pick up tomorrow 5/12 at 08:00am.
+
+3 pallets total
+1x 120x80x110 cm
+1x 120x80x170 cm
+1x 120x80x70 cm
+With a total weight of 658 kg
+
+Origin:
+WORLD TRADE DISTRIBUTION, INC.
+2222 N.WAYSIDE DR HOUSTON, TX 77020
+
+Delivery:
+Kuehne + Nagel Inc
+490-A Bill Burnett Drive
+El Paso, TX 79928`,
+  Structured: `Load:
+8168688
+
+Schedule:
+Shipper:
+SANDUSKY, OH 44870
+
+05/13/2026 0700EDT
+
+  05/13/2026 1500EDT
+Consignee:
+WACO, TX 76712
+
+05/15/2026 1030CDT
+
+  05/15/2026 1030CDT
+Commodity:
+HOME DECOR
+
+Distance:
+1253.0
+
+Equipment:
+SRT - Straight Truck
+
+Rate:
+$2,750.00
+
+Weight:
+4630.0`
+};
+
+function toggleExamples() {
+  const p = document.getElementById('examplesPanel');
+  if (p.hidden) {
+    p.innerHTML = Object.keys(SAMPLES).map(k =>
+      `<button onclick="loadSample('${k}')">${k}</button>`
+    ).join('');
+  }
+  p.hidden = !p.hidden;
+}
+
+function loadSample(key) {
+  const text = SAMPLES[key];
+  if (!text) return;
+  document.getElementById('rawInput').value = text;
+  document.getElementById('examplesPanel').hidden = true;
+  doParse();
+}
+
+// Close examples panel on outside click
+document.addEventListener('click', (e) => {
+  const wrap = document.querySelector('.examples-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('examplesPanel').hidden = true;
+  }
+});
+
+/* ── Open route in Google Maps (#9) ────────────────────────────────────── */
+function openInMaps() {
+  const pu  = document.getElementById('f_pu').value.trim();
+  const del = document.getElementById('f_del').value.trim();
+  if (!pu || !del) { alert('Need both PU and DEL to open route.'); return; }
+  const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pu)}&destination=${encodeURIComponent(del)}`;
+  window.open(url, '_blank', 'noopener');
+}
+
+/* ── Empty miles from last DEL (#10) ───────────────────────────────────── */
+function emptyFromLastDel() {
+  const pu = document.getElementById('f_pu').value.trim();
+  if (!pu) { alert('Set current PU first.'); return; }
+  // Find last different DEL in history (skip current top entry which IS this load)
+  const lastDel = (HISTORY.find((e, i) => i > 0 && e.del && e.del !== pu) || HISTORY[1] || HISTORY[0])?.del;
+  if (!lastDel) { alert('No previous delivery in history yet.'); return; }
+  const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(lastDel)}&destination=${encodeURIComponent(pu)}`;
+  window.open(url, '_blank', 'noopener');
+}
+
+/* ── Keyboard / paste handlers (#2, #3, #4) ────────────────────────────── */
+(function setupHandlers() {
+  const raw = document.getElementById('rawInput');
+
+  // #2 Auto-parse 300ms after paste
+  let pasteTimer;
+  raw.addEventListener('paste', () => {
+    clearTimeout(pasteTimer);
+    pasteTimer = setTimeout(() => { if (raw.value.trim()) doParse(); }, 300);
+  });
+
+  // #3 Cmd/Ctrl+Enter in textarea = parse
+  raw.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      doParse();
+    }
+  });
+
+  // #4 Esc anywhere = reset (or close help if open)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const help = document.getElementById('helpBackdrop');
+      if (help && help.classList.contains('show')) { toggleHelp(); return; }
+      e.preventDefault();
+      doReset();
+    }
+    // #7 ? = toggle help (skip if typing in input/textarea)
+    if (e.key === '?' && !/INPUT|TEXTAREA/.test(e.target.tagName)) {
+      e.preventDefault();
+      toggleHelp();
+    }
+  });
+
+  // Clear unit-conversion source when user manually edits weight/dims (#4)
+  ['f_weight','f_dims'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => { delete el.dataset.src; });
+  });
+})();
+
+// #8 Auto-load from ?raw=... URL parameter
+(function loadFromUrl() {
+  try {
+    const params = new URLSearchParams(location.search);
+    const enc = params.get('raw');
+    if (!enc) return;
+    const decoded = decodeURIComponent(escape(atob(decodeURIComponent(enc))));
+    document.getElementById('rawInput').value = decoded;
+    setTimeout(doParse, 50);
+  } catch (err) {
+    console.warn('[RChief] Failed to load from URL:', err);
+  }
+})();
+
+</script>
+</body>
+</html>
