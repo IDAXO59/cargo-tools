@@ -1087,6 +1087,24 @@
   </div>
 </div>
 
+<div class="help-overlay" id="help-overlay" onclick="if(event.target===this)closeHelp()">
+  <div class="help-card" role="dialog" aria-labelledby="help-title-el">
+    <div class="help-head">
+      <div class="help-title" id="help-title-el" data-i18n="helpTitle">Cargo Spacer</div>
+      <button class="help-close" onclick="closeHelp()" aria-label="Close">×</button>
+    </div>
+    <div class="help-desc" data-i18n="helpDesc"></div>
+    <div class="help-section" data-i18n="helpHow">How to use</div>
+    <ol class="help-steps">
+      <li><span class="help-num">1</span><span data-i18n="helpStep1"></span></li>
+      <li><span class="help-num">2</span><span data-i18n="helpStep2"></span></li>
+      <li><span class="help-num">3</span><span data-i18n="helpStep3"></span></li>
+      <li><span class="help-num">4</span><span data-i18n="helpStep4"></span></li>
+      <li><span class="help-num">5</span><span data-i18n="helpStep5"></span></li>
+    </ol>
+  </div>
+</div>
+
 <script>
 // =========================
 // i18n
@@ -2700,23 +2718,5 @@ function openHelp() { document.getElementById('help-overlay').classList.add('ope
 function closeHelp() { document.getElementById('help-overlay').classList.remove('open'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHelp(); });
 </script>
-
-<div class="help-overlay" id="help-overlay" onclick="if(event.target===this)closeHelp()">
-  <div class="help-card" role="dialog" aria-labelledby="help-title-el">
-    <div class="help-head">
-      <div class="help-title" id="help-title-el" data-i18n="helpTitle">Cargo Spacer</div>
-      <button class="help-close" onclick="closeHelp()" aria-label="Close">×</button>
-    </div>
-    <div class="help-desc" data-i18n="helpDesc"></div>
-    <div class="help-section" data-i18n="helpHow">How to use</div>
-    <ol class="help-steps">
-      <li><span class="help-num">1</span><span data-i18n="helpStep1"></span></li>
-      <li><span class="help-num">2</span><span data-i18n="helpStep2"></span></li>
-      <li><span class="help-num">3</span><span data-i18n="helpStep3"></span></li>
-      <li><span class="help-num">4</span><span data-i18n="helpStep4"></span></li>
-      <li><span class="help-num">5</span><span data-i18n="helpStep5"></span></li>
-    </ol>
-  </div>
-</div>
 </body>
 </html>
