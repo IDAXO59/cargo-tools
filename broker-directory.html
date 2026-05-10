@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Broker Directory · URSA Express</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { background: #000; color: #fff; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+
+.topbar { position: relative; text-align: center; margin-bottom: 28px; min-height: 48px; }
+.brand-logo-link { position: absolute; top: 0; left: 0; display: inline-flex; transition: opacity 0.15s; text-decoration: none; }
+.brand-logo-link:hover { opacity: 0.8; }
+.brand-logo { height: 38px; width: auto; display: block; }
+.controls { position: absolute; top: 0; right: 0; display: flex; gap: 8px; }
+@media (max-width: 600px) {
+  .topbar { padding-top: 56px; }
+  .brand-logo-link { left: 50%; transform: translateX(-50%); }
+  .controls {
+    position: static;
+    justify-content: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+}
+.page-title {
+  font-size: 22px; font-weight: 700; letter-spacing: -0.4px;
+  background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  margin-top: 2px;
+}
+.page-sub { font-size: 12px; color: #52525b; margin-top: 4px; }
+
+.nav-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 36px; padding: 0 12px;
+  background: #0a0a0a; border: 1px solid #1f1f1f; border-radius: 8px;
+  color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  text-decoration: none; transition: border-color 0.15s;
+}
+.nav-btn:hover { border-color: #2a2a2a; }
+
+.search-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.search-box { flex: 1; position: relative; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #3f3f46; pointer-events: none; width: 15px; height: 15px; }
+#search {
+  width: 100%; padding: 10px 12px 10px 36px;
+  background: #0d0d0d; border: 1px solid #1f1f1f;
+  border-radius: 10px; color: #fff; font-size: 14px;
+  outline: none; transition: border-color 0.15s; font-family: inherit;
+}
+#search:focus { border-color: #5b6ef5; }
+#search::placeholder { color: #3f3f46; }
+#count { font-size: 12px; color: #52525b; white-space: nowrap; font-weight: 500; min-width: 52px; text-align: right; }
+
+.section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  color: #3f3f46; text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: #141414; }
+
+.broker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+}
+@media (max-width: 480px) { .broker-grid { grid-template-columns: 1fr; } }
+.grid-full { grid-column: 1 / -1; margin-top: 20px; }
+.grid-full:first-child { margin-top: 0; }
+
+.broker-card {
+  background: #0a0a0a; border: 1px solid #1a1a1a;
+  border-radius: 12px; overflow: hidden; transition: border-color 0.15s;
+}
+.broker-card:hover { border-color: #2a2a2a; }
+
+.card-head { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px 10px; }
+.rank {
+  flex-shrink: 0; min-width: 28px; height: 26px; padding: 0 5px;
+  border-radius: 7px; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+}
+.r-gold   { background: rgba(250,189,0,0.12);  color: #fabe00; }
+.r-silver { background: rgba(148,163,184,0.10); color: #8fa3b8; }
+.r-plain  { background: rgba(63,63,70,0.25);   color: #52525b; }
+.r-none   { background: rgba(24,24,27,0.60);   color: #3f3f46; font-size: 14px; }
+
+.card-name { font-size: 12.5px; font-weight: 600; line-height: 1.4; color: #e4e4e7; flex: 1; word-break: break-word; }
+
+.card-note { margin: 0 14px 10px; padding: 7px 10px; border-radius: 7px; font-size: 11.5px; line-height: 1.5; }
+.n-charge  { background: rgba(34,197,94,0.07);  color: #86efac; border: 1px solid rgba(34,197,94,0.14); }
+.n-careful { background: rgba(245,158,11,0.07); color: #fcd34d; border: 1px solid rgba(245,158,11,0.14); }
+.n-recover { background: rgba(59,130,246,0.07); color: #93c5fd; border: 1px solid rgba(59,130,246,0.14); }
+.n-prospect{ background: rgba(139,92,246,0.07); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.14); }
+.n-info    { background: rgba(99,102,241,0.07); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.14); }
+.n-default { background: rgba(24,24,27,0.80);   color: #71717a; border: 1px solid #1e1e1e; }
+
+.card-reps { padding: 0 14px 12px; }
+.reps-head { font-size: 9.5px; font-weight: 600; letter-spacing: 0.1em; color: #3f3f46; text-transform: uppercase; margin-bottom: 5px; }
+.rep-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-top: 1px solid #111; }
+.rep-row:first-of-type { border-top: none; }
+.rep-nm { font-size: 11.5px; color: #71717a; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rep-email {
+  font-size: 11px; color: #5b6ef5; background: rgba(91,110,245,0.10);
+  border: none; border-radius: 5px; padding: 3px 8px;
+  cursor: pointer; font-family: inherit; font-weight: 500;
+  white-space: nowrap; max-width: 185px; overflow: hidden; text-overflow: ellipsis;
+  transition: background 0.12s, color 0.12s; display: block;
+}
+.rep-email:hover { background: rgba(91,110,245,0.18); }
+.rep-email.ok { background: rgba(34,197,94,0.12); color: #4ade80; }
+
+.empty { grid-column: 1/-1; text-align: center; padding: 56px 24px; color: #3f3f46; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <a href="https://ursaexpress.com" target="_blank" rel="noopener noreferrer" class="brand-logo-link" aria-label="URSA Express">
+      <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" width="121" height="49" viewBox="0 0 121 49" fill="none"><g clip-path="url(#a)"><mask id="b" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="14" y="28" width="21" height="21"><path d="M34.399 29.99c-1.102.752-3.866 1.405-5.409 3.245-1.399 1.671-.519 4.484-1.385 6.358-.718 1.548-1.63 2.244-2.567 2.858-.942.617-1.326 1.24-.341 1.995 2.492 1.91.738 4.418-.133 4.436-1.531.031-4.626 0-6.078 0-1.451 0-4.462-2.124-3.095-6.983.361-1.283-.126-2.6-.597-3.888 1.376-.505 2.978-1.065 4.203-1.781 3.726-2.18 6.424-5.583 7.446-6.891 1.063-1.36 5.854-.897 7.957.655" fill="#fff"/></mask><g mask="url(#b)"><path d="M34.398 27.977H14.02v20.934h20.379V27.977Z" fill="url(#c)"/></g><mask id="d" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="4" width="79" height="45"><path d="M75.544 18.561c3.374-2.833 3.139-3.86 2.078-4.191-.02-.006-1.706-.55-2.941-.829-.47-.106.365-1.23-3.827-3.612-.544-.311.803-1.653-.489-2.213-1.108-.483-3.582.943-4.793.791-7.686-.963-16.413-3.624-24.242-3.806-6.529-.151-12.509.044-19.433 1.728C6.208 9.69 2.942 26.887 1.012 35.881c-.26 1.217-1.013 3.731-.887 4.939.284 2.722 2.137 8.062 5.502 8.062h5.555c3.79 0 2.306-4.064.512-6.276-1.095-1.35 4.041-2.158 6.999-3.888 3.726-2.18 6.423-5.582 7.445-6.89 1.273-1.63 7.893-.646 8.841 1.695.59 1.455-1.41 3.475-1.877 6.276-.635 3.822-.164 9.112 1.708 9.085 2.72-.041 4.905 0 6.046 0 1.273 0 1.017-2.922.02-3.813-.047-.042 1.029-1.572 1.853-4.127.989 5.406 2.921 8.829 5.136 8.829h5.548c1.257 0 1.595-3.223-1.193-4.701-3.21-1.702 3.628-18.496 10.197-21.866 4.771-2.448 12.417-2.314 14.127-3.751" fill="#fff"/></mask><g mask="url(#d)"><path d="M78.919 4.241H0v44.668h78.919V4.241Z" fill="url(#e)"/></g><mask id="f" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="60" y="7" width="10" height="3"><path d="M69.895 7.908a1.696 1.696 0 0 0-.533-.5c-1.109-.483-3.582.943-4.794.791-1.282-.16-2.594-.369-3.924-.605 2.222 1.201 5.1 2.352 6.812 1.856.485-.14.876-.41 1.132-.847.258-.438.786-.707 1.312-.673l-.007-.022Z" fill="#fff"/></mask><g mask="url(#f)"><path d="M69.901 6.925H60.644v3.021h9.257V6.925Z" fill="url(#g)"/></g><mask id="h" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="22" y="5" width="32" height="44"><path d="M22.738 35.62c1.623-1.539 2.798-3.026 3.4-3.794 1.273-1.63 7.893-.646 8.841 1.695.59 1.455-1.41 3.475-1.877 6.276-.635 3.822-.164 9.112 1.708 9.085 2.72-.041 4.905 0 6.046 0 1.273 0 1.017-2.922.02-3.813-1.047-.934.03-2.464.853-5.019.989 5.406 2.921 8.829 5.136 8.829h5.548c1.257 0 1.595-3.223-1.193-4.701-1.072-.57-1.022-2.827-.235-5.704-1.23-1.5-2.115-3.699-.793-7.214C55.653 16.725 53.884 13.552 52.588 11.206 50.93 8.203 39.265 0 29.274 9.635c-8.19 7.897 1.504 14.593-6.534 25.985" fill="#fff"/></mask><g mask="url(#h)"><path d="M55.653 0H21.081v48.909h34.572V0Z" fill="url(#i)"/></g><mask id="j" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="7" y="5" width="40" height="44"><path d="M10.001 48.88h1.18c3.79 0 2.306-4.064.511-6.277-1.095-1.348 4.041-2.157 6.999-3.887 3.726-2.18 6.424-5.582 7.446-6.89 1.273-1.63 7.893-.646 8.841 1.695.59 1.455-1.41 3.475-1.877 6.276-.635 3.822-.164 9.112 1.708 9.085 2.72-.041 4.905 0 6.046 0 1.273 0 1.017-2.922.02-3.813-1.047-.934.03-2.464.853-5.019.989 5.406 2.921 8.829 5.136 8.829C41.128 43.075 42.58 34.5 42.177 27.141c-.49-8.94 8.014-18.088-.702-21.193-4.364-1.555-9.804-.217-14.671 3.218C16.175 16.676 20.962 24.697 16.7 32.814c-2.843 5.418-5.36 4.463-8.544 9.237-1.673 2.511 4.928 2.858 1.847 6.829" fill="#fff"/></mask><g mask="url(#j)"><path d="M50.187 4.393H6.479v44.516h43.708V4.393Z" fill="url(#k)"/></g><mask id="l" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="22" y="5" width="25" height="44"><path d="M22.738 35.62c1.623-1.539 2.798-3.026 3.4-3.794 1.273-1.63 7.893-.646 8.841 1.695.59 1.455-1.41 3.475-1.877 6.276-.635 3.822-.164 9.112 1.708 9.085 2.72-.041 4.905 0 6.046 0 1.273 0 1.017-2.922.02-3.813-1.047-.934.03-2.464.853-5.019.989 5.406 2.921 8.829 5.136 8.829C41.128 43.075 42.58 34.5 42.178 27.141c-.49-8.94 8.013-18.088-.702-21.193-1.296-.462-2.688-.669-4.133-.641-2.663.478-5.424 1.779-8.067 4.329-8.19 7.897 1.504 14.593-6.534 25.985" fill="#fff"/></mask><g mask="url(#l)"><path d="M50.19 5.279H21.081v43.63H50.19V5.279Z" fill="url(#m)"/></g><mask id="n" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="58" y="7" width="21" height="16"><path d="M75.545 18.561c3.374-2.833 3.139-3.86 2.078-4.191-.02-.006-1.706-.55-2.941-.829-3.212 1.333-3.466-.657-5.747-.199-1.241.249-3.013 1.396-3.71 1.752-1.797.92-5.893 3.54-7.066 5.857 1.445-.8 3.07-.72 2.725-.355-.594.634-3.143 2.058-4.38 4.206.659-.396 1.374-.766 1.815-.657-.178.943-4.453 4.386-4.681 10.069 2.128-4.842 5.489-9.903 8.78-11.591 4.771-2.448 12.418-2.314 14.127-3.751v-.011Z" fill="#fff"/></mask><g mask="url(#n)"><path d="M78.919 7.183H58.426v15.61h20.493V7.183Z" fill="url(#o)"/></g><mask id="p" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="18" width="59" height="31"><path d="M2.5 29.328c-.617 2.412-1.081 4.665-1.488 6.553-.26 1.217-1.013 3.731-.887 4.939.284 2.722 2.137 8.062 5.502 8.062h5.555c3.79 0 2.306-4.064.511-6.277-1.095-1.348 4.041-2.157 6.999-3.887 3.726-2.18 6.424-5.582 7.446-6.89 1.273-1.63 7.893-.646 8.841 1.695.59 1.455-1.41 3.475-1.877 6.276-.635 3.822-.164 9.112 1.708 9.085 2.72-.041 4.905 0 6.046 0 1.273 0 1.017-2.922.02-3.813-1.047-.934.029-2.464.852-5.019.99 5.406 2.922 8.829 5.137 8.829h5.547c1.257 0 1.596-3.223-1.193-4.701-2.667-1.414 1.607-13.255 6.899-19.148-2.071-.059-4.373-.372-6.707-1.17-9.594-3.28-14.561-5.739-25.298-5.39-5.728.186-11.331 2.373-16.918 7.369C6.281 28.449 4.158 29.305 2.507 29.33" fill="#fff"/></mask><g mask="url(#p)"><path d="M58.115 18.122H0v30.787h58.115V18.122Z" fill="url(#q)"/></g><mask id="r" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="25" y="21" width="34" height="28"><path d="M25.727 32.345c.158-.195.295-.37.41-.52 1.273-1.63 7.893-.646 8.841 1.695.59 1.455-1.41 3.475-1.877 6.276-.635 3.822-.164 9.112 1.708 9.085 2.72-.041 4.905 0 6.046 0 1.273 0 1.017-2.922.02-3.813-1.047-.934.029-2.464.852-5.019.99 5.406 2.922 8.829 5.137 8.829h5.547c1.257 0 1.596-3.223-1.193-4.701-2.667-1.414 1.607-13.255 6.899-19.148-2.071-.059-4.373-.372-6.707-1.17-2.647-.904-4.942-1.747-7.102-2.484-8.712.726-15.894 5.1-18.578 10.97" fill="#fff"/></mask><g mask="url(#r)"><path d="M58.117 21.377H25.727v27.532h32.39V21.377Z" fill="url(#s)"/></g><mask id="t" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="22" y="18" width="32" height="31"><path d="M22.738 35.62c1.623-1.539 2.798-3.026 3.4-3.794 1.273-1.63 7.893-.646 8.841 1.695.59 1.455-1.41 3.475-1.877 6.276-.635 3.822-.164 9.112 1.708 9.085 2.72-.041 4.905 0 6.046 0 1.273 0 1.017-2.922.02-3.813-1.047-.934.029-2.464.852-5.019.99 5.406 2.922 8.829 5.137 8.829h5.547c1.257 0 1.596-3.223-1.193-4.701-1.072-.57-1.022-2.827-.235-5.704-1.23-1.5-2.115-3.699-.793-7.214 1.024-2.724 1.794-5.052 2.361-7.047a64.04 64.04 0 0 0-2.156-.362c-9.594-3.28-14.561-5.739-25.298-5.39-.126.005-.254.009-.38.017.169 4.846 1.978 10.091-2.992 17.133" fill="#fff"/></mask><g mask="url(#t)"><path d="M54.007 18.122H22.738v30.787h31.27V18.122Z" fill="url(#u)"/></g><mask id="v" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="7" y="18" width="40" height="31"><path d="M10.001 48.88h1.18c3.79 0 2.306-4.064.511-6.277-1.095-1.348 4.041-2.157 6.999-3.887 3.726-2.18 6.424-5.582 7.446-6.89 1.273-1.63 7.893-.646 8.841 1.695.59 1.455-1.41 3.475-1.877 6.276-.635 3.822-.164 9.112 1.708 9.085 2.72-.041 4.905 0 6.046 0 1.273 0 1.017-2.922.02-3.813-1.047-.934.029-2.464.852-5.019.99 5.406 2.922 8.829 5.137 8.829C41.128 43.075 42.58 34.5 42.177 27.141c-.114-2.088.26-4.185.793-6.216-5.109-1.673-9.702-2.688-16.858-2.457-2.192.07-4.366.435-6.529 1.138-.93 4.327-.546 8.754-2.882 13.208C14.513 38.231 11.996 37.277 8.812 42.05c-1.673 2.511 4.928 2.858 1.847 6.829" fill="#fff"/></mask><g mask="url(#v)"><path d="M46.864 18.24H6.479v30.669h40.385V18.24Z" fill="url(#w)"/></g><mask id="x" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="22" y="18" width="25" height="31"><path d="M22.738 35.62c1.623-1.539 2.798-3.026 3.4-3.794 1.273-1.63 7.893-.646 8.841 1.695.59 1.455-1.41 3.475-1.877 6.276-.635 3.822-.164 9.112 1.708 9.085 2.72-.041 4.905 0 6.046 0 1.273 0 1.017-2.922.02-3.813-1.047-.934.029-2.464.852-5.019.99 5.406 2.922 8.829 5.137 8.829C41.128 43.075 42.58 34.5 42.178 27.141c-.114-2.088.26-4.185.793-6.216-5.109-1.673-9.702-2.688-16.858-2.457-.126.005-.254.009-.38.017.169 4.846 1.978 10.091-2.992 17.133" fill="#fff"/></mask><g mask="url(#x)"><path d="M46.864 18.24H22.738v30.669h24.126V18.24Z" fill="url(#y)"/></g><mask id="z" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="1" y="6" width="19" height="30"><path d="M19.183 6.614C5.95 11.059 2.864 27.247 1.012 35.881l-.009.04c1.859-.011 4.131-1.89 6.81-6.539 1.863-3.237 2-8.176 4.814-14.785.896-2.103 3.244-4.943 6.558-7.98" fill="#fff"/></mask><g mask="url(#z)"><path d="M19.185 6.614H1.003v29.307h18.182V6.614Z" fill="url(#A)"/></g><mask id="B" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="52" y="12" width="27" height="22"><path d="M75.545 18.561c3.374-2.833 3.139-3.86 2.078-4.191-.02-.006-1.706-.55-2.941-.829-3.212 1.333-3.466-.657-5.747-.199-1.241.249-3.013 1.396-3.71 1.752-1.797.92-5.893 3.54-7.066 5.857 1.445-.8 3.07-.72 2.725-.355-.594.634-3.143 2.058-4.38 4.206.659-.396 1.374-.766 1.815-.657-.178.943-4.453 4.386-4.681 10.069 2.128-4.842 5.489-9.903 8.78-11.591 4.771-2.448 12.418-2.314 14.127-3.751v-.011Z" fill="#fff"/></mask><g mask="url(#B)"><path d="M78.917 12.578H52.636v21.326h26.281V12.578Z" fill="url(#C)"/></g><mask id="D" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="60" y="12" width="19" height="11"><path d="M75.545 18.561c3.374-2.833 3.139-3.86 2.078-4.191-.02-.006-1.706-.55-2.941-.829-3.212 1.333-3.466-.657-5.747-.199-1.241.249-3.013 1.396-3.71 1.752-.48.245-1.122.612-1.829 1.061-.402 2.377-1.365 4.771-1.785 6.944.267-.179.537-.342.804-.48 4.771-2.448 12.418-2.314 14.127-3.751v-.011Z" fill="#fff"/></mask><g mask="url(#D)"><path d="M78.919 12.578H60.611v10.215h18.308V12.578Z" fill="url(#E)"/></g><mask id="F" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="59" y="24" width="61" height="14"><path d="M115.703 37.245h3.898l-5.333-12.457h-4.814l-5.166 12.457h3.653l.87-2.16h6.006l.886 2.16Zm-2.002-4.905h-3.774l1.865-4.656 1.911 4.656Zm-16.276 5.123c5.379 0 6.175-2.226 6.175-4.152v-.202c0-2.11-1.008-3.565-5.242-3.699l-1.605-.05c-1.726-.05-2.11-.503-2.11-1.072 0-.603.398-1.022 2.339-1.022h.137c2.032 0 2.322.752 2.4 1.272h3.882v-.134c0-1.741-.78-3.783-6.037-3.783h-.581c-4.844 0-5.946 1.675-5.946 3.733v.15c0 1.926 1.145 3.583 5.12 3.717l1.559.05c1.879.05 2.231.503 2.231 1.156 0 .653-.29 1.306-2.505 1.306h-.091c-2.261 0-2.46-1.106-2.506-1.625h-3.943v.15c0 1.591.61 4.202 6.312 4.202h.411Zm-17.628-9.461h4.051c1.145 0 1.543.535 1.543 1.272v.05c0 .786-.398 1.306-1.543 1.306h-4.051v-2.628Zm8.101 9.461-1.687-4.069c2.245-.55 2.97-2.087 2.97-4.016v-.202c0-2.445-1.115-4.168-5.026-4.168h-8.008v12.455h3.653v-3.851h2.898l1.552 3.851h3.652Zm-20.917.218c5.822 0 6.54-4.034 6.54-6.512v-6.129h-3.637v6.065c0 1.405-.352 3.264-3.086 3.264h-.075c-2.736 0-3.131-1.859-3.131-3.264v-6.065h-3.637v6.129c0 2.462.535 6.512 6.586 6.512h.443-.003Z" fill="#fff"/></mask><g mask="url(#F)"><path d="M119.599 24.622H59.955v12.843h59.644V24.622Z" fill="url(#G)"/></g><mask id="H" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="83" y="24" width="38" height="14"><path d="M113.702 32.34h-3.774l1.865-4.656 1.911 4.656Zm-16.276 5.123c5.379 0 6.175-2.226 6.175-4.152v-.202c0-2.11-1.008-3.565-5.242-3.699l-1.605-.05c-1.726-.05-2.11-.503-2.11-1.072 0-.603.398-1.022 2.339-1.022h.137c2.032 0 2.322.752 2.4 1.272h3.882v-.134c0-1.741-.78-3.783-6.037-3.783h-.581c-4.844 0-5.946 1.675-5.946 3.733v.15c0 1.926 1.145 3.583 5.12 3.717l1.559.05c1.879.05 2.231.503 2.231 1.156 0 .653-.29 1.306-2.505 1.306h-.091c-2.261 0-2.46-1.106-2.506-1.625h-3.943v.15c0 1.591.61 4.202 6.312 4.202h.411Zm-8.259-7.892c-1.644 1.231-4.231 3.114-5.809 5.612l.078.193c1.015-.592 2.071-1.09 2.745-.922-.425.628-1.191 1.473-2.08 2.57l.137.342h3.652l-1.687-4.069c2.131-.521 2.892-1.933 2.963-3.726Zm28.456 1.161c.734.814 2.16 1.505 2.873 1.423-.608.664-1.319.943-1.993.932l.594 1.388h-3.897l-.887-2.16h-6.005l-.871 2.16h-3.653l5.166-12.457h4.814l2.089 4.88c1.189 2.774 2.442 3.277 3.285 3.484-.539.233-1.056.337-1.515.35Zm-31.797-6.668c-.882.897-1.714 1.901-2.453 3.03.023.109.035.222.035.342v.05c0 .068-.002.136-.009.202 1.241-.58 2.706-.961 3.757-1.118-.119-1.04-.51-1.908-1.33-2.506Z" fill="#fff"/></mask><g mask="url(#H)"><path d="M121 24.622H83.36v12.843H121V24.622Z" fill="url(#I)"/></g><mask id="J" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="59" y="41" width="61" height="8"><path d="M115.882 49c3.241 0 3.719-1.342 3.719-2.503v-.12c0-1.271-.608-2.148-3.157-2.228l-.967-.029c-1.04-.03-1.271-.302-1.271-.646 0-.362.24-.614 1.408-.614h.083c1.225 0 1.399.453 1.444.766h2.339v-.082c0-1.049-.469-2.28-3.637-2.28h-.35c-2.919 0-3.582 1.009-3.582 2.249v.09c0 1.161.691 2.158 3.084 2.24l.939.029c1.132.03 1.344.304 1.344.696 0 .392-.176.786-1.508.786h-.055c-1.362 0-1.481-.666-1.511-.979h-2.375v.091c0 .958.368 2.531 3.801 2.531h.25Zm-8.81 0c3.241 0 3.719-1.342 3.719-2.503v-.12c0-1.271-.608-2.148-3.157-2.228l-.967-.029c-1.04-.03-1.271-.302-1.271-.646 0-.362.24-.614 1.408-.614h.083c1.225 0 1.399.453 1.444.766h2.339v-.082c0-1.049-.469-2.28-3.637-2.28h-.35c-2.919 0-3.582 1.009-3.582 2.249v.09c0 1.161.691 2.158 3.084 2.24l.939.029c1.132.03 1.344.304 1.344.696 0 .392-.176.786-1.511.786h-.055c-1.362 0-1.481-.666-1.511-.979h-2.375v.091c0 .958.368 2.531 3.801 2.531h.25Zm-12.64-7.505v7.505h6.62v-1.745h-4.437v-1.16h4.245v-1.786h-4.245v-1.09h4.383v-1.725h-6.565Zm-6.873 1.806h2.439c.69 0 .93.322.93.766v.03c0 .474-.24.785-.93.785h-2.439v-1.58Zm-9.084 0h2.439c.69 0 .93.322.93.766v.03c0 .474-.24.785-.93.785h-2.439v-1.58Zm2.624 3.381c2.338 0 3.029-1.09 3.029-2.552v-.12c0-1.473-.672-2.512-3.029-2.512h-4.823v7.505h2.199v-2.318h2.624Zm-6.688 2.318h2.642l-2.91-3.863 2.752-3.641h-2.512l-1.721 2.269-1.721-2.269h-2.752l2.816 3.652-2.9 3.852h2.587l1.87-2.42 1.849 2.42Zm15.476 0 1.017-2.452c1.353-.331 1.79-1.258 1.79-2.421v-.12c0-1.473-.672-2.512-3.029-2.512h-4.823v7.505h2.199v-2.318h1.746l.935 2.318h2.199Zm-33.253-7.505v7.505h6.62v-1.745h-4.437v-1.16h4.245v-1.786h-4.245v-1.09h4.383v-1.725h-6.565Z" fill="#fff"/></mask><g mask="url(#J)"><path d="M119.599 41.264H59.955V49h59.644v-7.736Z" fill="url(#K)"/></g><mask id="L" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="78" y="41" width="42" height="8"><path d="M111.831 46.518c2.128.768 4.085 1.587 5.836 2.296 1.644-.406 1.934-1.417 1.934-2.317v-.12c0-1.271-.608-2.148-3.157-2.228l-.967-.029c-1.04-.03-1.271-.302-1.271-.646 0-.362.24-.614 1.408-.614h.083c1.225 0 1.399.453 1.444.766h2.339v-.082c0-1.049-.469-2.28-3.637-2.28h-.35c-2.919 0-3.582 1.009-3.582 2.249v.09c0 1.161.69 2.158 3.084 2.24l.939.029c1.132.03 1.344.304 1.344.696 0 .392-.176.786-1.508.786h-.055c-1.362 0-1.481-.666-1.511-.979h-2.375v.143Zm-8.661-1.979c2.702.437 5.255 1.16 7.614 1.97-.073-1.147-.754-1.927-3.15-2.002l-.967-.029c-1.04-.03-1.271-.302-1.271-.646 0-.362.24-.614 1.408-.614h.083c1.225 0 1.399.453 1.444.766h2.339v-.082c0-1.049-.469-2.28-3.637-2.28h-.35c-2.919 0-3.582 1.009-3.582 2.249v.09c0 .197.021.392.066.578Zm-7.927-.419c.734-.066 1.461-.104 2.181-.116v-.655h4.382v-1.725h-6.565v2.496Zm-9.097 2.415c1.413-.639 2.814-1.142 4.197-1.523h-2.006v-1.58h2.439c.69 0 .93.322.93.766v.03c0 .186-.037.347-.123.474.809-.184 1.612-.331 2.407-.44v-.124c0-1.473-.672-2.512-3.029-2.512h-4.823v5.386l.008.523Zm-5.074-5.386c-.311.569-.608 1.169-.887 1.806h1.486c.69 0 .93.322.93.766v.03c0 .474-.24.785-.93.785h-2.11c-.439 1.254-.789 2.623-1.006 4.116h.674v-2.318h2.624c2.338 0 3.029-1.09 3.029-2.552v-.12c0-1.473-.672-2.512-3.029-2.512h-.781Z" fill="#fff"/></mask><g mask="url(#L)"><path d="M119.601 41.264H78.539v7.404h41.062v-7.404Z" fill="url(#M)"/></g><path d="M111.925 27.745 113.437 31.495h-3.025l1.513-3.75Z" fill="#fff"/></g><defs><linearGradient id="c" x1="38.703" y1="34.33" x2="11.565" y2="42.163" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset=".6" stop-color="#30348A"/><stop offset="1" stop-color="#0C0224"/></linearGradient><linearGradient id="e" x1="10.261" y1="30.445" x2="66.832" y2="22.817" gradientUnits="userSpaceOnUse"><stop stop-color="#5992CD"/><stop offset=".37" stop-color="#4E2482"/><stop offset=".63" stop-color="#CA1574"/><stop offset="1" stop-color="#DA5845"/></linearGradient><linearGradient id="g" x1="68.832" y1="8.189" x2="55.826" y2="9.104" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="1" stop-color="#2B348B"/></linearGradient><linearGradient id="i" x1="54.007" y1="13.597" x2="38.605" y2="24.473" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="1" stop-color="#2B348B"/></linearGradient><linearGradient id="k" x1="75.602" y1="13.636" x2="13.465" y2="31.039" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="1" stop-color="#2B348B"/></linearGradient><linearGradient id="m" x1="69.972" y1="20.014" x2="27.662" y2="28.886" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="1" stop-color="#2B348B"/></linearGradient><linearGradient id="o" x1="77.221" y1="11.097" x2="62.103" y2="18.092" gradientUnits="userSpaceOnUse"><stop stop-color="#ED7952"/><stop offset="1" stop-color="#B2092C"/></linearGradient><linearGradient id="q" x1="24.416" y1="39.401" x2="3.586" y2="66.257" gradientUnits="userSpaceOnUse"><stop stop-color="#362483"/><stop offset="1" stop-color="#060019"/></linearGradient><linearGradient id="s" x1="65.482" y1="18.92" x2="34.49" y2="40.624" gradientUnits="userSpaceOnUse"><stop stop-color="#ED7952"/><stop offset="1" stop-color="#B2092C"/></linearGradient><linearGradient id="u" x1="42.041" y1="32.24" x2="52.801" y2="28.437" gradientUnits="userSpaceOnUse"><stop stop-color="#6F356F"/><stop offset="1" stop-color="#E62630"/></linearGradient><linearGradient id="w" x1="64.602" y1="25.769" x2="-7.102" y2="40.774" gradientUnits="userSpaceOnUse"><stop stop-color="#392483"/><stop offset="1" stop-color="#4B56A2"/></linearGradient><linearGradient id="y" x1="51.429" y1="27.392" x2="21.749" y2="38.616" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset=".56" stop-color="#393487"/><stop offset="1" stop-color="#130834"/></linearGradient><linearGradient id="A" x1="28.002" y1="13.663" x2="-5.373" y2="28.077" gradientUnits="userSpaceOnUse"><stop stop-color="#392483"/><stop offset="1" stop-color="#4B56A2"/></linearGradient><linearGradient id="C" x1="72.866" y1="19.507" x2="55.148" y2="28.994" gradientUnits="userSpaceOnUse"><stop stop-color="#ED7952"/><stop offset="1" stop-color="#B2092C"/></linearGradient><linearGradient id="E" x1="76.588" y1="16.814" x2="53.429" y2="19.822" gradientUnits="userSpaceOnUse"><stop stop-color="#ED7952"/><stop offset="1" stop-color="#B2092C"/></linearGradient><linearGradient id="G" x1="120.301" y1="19.692" x2="53.916" y2="44.798" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset=".44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><linearGradient id="I" x1="120.746" y1="19.681" x2="80.517" y2="44.721" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset=".44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><linearGradient id="K" x1="120.07" y1="42.508" x2="1.799" y2="52.923" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset=".44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><linearGradient id="M" x1="119.969" y1="38.381" x2="74.244" y2="53.256" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset=".44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><clipPath id="a"><rect width="121" height="49" fill="#fff"/></clipPath></defs></svg>
+    </a>
+    <div>
+      <div class="page-title">Broker Directory</div>
+      <div class="page-sub">URSA Express · Internal</div>
+    </div>
+    <div class="controls">
+      <a href="index.html" class="nav-btn">Tools</a>
+      <a href="cargo-spacer.html" class="nav-btn">Cargo</a>
+      <a href="rchief.html" class="nav-btn">RChief</a>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search broker, rep, email…" autocomplete="off" spellcheck="false" />
+    </div>
+    <span id="count"></span>
+  </div>
+
+  <div class="broker-grid" id="list"></div>
+</div>
+
+<script>
+const DATA = [
+  {rank:1, name:'Globaltranz / IMPACT DIVERSITY / WORLDWIDE EXPRESS', reps:[
+    {name:'Dallas McFarland',email:'dmcfarland@shipblx.com'},
+    {name:'Brianna Stokes',email:'bstokes@shipblx.com'},
+    {name:'Kyle Mann',email:'KMann@shipblx.com'},
+    {name:'Grace Diaz',email:'gdiaz@shipblx.com'},
+    {name:'David Wilson',email:'DWilson@shipblx.com'},
+    {name:'Austin Weidenhamer',email:'aweidenhamer@shipblx.com'},
+    {name:'Logan Wedo',email:'lwedo@shipblx.com'},
+    {name:'Adel Elessais',email:'aelessais@shipblx.com'},
+    {name:'Miranda Kies',email:'mkies@shipblx.com'},
+    {name:'Antonette Mana',email:'amanaay@shipblx.com'},
+  ], note:'Топ один брокер за последние пол года. Работаем крайне аккуратно и стараемся предоставить свой лучший сервис. Не канселим груз без веской причины! Всегда пытаемся найти рекавери, даже если уходим в минус.'},
+
+  {rank:2, name:'NTG / Nolan Transportation Group', reps:[
+    {name:'Jonathan Watola',email:'jonathan.watola@ntgfreight.com'},
+    {name:'Team Watola',email:'TeamWatola@ntgfreight.com'},
+  ], note:'Когда бидуем — обязательно с письмом в догонку прикрепляем Ватолу и его команду. Рекомендую сразу писать им в G-chat.'},
+
+  {rank:3, name:'AM TRANS EXPEDITE, INC', reps:[
+    {name:'Evan Pencek',email:'epencek@amtransexpedite.com'},
+    {name:'Will Easley',email:'weasley@amtransexpedite.com'},
+    {name:'Caleb Anderson',email:'andersonc@amtransexpedite.com'},
+    {name:'Cynthia Avila',email:'cavila@amtransexpedite.com'},
+    {name:'Kevin Williams',email:'kevin.williams@amtransexpedite.com'},
+    {name:'Kimbert Frye',email:'kfrye@amtransexpedite.com'},
+    {name:'Ethan Shuler',email:'eshuler@amtransexpedite.com'},
+  ], note:''},
+
+  {rank:4, name:'S-2International LLC', reps:[
+    {name:'Jolee Gresham',email:'jolee@s-2international.com'},
+    {name:'Monica Green',email:'monica@s-2international.com'},
+    {name:'Rachel Dereu',email:'rachel@s-2international.com'},
+    {name:'Hank Whitaker',email:'hank@s-2international.com'},
+    {name:'Robert Solis Jr',email:'robert@s-2international.com'},
+    {name:'Jill Stubbs',email:'jill@s-2international.com'},
+    {name:'Brittany Lawrence',email:'blawrence@s-2international.com'},
+  ], note:''},
+
+  {rank:5, name:'EXPRESS FAMILY OF COMPANIES', reps:[
+    {name:'Benjamin Dee',email:'ben.dee@expressfamily.com'},
+    {name:'Mark Stack',email:'Mark.Stack@expressfamily.com'},
+    {name:'Shay Mitchell',email:'Shay.Mitchell@expressfamily.com'},
+    {name:'Angel Alvey',email:'ada@expressfamily.com'},
+    {name:'Dino Krdzalic',email:'Dino.Krdzalic@expressfamily.com'},
+    {name:'John Yazembiak',email:'jpy@expressfamily.com'},
+    {name:'Dennis Thompson',email:'Dennis.Thompson@expressfamily.com'},
+    {name:'Dejan Ilmic',email:'Dejan.Ilmic@expressfamily.com'},
+    {name:'Rashad Robinson',email:'Rashad.Robinson@expressfamily.com'},
+  ], note:'Работаем крайне аккуратно и стараемся предоставить свой лучший сервис. Не канселим груз без веской причины! Всегда пытаемся найти рекавери, даже если уходим в минус.'},
+
+  {rank:6, name:'BOUNCE LOGISTICS, LLC', reps:[
+    {name:'Chad VanLue',email:'kendaleth.vanlue@bouncelogistics.com'},
+    {name:'David Lora Gamarra',email:'davidricardo.loragamarra@bouncelogistics.com'},
+    {name:'Paula Virguez Galindo',email:'paula.virguezgalindo@bouncelogistics.com'},
+    {name:'Brayan Acevedo',email:'brayan.acevedo@bouncelogistics.com'},
+    {name:'Keith Singleton',email:'keith.singleton@bouncelogistics.com'},
+    {name:'Cristian Santana',email:'cristian.santana@bouncelogistics.com'},
+    {name:'Ashleigh Markin',email:'ashleigh.markin@bouncelogistics.com'},
+    {name:'Troy Tooke',email:'Troy.Tooke@bouncelogistics.com'},
+    {name:'Tanya Wilson',email:'Tanya.Wilson@bouncelogistics.com'},
+  ], note:'Ставьте им дороже чем обычно! Работаем крайне аккуратно.'},
+
+  {rank:7, name:'Circle Logistics, Inc', reps:[
+    {name:'Andrew Keszei',email:'andrew.keszei@circledelivers.com'},
+    {name:'Payton Fox',email:'payton.fox@circledelivers.com'},
+    {name:'Tom Kracium',email:'tom.kracium@circledelivers.com'},
+    {name:'Geordan Stenson',email:'geordan.stenson@circledelivers.com'},
+    {name:'Sara Lopez',email:'sara.lopez@circledelivers.com'},
+  ], note:'Работаем крайне аккуратно и стараемся предоставить свой лучший сервис.'},
+
+  {rank:8, name:'PINNACLE PRO LOGISTICS LLC', reps:[
+    {name:'Evan Charlone',email:'e.charlone@pinnacleprologistics.com'},
+    {name:'Brandon Bulanadi',email:'b.bulanadi@pinnacleprologistics.com'},
+    {name:'Spencer Cordero',email:'s.cordero@pinnacleprologistics.com'},
+    {name:'Jacob Sparks',email:'j.sparks@pinnacleprologistics.com'},
+    {name:'Chelsea Porter',email:'chelseap@pinnacleprologistics.com'},
+    {name:'Nolan Rader',email:'n.rader@pinnacleprologistics.com'},
+    {name:"D'nay Rovo",email:'d.rovo@pinnacleprologistics.com'},
+    {name:'Cassandra Hirata',email:'c.hirata@pinnacleprologistics.com'},
+    {name:'Austyn Lambrigh',email:'austyn.l@pinnacleprologistics.com'},
+    {name:'Alexander Hammers',email:'a.hammers@pinnacleprologistics.com'},
+  ], note:''},
+
+  {rank:9, name:'GO TO LOGISTICS INC.', reps:[
+    {name:'Matthew Buck',email:'matthew@gotologistics.net'},
+    {name:'Tanner Reichardt',email:'tanner@gotologistics.net'},
+    {name:'James Cripe',email:'jamescripe@gotologistics.net'},
+    {name:'John Fetsch',email:'john@gotologistics.net'},
+    {name:'Ossiel Cossyleon',email:'ossiel@gotologistics.net'},
+  ], note:''},
+
+  {rank:10, name:'SUNSET TRANSPORTATION, INC.', reps:[
+    {name:'Nick Brohammer',email:'nbrohammer@sunsettrans.com'},
+    {name:'Madison Crosswhite',email:'mcrosswhite@sunsettrans.com'},
+    {name:'Crystal Aquino',email:'caquino@sunsettrans.com'},
+    {name:'Ryan Karsznia',email:'rkarsznia@sunsettrans.com'},
+    {name:'Scott Bates',email:'sbates@sunsettrans.com'},
+    {name:'Hunter Maher',email:'hmaher@sunsettrans.com'},
+    {name:'Ian Barnes',email:'ibarnes@sunsettrans.com'},
+  ], note:''},
+
+  {rank:11, name:'PRIORITY EXPEDITE', reps:[], note:'Работаем крайне аккуратно! У парней свои грузы — ставьте дороже обычного!'},
+  {rank:12, name:'C5 EXPEDITE LLC', reps:[], note:''},
+  {rank:13, name:'GSA Transportation, LLC', reps:[], note:''},
+  {rank:14, name:'PEI-LAS', reps:[], note:'Работаем крайне аккуратно!'},
+  {rank:15, name:'KA PINNACLE PRO LOGISTICS LLC', reps:[], note:''},
+  {rank:16, name:'Expedited America — EP America Inc.', reps:[], note:'Есть чат с 18 репами в вацапе — дублируйте опцию, будет больше шансов забрать груз!'},
+  {rank:17, name:'ASAP EXPEDITING & LOGISTICS — G & H TRANSPORT', reps:[], note:'Работаем крайне аккуратно!'},
+  {rank:18, name:'FREEWAY INTERNATIONAL LOGISTICS', reps:[], note:''},
+  {rank:19, name:'ONE8 FREIGHT LLC — CANDOR', reps:[], note:''},
+  {rank:20, name:'BURRIS LOGISTICS', reps:[], note:'Работаем крайне аккуратно!'},
+  {rank:21, name:'SATURN FREIGHT SYSTEMS', reps:[], note:'Платят детеншн после 1-го часа'},
+  {rank:22, name:'TA SERVICES', reps:[], note:''},
+
+  {rank:23, name:'AIT TRUCKLOAD SOLUTIONS INC', reps:[
+    {name:'',email:'skimball@aitworldwide.com'},
+    {name:'',email:'jdavidson@aitworldwide.com'},
+    {name:'',email:'Team3@aitworldwide.com'},
+    {name:'',email:'rsorgenfrey@aitworldwide.com'},
+    {name:'',email:'sptaylor@aitworldwide.com'},
+    {name:'',email:'atsexpedite@aitworldwide.com'},
+    {name:'',email:'CarriersalesTL@aitworldwide.com'},
+    {name:'',email:'chgonzalez@aitworldwide.com'},
+    {name:'',email:'teamstephanie@aitworldwide.com'},
+  ], note:'У парней свои грузы — ставьте дороже обычного!'},
+
+  {rank:24, name:'NATIONAL LOGISTICS NETWORK', reps:[
+    {name:'',email:'dan@shipnln.com'},
+    {name:'',email:'mikaela@shipnln.com'},
+    {name:'',email:'brian@shipnln.com'},
+    {name:'',email:'holly@shipnln.com'},
+    {name:'',email:'tmickel@nlnllc.com'},
+    {name:'',email:'dispatch@shipnln.com'},
+    {name:'',email:'tracking@shipnln.com'},
+  ], note:'Любят нас. Ставьте ДОРОЖЕ!'},
+
+  {rank:25, name:'VIRNICH CORPORATION', reps:[], note:''},
+  {rank:26, name:'PAR LOGISTICS', reps:[], note:'Работаем крайне аккуратно!'},
+  {rank:27, name:'RAVEN CARGO INC', reps:[], note:''},
+  {rank:28, name:'ASSET HOUND LLC', reps:[], note:''},
+  {rank:29, name:'ON TIME INTERNATIONAL INC.', reps:[], note:'У парней свои грузы — ставьте дороже обычного!'},
+  {rank:30, name:'AXIS WORLDWIDE', reps:[], note:'У парней свои грузы — ставьте дороже обычного!'},
+
+  {rank:32, name:'GRAND AIRE INC.', reps:[
+    {name:'Erin Winseman',email:'eduke@grandaire.com'},
+    {name:'Laura Hageman',email:'lhageman@grandaire.com'},
+  ], note:''},
+
+  {rank:33, name:"ANDREY'S DELIVERY EXPRESS LLC", reps:[], note:'Дорогие грузы на Ларджи'},
+  {rank:34, name:'EF CORPORATION — NEW AGE', reps:[], note:''},
+  {rank:35, name:'FREIGHT FLEX', reps:[], note:''},
+  {rank:36, name:'GROUND FREIGHT SOLUTIONS LLC', reps:[], note:'Никогда не пиздите за команду!'},
+  {rank:37, name:'STRAIGHT SHOT EXPRESS', reps:[], note:'У парней свои грузы — ставьте дороже обычного!'},
+
+  {rank:38, name:'440 TRANSIT, LLC', reps:[
+    {name:'Shannon Cantu',email:'scantu@440transit.com'},
+  ], note:'У парней свои грузы — ставьте дороже обычного!'},
+
+  {rank:39, name:'JUNG EXPRESS', reps:[], note:'Работаем крайне аккуратно!'},
+  {rank:40, name:'YELLOW DIAMOND', reps:[], note:'Много грузов на TWIC — ставьте дороже!'},
+
+  // Watch list
+  {rank:null, name:'KCH TRANSPORTATION INC', reps:[], note:''},
+  {rank:null, name:'MILLHOUSE LOGISTICS INC', reps:[], note:'Нужно вернуть!'},
+  {rank:null, name:'FASTMORE LOGISTICS', reps:[], note:'Нужно вернуть!'},
+  {rank:null, name:'SUNTECK TRANSPORT', reps:[], note:'?????'},
+  {rank:null, name:'META LOGISTIC SOLUTIONS INC', reps:[], note:'Постят очень много грузов, но нам не отдают'},
+  {rank:null, name:'SAFEWAY TRUCK LINES', reps:[], note:'Постят очень много грузов, но нам не отдают'},
+  {rank:null, name:'LOAD SMART', reps:[], note:'Постят очень много грузов, но нам не отдают'},
+  {rank:null, name:'TRY HOURS', reps:[], note:'Постят очень много грузов, но нам не отдают'},
+];
+
+function noteStyle(note) {
+  if (!note) return null;
+  const n = note.toLowerCase();
+  if (n.includes('нужно вернуть')) return 'recover';
+  if (n.includes('не отдают')) return 'prospect';
+  if (n.includes('дороже')) return 'charge';
+  if (n.includes('аккуратно') || n.includes('детеншн')) return 'careful';
+  return 'default';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function card(b) {
+  let rk, rc;
+  if (b.rank == null) { rk = '—'; rc = 'r-none'; }
+  else if (b.rank <= 3) { rk = '#'+b.rank; rc = 'r-gold'; }
+  else if (b.rank <= 10) { rk = '#'+b.rank; rc = 'r-silver'; }
+  else { rk = '#'+b.rank; rc = 'r-plain'; }
+
+  let noteHtml = '';
+  const ns = noteStyle(b.note);
+  if (b.note && ns) {
+    noteHtml = `<div class="card-note n-${ns}">${esc(b.note)}</div>`;
+  }
+
+  let repsHtml = '';
+  if (b.reps.length) {
+    const rows = b.reps.map(r => {
+      const nm = r.name
+        ? `<span class="rep-nm">${esc(r.name)}</span>`
+        : `<span class="rep-nm" style="color:#252525">—</span>`;
+      const em = r.email
+        ? `<button class="rep-email" onclick="cp(this,'${r.email.replace(/'/g,"\\'")}')">${esc(r.email)}</button>`
+        : '';
+      return `<div class="rep-row">${nm}${em}</div>`;
+    }).join('');
+    repsHtml = `<div class="card-reps"><div class="reps-head">Reps &amp; Contacts</div>${rows}</div>`;
+  }
+
+  return `<div class="broker-card"><div class="card-head"><div class="rank ${rc}">${rk}</div><div class="card-name">${esc(b.name)}</div></div>${noteHtml}${repsHtml}</div>`;
+}
+
+function render(q) {
+  q = (q||'').toLowerCase().trim();
+  const all = DATA.filter(b => {
+    if (!q) return true;
+    if (b.name.toLowerCase().includes(q)) return true;
+    if (b.note && b.note.toLowerCase().includes(q)) return true;
+    return b.reps.some(r =>
+      (r.name && r.name.toLowerCase().includes(q)) ||
+      (r.email && r.email.toLowerCase().includes(q))
+    );
+  });
+
+  const ranked = all.filter(b => b.rank != null);
+  const watch  = all.filter(b => b.rank == null);
+  const list   = document.getElementById('list');
+
+  document.getElementById('count').textContent = all.length + ' / ' + DATA.length;
+
+  if (!all.length) {
+    list.innerHTML = '<div class="empty">Nothing found</div>';
+    return;
+  }
+
+  let html = '';
+  if (ranked.length) {
+    html += '<div class="grid-full"><div class="section-label">Ranked Brokers</div></div>';
+    ranked.forEach(b => { html += card(b); });
+  }
+  if (watch.length) {
+    html += '<div class="grid-full"><div class="section-label">Watch List</div></div>';
+    watch.forEach(b => { html += card(b); });
+  }
+  list.innerHTML = html;
+}
+
+function cp(btn, email) {
+  navigator.clipboard.writeText(email).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('ok'); }, 1400);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = email; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+  });
+}
+
+document.getElementById('search').addEventListener('input', e => render(e.target.value));
+render('');
+</script>
+</body>
+</html>
