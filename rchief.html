@@ -331,6 +331,8 @@ kbd {
 <!-- Help overlay (#7) -->
 <div class="help-backdrop" id="helpBackdrop" onclick="if (event.target.id==='helpBackdrop') toggleHelp()">
   <div class="help-modal">
+    <h3 style="margin-top:0">📋  RChief</h3>
+    <p style="font-size:13.5px; color:var(--text-muted); line-height:1.55; margin-bottom:16px;">Parse raw load text from brokers into a clean, structured summary — pickup, delivery, dates, miles, rate. Paste anything, get a clean copy-ready output.</p>
     <h3>⌨️  Keyboard shortcuts</h3>
     <div class="help-row"><span class="help-keys"><kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd></span><span class="help-desc">Parse current input</span></div>
     <div class="help-row"><span class="help-keys"><kbd>Esc</kbd></span><span class="help-desc">Reset form fields</span></div>
@@ -362,6 +364,7 @@ kbd {
       <a href="index.html" class="icon-btn" style="text-decoration:none; font-size:11px; font-weight:700; letter-spacing:0.04em; width:auto; padding:0 10px;" title="All tools">Tools</a>
       <a href="cargo-spacer.html" class="icon-btn" style="text-decoration:none; font-size:11px; font-weight:700; letter-spacing:0.04em; width:auto; padding:0 10px;" title="Cargo Spacer">Cargo</a>
       <a href="broker-directory.html" class="icon-btn" style="text-decoration:none; font-size:11px; font-weight:700; letter-spacing:0.04em; width:auto; padding:0 10px;" title="Broker Directory">Brokers</a>
+      <button class="icon-btn" id="helpBtn" onclick="toggleHelp()" style="font-size:13px; font-weight:700; width:auto; padding:0 12px;" title="Help (?)">?</button>
       <div class="history-wrap">
         <button class="icon-btn" id="historyBtn" onclick="toggleHistory()" title="History">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
@@ -480,10 +483,10 @@ function toggleTheme() {
   const cur = document.documentElement.getAttribute('data-theme');
   const next = cur === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('lp_theme', next);
+  localStorage.setItem('rchief_theme', next);
 }
 (function initTheme() {
-  const saved = localStorage.getItem('lp_theme');
+  const saved = localStorage.getItem('rchief_theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
 })();
 
@@ -1479,7 +1482,7 @@ function selectLoad(i) {
 
 /* ── History (#8) ──────────────────────────────────────────────────────── */
 let HISTORY = [];
-try { HISTORY = JSON.parse(localStorage.getItem('lp_history') || '[]'); } catch {}
+try { HISTORY = JSON.parse(localStorage.getItem('rchief_history') || '[]'); } catch {}
 
 function pushHistory(R, raw, format) {
   if (!R.pu && !R.del) return; // skip empty
@@ -1488,7 +1491,7 @@ function pushHistory(R, raw, format) {
   HISTORY = HISTORY.filter(e => e.raw !== raw);
   HISTORY.unshift(entry);
   if (HISTORY.length > 10) HISTORY.length = 10;
-  try { localStorage.setItem('lp_history', JSON.stringify(HISTORY)); } catch {}
+  try { localStorage.setItem('rchief_history', JSON.stringify(HISTORY)); } catch {}
 }
 
 function toggleHistory() {
@@ -1560,7 +1563,7 @@ function loadHistory(i) {
 function clearHistory() {
   if (!confirm('Clear all history?')) return;
   HISTORY = [];
-  try { localStorage.removeItem('lp_history'); } catch {}
+  try { localStorage.removeItem('rchief_history'); } catch {}
   renderHistory();
 }
 

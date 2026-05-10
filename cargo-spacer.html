@@ -803,6 +803,57 @@
     .app-header { border-bottom-color: #ccc !important; }
     .section-label, .card-title { border-bottom-color: #ccc !important; color: #555 !important; }
   }
+
+  /* Help modal */
+  .help-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    z-index: 200; display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .help-overlay.open { display: flex; animation: helpFade 0.15s ease; }
+  .help-card {
+    background: var(--card);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    max-width: 540px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    padding: 22px 24px 20px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  }
+  .help-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .help-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+  .help-close {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--muted); font-size: 22px; line-height: 1;
+    padding: 0 4px; margin-top: -2px; font-family: inherit;
+  }
+  .help-close:hover { color: var(--text); }
+  .help-desc { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin: 8px 0 18px; }
+  .help-section {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .help-steps { list-style: none; padding: 0; margin: 0; }
+  .help-steps li {
+    display: flex; gap: 12px;
+    padding: 10px 0;
+    font-size: 13px; line-height: 1.55;
+    color: var(--text);
+    border-top: 1px solid var(--divider);
+  }
+  .help-steps li:first-child { border-top: none; padding-top: 4px; }
+  .help-num {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--primary-soft); color: var(--primary);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; margin-top: 1px;
+  }
+  @keyframes helpFade { from { opacity: 0; } to { opacity: 1; } }
 </style>
 </head>
 <body>
@@ -884,6 +935,7 @@
       <a href="index.html" class="header-btn lang-toggle" style="text-decoration:none;" title="All tools">Tools</a>
       <a href="rchief.html" class="header-btn lang-toggle" style="text-decoration:none;" title="RChief">RChief</a>
       <a href="broker-directory.html" class="header-btn lang-toggle" style="text-decoration:none;" title="Broker Directory">Brokers</a>
+      <button class="header-btn lang-toggle" id="help-toggle" onclick="openHelp()" aria-label="Help" title="Help">?</button>
       <button class="header-btn lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">RU</button>
       <button class="header-btn theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
     </div>
@@ -1130,6 +1182,15 @@ const I18N = {
     placeholder_payload: 'e.g. 4000',
     placeholder_tare: 'e.g. 0',
     placeholder_lbs: 'lbs',
+
+    helpTitle: 'Cargo Spacer',
+    helpDesc: 'Verify if your cargo fits in the truck — visually and by the numbers.',
+    helpHow: 'How to use',
+    helpStep1: 'Pick a truck — choose a preset (Sprinter, Small / Large Straight) or set custom dimensions.',
+    helpStep2: 'Add cargo items — enter length, width, height, weight, and quantity for each piece.',
+    helpStep3: 'Switch units anytime — feet / inches / meters / cm and lbs / kg.',
+    helpStep4: 'Check fit — visual layout shows how items pack, plus pass/fail by volume and weight.',
+    helpStep5: 'Auto-saved — state is kept in your browser; close and come back later.',
   },
   ru: {
     appTitle: 'Cargo Spacer',
@@ -1221,6 +1282,15 @@ const I18N = {
     placeholder_payload: 'напр. 4000',
     placeholder_tare: 'напр. 0',
     placeholder_lbs: 'lbs',
+
+    helpTitle: 'Cargo Spacer',
+    helpDesc: 'Проверка, поместится ли груз в кузов — визуально и по цифрам.',
+    helpHow: 'Как пользоваться',
+    helpStep1: 'Выбери машину — пресет (Sprinter, Small / Large Straight) или custom-размеры.',
+    helpStep2: 'Добавь груз — длина, ширина, высота, вес и количество для каждого места.',
+    helpStep3: 'Переключай единицы — футы / дюймы / метры / см и фунты / кг.',
+    helpStep4: 'Проверь укладку — визуальная схема плюс pass/fail по объёму и весу.',
+    helpStep5: 'Авто-сохранение — состояние хранится в браузере, можно вернуться позже.',
   }
 };
 
@@ -1593,9 +1663,6 @@ function resetAll() {
     }
   });
 });
-
-// One-time cleanup of legacy localStorage keys from older versions
-try { localStorage.removeItem('cargo-spacer-load-dir'); } catch(e) {}
 
 // Enter-key shortcut: trigger Check Cargo Fit from any input (except checkboxes/buttons)
 document.addEventListener('keydown', (e) => {
@@ -2627,6 +2694,29 @@ function drawWireframeBox(l, w, h, ox, oy, oz, project, ctx, color, alpha, lw) {
 
 const resizeObs = new ResizeObserver(() => { if (vizState) redrawViz(); });
 resizeObs.observe(document.getElementById('viz3d'));
+
+// Help modal
+function openHelp() { document.getElementById('help-overlay').classList.add('open'); }
+function closeHelp() { document.getElementById('help-overlay').classList.remove('open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHelp(); });
 </script>
+
+<div class="help-overlay" id="help-overlay" onclick="if(event.target===this)closeHelp()">
+  <div class="help-card" role="dialog" aria-labelledby="help-title-el">
+    <div class="help-head">
+      <div class="help-title" id="help-title-el" data-i18n="helpTitle">Cargo Spacer</div>
+      <button class="help-close" onclick="closeHelp()" aria-label="Close">×</button>
+    </div>
+    <div class="help-desc" data-i18n="helpDesc"></div>
+    <div class="help-section" data-i18n="helpHow">How to use</div>
+    <ol class="help-steps">
+      <li><span class="help-num">1</span><span data-i18n="helpStep1"></span></li>
+      <li><span class="help-num">2</span><span data-i18n="helpStep2"></span></li>
+      <li><span class="help-num">3</span><span data-i18n="helpStep3"></span></li>
+      <li><span class="help-num">4</span><span data-i18n="helpStep4"></span></li>
+      <li><span class="help-num">5</span><span data-i18n="helpStep5"></span></li>
+    </ol>
+  </div>
+</div>
 </body>
 </html>
