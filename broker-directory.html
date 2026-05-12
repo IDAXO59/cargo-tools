@@ -727,19 +727,19 @@ function toggleTheme() {
   applyLang();
   document.getElementById('search').addEventListener('input', e => render(e.target.value, { scroll: true }));
 })();
-// Функция, которая проверяет пароль
+
 function checkPass() {
   const pass = document.getElementById('pass-input').value;
-  const secret = "URSAEXPRESS"; // Твой пароль
+  const secret = "URSA"; 
 
   if (pass === secret) {
-    // Если пароль верный: скрываем заставку и показываем сайт
+ 
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
-    // Запоминаем, что вход выполнен (чтобы не вводить при обновлении страницы)
+    
     sessionStorage.setItem('isAuthorized', 'true');
   } else {
-    // Если неверный: показываем текст ошибки
+    
     document.getElementById('error-msg').style.display = 'block';
   }
 }
