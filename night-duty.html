@@ -83,17 +83,16 @@ body {
   color: var(--text-muted);
   font-size: 0.9rem;
 }
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  margin-bottom: 28px;
-  transition: color 0.15s;
+.controls { position: absolute; top: 0; right: 0; display: flex; gap: 8px; }
+.nav-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 36px; padding: 0 12px; min-width: 36px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  text-decoration: none; cursor: pointer; transition: border-color 0.15s, background 0.2s;
+  font-family: inherit;
 }
-.back-link:hover { color: var(--accent); }
+.nav-btn:hover { border-color: var(--border-strong); }
 
 /* Result display */
 .result-box {
@@ -261,20 +260,11 @@ body {
   transform: rotate(40deg);
 }
 
-/* Theme toggle */
-.theme-btn {
-  position: absolute;
-  top: 0; right: 0;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  transition: color 0.15s, border-color 0.15s;
+@media (max-width: 600px) {
+  .topbar { padding-top: 60px; }
+  .brand-logo-link { left: 50%; transform: translateX(-50%); }
+  .controls { position: static; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
 }
-.theme-btn:hover { color: var(--text); border-color: var(--border-strong); }
 </style>
 </head>
 <body>
@@ -285,10 +275,12 @@ body {
     </a>
     <h1 class="page-title">Night Duty</h1>
     <p class="page-subtitle">Random pick for night shift</p>
-    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️ Light</button>
+    <div class="controls">
+      <a href="index.html" class="nav-btn" style="font-weight:600;">← Main</a>
+      <button class="nav-btn" id="langBtn" onclick="toggleLang()">RU</button>
+      <button class="nav-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
+    </div>
   </header>
-
-  <a href="index.html" class="back-link">← Back to Tools</a>
 
   <div class="result-box" id="result-box">
     <div class="result-label">On duty tonight</div>
@@ -393,18 +385,26 @@ function spin() {
   tick();
 }
 
+const LS_THEME = 'ursa-theme';
+const LS_LANG = 'ursa-lang';
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem(LS_THEME, theme);
+}
 function toggleTheme() {
-  const html = document.documentElement;
-  const btn = document.getElementById('theme-btn');
-  if (html.getAttribute('data-theme') === 'dark') {
-    html.setAttribute('data-theme', 'light');
-    btn.textContent = '🌙 Dark';
-  } else {
-    html.setAttribute('data-theme', 'dark');
-    btn.textContent = '☀️ Light';
-  }
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+function applyLang(lang) {
+  document.getElementById('langBtn').textContent = lang === 'en' ? 'RU' : 'EN';
+  localStorage.setItem(LS_LANG, lang);
+}
+function toggleLang() {
+  applyLang(localStorage.getItem(LS_LANG) === 'ru' ? 'en' : 'ru');
 }
 
+applyTheme(localStorage.getItem(LS_THEME) || 'dark');
+applyLang(localStorage.getItem(LS_LANG) || 'en');
 render();
 </script>
 </body>

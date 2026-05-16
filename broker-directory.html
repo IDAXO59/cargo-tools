@@ -299,10 +299,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
       <div class="page-title" data-i18n="title">Broker Directory</div>
       <div class="page-sub" data-i18n="subtitle">URSA Express · Internal</div>
     </div>
-    
+    <div class="controls">
+      <a href="index.html" class="nav-btn" style="font-weight:600;">← Main</a>
+      <button class="nav-btn" id="lang-toggle" onclick="toggleLang()">RU</button>
+      <button class="nav-btn" id="theme-toggle" onclick="toggleTheme()">☀️</button>
+    </div>
   </header>
 
-  <a href="index.html" style="display:inline-block;margin-bottom:16px;font-size:0.82rem;color:var(--text-muted);text-decoration:none;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">← Back to Tools</a><div class="search-wrap">
+  <div class="search-wrap">
     <div class="search-box">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" id="search" data-i18n-ph="searchPh" placeholder="Search broker, rep, email…" autocomplete="off" spellcheck="false" />

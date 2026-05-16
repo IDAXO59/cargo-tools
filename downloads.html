@@ -54,9 +54,20 @@ body {
 }
 .brand-logo-link:hover { opacity: 0.8; }
 .brand-logo { height: 38px; width: auto; display: block; }
+.controls { position: absolute; top: 0; right: 0; display: flex; gap: 8px; }
+.nav-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 36px; padding: 0 12px; min-width: 36px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  text-decoration: none; cursor: pointer; transition: border-color 0.15s, background 0.2s;
+  font-family: inherit;
+}
+.nav-btn:hover { border-color: var(--border-strong); }
 @media (max-width: 600px) {
   .topbar { padding-top: 60px; }
   .brand-logo-link { left: 50%; transform: translateX(-50%); }
+  .controls { position: static; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
 }
 .page-title {
   font-size: 2rem;
@@ -183,9 +194,12 @@ body {
     </a>
     <h1 class="page-title">Downloads</h1>
     <p class="page-subtitle">Templates and documents for dispatchers</p>
+    <div class="controls">
+      <a href="index.html" class="nav-btn" style="font-weight:600;">← Main</a>
+      <button class="nav-btn" id="langBtn" onclick="toggleLang()">RU</button>
+      <button class="nav-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
+    </div>
   </header>
-
-  <a href="index.html" class="back-link">← Back to Tools</a>
 
   <main>
     <p class="section-label">Available Files</p>
@@ -231,5 +245,28 @@ body {
     </div>
   </main>
 </div>
+<script>
+const LS_THEME = 'ursa-theme';
+const LS_LANG = 'ursa-lang';
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem(LS_THEME, theme);
+}
+function toggleTheme() {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+function applyLang(lang) {
+  document.getElementById('langBtn').textContent = lang === 'en' ? 'RU' : 'EN';
+  localStorage.setItem(LS_LANG, lang);
+}
+function toggleLang() {
+  applyLang(localStorage.getItem(LS_LANG) === 'ru' ? 'en' : 'ru');
+}
+(function() {
+  applyTheme(localStorage.getItem(LS_THEME) || 'dark');
+  applyLang(localStorage.getItem(LS_LANG) || 'en');
+})();
+</script>
 </body>
 </html>

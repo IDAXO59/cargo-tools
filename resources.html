@@ -63,29 +63,21 @@ body {
 .brand-logo-link:hover { opacity: 0.8; }
 .brand-logo { height: 38px; width: auto; display: block; }
 
-.back-btn {
-  position: absolute;
-  top: 6px;
-  right: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--muted);
-  text-decoration: none;
-  padding: 5px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+.controls { position: absolute; top: 0; right: 0; display: flex; gap: 8px; }
+.nav-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 36px; padding: 0 12px; min-width: 36px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  text-decoration: none; cursor: pointer; transition: border-color 0.15s, background 0.2s;
+  font-family: inherit;
 }
-.back-btn:hover { color: var(--text); border-color: var(--border-strong); background: var(--card-elev); }
+.nav-btn:hover { border-color: var(--border-strong); }
 
 @media (max-width: 600px) {
   .topbar { padding-top: 60px; }
   .brand-logo-link { left: 50%; transform: translateX(-50%); }
-  .back-btn { top: auto; bottom: 28px; }
+  .controls { position: static; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
 }
 
 .page-title {
@@ -280,10 +272,11 @@ body {
     <h1 class="page-title">Resources</h1>
     <p class="page-subtitle">Documents, templates and reference files</p>
 
-    <a href="index.html" class="back-btn">
-      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      All Tools
-    </a>
+    <div class="controls">
+      <a href="index.html" class="nav-btn" style="font-weight:600;">← Main</a>
+      <button class="nav-btn" id="langBtn" onclick="toggleLang()">RU</button>
+      <button class="nav-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
+    </div>
   </header>
 
   <main>
@@ -396,6 +389,23 @@ body {
   </main>
 </div>
 <script>
+const LS_THEME = 'ursa-theme';
+const LS_LANG = 'ursa-lang';
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem(LS_THEME, theme);
+}
+function toggleTheme() {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+function applyLang(lang) {
+  document.getElementById('langBtn').textContent = lang === 'en' ? 'RU' : 'EN';
+  localStorage.setItem(LS_LANG, lang);
+}
+function toggleLang() {
+  applyLang(localStorage.getItem(LS_LANG) === 'ru' ? 'en' : 'ru');
+}
 function checkPass() {
   const pass = document.getElementById('pass-input').value;
   const secret = "URSA";
@@ -417,6 +427,8 @@ document.getElementById('pass-input').addEventListener('keypress', function(e) {
 
 // Проверка при загрузке страницы
 (function() {
+  applyTheme(localStorage.getItem(LS_THEME) || 'dark');
+  applyLang(localStorage.getItem(LS_LANG) || 'en');
   if (localStorage.getItem('isAuthorized') === 'true') {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
