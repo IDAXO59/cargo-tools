@@ -299,17 +299,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
       <div class="page-title" data-i18n="title">Broker Directory</div>
       <div class="page-sub" data-i18n="subtitle">URSA Express · Internal</div>
     </div>
-    <div class="controls">
-      <a href="index.html" class="nav-btn" data-i18n="tools">Tools</a>
-      <a href="cargo-spacer.html" class="nav-btn" data-i18n="cargo">Cargo</a>
-      <a href="rchief.html" class="nav-btn" data-i18n="rchief">RChief</a>
-      <button class="nav-btn nav-btn-icon" id="help-toggle" onclick="openHelp()" aria-label="Help" title="Help">?</button>
-      <button class="nav-btn" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">RU</button>
-      <button class="nav-btn nav-btn-icon" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀️</button>
-    </div>
+    
   </header>
 
-  <div class="search-wrap">
+  <a href="index.html" style="display:inline-block;margin-bottom:16px;font-size:0.82rem;color:var(--text-muted);text-decoration:none;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">← Back to Tools</a><div class="search-wrap">
     <div class="search-box">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" id="search" data-i18n-ph="searchPh" placeholder="Search broker, rep, email…" autocomplete="off" spellcheck="false" />
