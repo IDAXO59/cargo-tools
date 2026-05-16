@@ -929,10 +929,11 @@
     </a>
     <div class="app-title-block">
       <h1><span class="accent" data-i18n="appTitle">Cargo Spacer</span></h1>
-      <p data-i18n="appDesc">Verify if your cargo fits in the truck — visually and by the numbers.</p>
+      <p data-i18n="appDesc">Verify if your cargo fits in the truck – visually and by the numbers.</p>
     </div>
     <div class="header-controls">
       <a href="index.html" class="header-btn back-nav" style="font-weight:600;">← Main</a>
+      <button class="header-btn lang-toggle" id="help-toggle" onclick="openHelp()" aria-label="Help" title="Help">?</button>
       <button class="header-btn lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">RU</button>
       <button class="header-btn theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
     </div>
@@ -1109,7 +1110,7 @@
 const I18N = {
   en: {
     appTitle: 'Cargo Spacer',
-    appDesc: 'Verify if your cargo fits in the truck — visually and by the numbers.',
+    appDesc: 'Verify if your cargo fits in the truck – visually and by the numbers.',
     chooseTruckType: '1. Choose truck type',
     truckCargoSpace: 'Truck Cargo Space',
     cargoItems: 'Cargo Items',
@@ -1154,7 +1155,7 @@ const I18N = {
     qtyCol: 'Qty',
     placedCol: 'Placed',
     weightCol: 'Weight',
-    dashEmpty: '—',
+    dashEmpty: '–',
 
     visualization: '3D Visualization',
     vizHint: '(drag to rotate · scroll to zoom)',
@@ -1165,11 +1166,11 @@ const I18N = {
     enterTruckDims: 'Please enter all truck dimensions.',
     enterCargoDims: 'Please enter at least one cargo with all dimensions and quantity ≥ 1.',
 
-    warnExceedsTruck: '"{0}" exceeds truck {1} — single unit doesn\'t fit.',
+    warnExceedsTruck: '"{0}" exceeds truck {1} – single unit doesn\'t fit.',
     warnOnlyFit: '"{0}": only {1} of {2} unit(s) fit using sequential packing.',
     warnVolumeExceeds: 'Total cargo volume exceeds truck capacity ({0}%).',
     warnWeightExceeds: 'Total weight {0} {2} exceeds payload {1} {2}.',
-    warnNonStackable: '"{0}" marked non-stackable — packed as single layer.',
+    warnNonStackable: '"{0}" marked non-stackable – packed as single layer.',
 
     dim_length: 'length',
     dim_width: 'width',
@@ -1199,17 +1200,17 @@ const I18N = {
     placeholder_lbs: 'lbs',
 
     helpTitle: 'Cargo Spacer',
-    helpDesc: 'Verify if your cargo fits in the truck — visually and by the numbers.',
+    helpDesc: 'Verify if your cargo fits in the truck – visually and by the numbers.',
     helpHow: 'How to use',
-    helpStep1: 'Pick a truck — choose a preset (Sprinter, Small / Large Straight) or set custom dimensions.',
-    helpStep2: 'Add cargo items — enter length, width, height, weight, and quantity for each piece.',
-    helpStep3: 'Switch units anytime — feet / inches / meters / cm and lbs / kg.',
-    helpStep4: 'Check fit — visual layout shows how items pack, plus pass/fail by volume and weight.',
-    helpStep5: 'Auto-saved — state is kept in your browser; close and come back later.',
+    helpStep1: 'Pick a truck – choose a preset (Sprinter, Small / Large Straight) or set custom dimensions.',
+    helpStep2: 'Add cargo items – enter length, width, height, weight, and quantity for each piece.',
+    helpStep3: 'Switch units anytime – feet / inches / meters / cm and lbs / kg.',
+    helpStep4: 'Check fit – visual layout shows how items pack, plus pass/fail by volume and weight.',
+    helpStep5: 'Auto-saved – state is kept in your browser; close and come back later.',
   },
   ru: {
     appTitle: 'Cargo Spacer',
-    appDesc: 'Проверьте, поместится ли груз в кузов — визуально и по цифрам.',
+    appDesc: 'Проверьте, поместится ли груз в кузов – визуально и по цифрам.',
     chooseTruckType: '1. Выберите тип машины',
     truckCargoSpace: 'Грузовое пространство',
     cargoItems: 'Грузы',
@@ -1254,7 +1255,7 @@ const I18N = {
     qtyCol: 'Кол-во',
     placedCol: 'Размещено',
     weightCol: 'Вес',
-    dashEmpty: '—',
+    dashEmpty: '–',
 
     visualization: '3D Визуализация',
     vizHint: '(потяните для поворота · колесо мыши для масштаба)',
@@ -1265,11 +1266,11 @@ const I18N = {
     enterTruckDims: 'Введите все размеры машины.',
     enterCargoDims: 'Введите хотя бы один груз с размерами и количеством ≥ 1.',
 
-    warnExceedsTruck: '«{0}» превышает {1} машины — единица не помещается.',
+    warnExceedsTruck: '«{0}» превышает {1} машины – единица не помещается.',
     warnOnlyFit: '«{0}»: только {1} из {2} помещается при последовательной укладке.',
     warnVolumeExceeds: 'Объём груза превышает объём кузова ({0}%).',
     warnWeightExceeds: 'Общий вес {0} {2} превышает грузоподъёмность {1} {2}.',
-    warnNonStackable: '«{0}» отмечен как не штабелируемый — укладывается в один слой.',
+    warnNonStackable: '«{0}» отмечен как не штабелируемый – укладывается в один слой.',
 
     dim_length: 'длине',
     dim_width: 'ширине',
@@ -1299,13 +1300,13 @@ const I18N = {
     placeholder_lbs: 'lbs',
 
     helpTitle: 'Cargo Spacer',
-    helpDesc: 'Проверка, поместится ли груз в кузов — визуально и по цифрам.',
+    helpDesc: 'Проверка, поместится ли груз в кузов – визуально и по цифрам.',
     helpHow: 'Как пользоваться',
-    helpStep1: 'Выбери машину — пресет (Sprinter, Small / Large Straight) или custom-размеры.',
-    helpStep2: 'Добавь груз — длина, ширина, высота, вес и количество для каждого места.',
-    helpStep3: 'Переключай единицы — футы / дюймы / метры / см и фунты / кг.',
-    helpStep4: 'Проверь укладку — визуальная схема плюс pass/fail по объёму и весу.',
-    helpStep5: 'Авто-сохранение — состояние хранится в браузере, можно вернуться позже.',
+    helpStep1: 'Выбери машину – пресет (Sprinter, Small / Large Straight) или custom-размеры.',
+    helpStep2: 'Добавь груз – длина, ширина, высота, вес и количество для каждого места.',
+    helpStep3: 'Переключай единицы – футы / дюймы / метры / см и фунты / кг.',
+    helpStep4: 'Проверь укладку – визуальная схема плюс pass/fail по объёму и весу.',
+    helpStep5: 'Авто-сохранение – состояние хранится в браузере, можно вернуться позже.',
   }
 };
 
@@ -1397,7 +1398,7 @@ let loadDirection = 'front'; // 'front' (toward cab) | 'back' (toward doors)
 let vizState = null;
 
 // =========================
-// DOM element cache — populated after DOM is ready
+// DOM element cache – populated after DOM is ready
 // =========================
 const els = {};
 (function cacheEls() {
@@ -1814,7 +1815,7 @@ function escapeHtml(s) {
 // init
 const restoredTruck = loadState();
 if (restoredTruck && cargoItems.length > 0) {
-  // State restored from localStorage — apply truck inputs and unit selectors
+  // State restored from localStorage – apply truck inputs and unit selectors
   document.getElementById('truck-l').value = restoredTruck.l ?? '';
   document.getElementById('truck-w').value = restoredTruck.w ?? '';
   document.getElementById('truck-h').value = restoredTruck.h ?? '';
@@ -1830,7 +1831,7 @@ if (restoredTruck && cargoItems.length > 0) {
   renderCargoItems();
   updateBulkheadVisibility();
 } else {
-  // No saved state — start fresh with default preset
+  // No saved state – start fresh with default preset
   addCargoItem();
   selectTruckType('sprinter');
 }
@@ -1936,7 +1937,7 @@ function fmt(v, decimals = 2) {
 // Packing
 // =========================
 // Pack a single cargo type at xOffsetStart with given orientation (l,w,h).
-// Returns { placements, placed, xOffset } — does NOT mutate input.
+// Returns { placements, placed, xOffset } – does NOT mutate input.
 function packOneOrient(truck, c, l, w, h, xOffsetStart) {
   const nW = Math.floor(truck.w / w + 1e-9);
   let nH = Math.floor(truck.h / h + 1e-9);
@@ -1977,7 +1978,7 @@ function packCargo(truck, cargos) {
     const orig = packOneOrient(truck, c, c.l, c.w, c.h, xOffset);
     let chosen = orig;
 
-    // Rotated orientation (swap L ↔ W) — only if allowed and dimensions differ
+    // Rotated orientation (swap L ↔ W) – only if allowed and dimensions differ
     if (c.rotatable && Math.abs(c.l - c.w) > 1e-9) {
       const rot = packOneOrient(truck, c, c.w, c.l, c.h, xOffset);
       // Pick the orientation that places more units; tie-break by shorter length used
@@ -2360,7 +2361,7 @@ function drawScene(ctx, s) {
   const allFaces = [];
   const allWheels = [];
 
-  // === Truck cargo shell — translucent (see-through walls) so cargo inside is visible ===
+  // === Truck cargo shell – translucent (see-through walls) so cargo inside is visible ===
   pushBoxFaces(allFaces, {
     ox: tox, oy: toy, oz: toz, l: NT.l, w: NT.w, h: NT.h,
     color: getCSS('--truck-shell'), alpha: 0.18,
@@ -2452,7 +2453,7 @@ function drawScene(ctx, s) {
   wheels.forEach(w => allWheels.push(w));
 
   // === Cargo placements (solid, no shading) ===
-  // Cap rendered placements for performance — large qty values would freeze the browser.
+  // Cap rendered placements for performance – large qty values would freeze the browser.
   const VIZ_MAX_PLACEMENTS = 500;
   const totalPlacements = packResult.placements.length;
   const renderedPlacements = totalPlacements > VIZ_MAX_PLACEMENTS
@@ -2612,7 +2613,7 @@ function computeWheelPositions(NT, NCab, NHood, NWheelR, NChassis, style, tox, c
   const wzR = NT.w/2 + NWheelR * 0.4;
   // Front wheels: under cab (closer to hood-cab junction)
   const frontX = cabOx + NCab.l * 0.55;
-  // Rear wheels — position controlled per truck type (Sprinter axle is more forward)
+  // Rear wheels – position controlled per truck type (Sprinter axle is more forward)
   const rearWheelRatio = style.rearWheelRatio ?? 0.90;
   const rearX = tox + NT.l * rearWheelRatio;
 

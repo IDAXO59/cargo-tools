@@ -301,6 +301,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
     </div>
     <div class="controls">
       <a href="index.html" class="nav-btn" style="font-weight:600;">← Main</a>
+      <button class="nav-btn nav-btn-icon" id="help-toggle" onclick="openHelp()" aria-label="Help" title="Help">?</button>
       <button class="nav-btn" id="lang-toggle" onclick="toggleLang()">RU</button>
       <button class="nav-btn" id="theme-toggle" onclick="toggleTheme()">☀️</button>
     </div>
@@ -352,7 +353,7 @@ const DATA = [
   {rank:2, name:'NTG / Nolan Transportation Group', reps:[
     {name:'Jonathan Watola',email:'jonathan.watola@ntgfreight.com'},
     {name:'Team Watola',email:'TeamWatola@ntgfreight.com'},
-  ], note:'Когда бидуем — обязательно с письмом в догонку прикрепляем Ватолу и его команду. Рекомендую сразу писать им в G-chat.'},
+  ], note:'Когда бидуем – обязательно с письмом в догонку прикрепляем Ватолу и его команду. Рекомендую сразу писать им в G-chat.'},
 
   {rank:3, name:'AM TRANS EXPEDITE, INC', reps:[
     {name:'Evan Pencek',email:'epencek@amtransexpedite.com'},
@@ -437,15 +438,15 @@ const DATA = [
     {name:'Ian Barnes',email:'ibarnes@sunsettrans.com'},
   ], note:''},
 
-  {rank:11, name:'PRIORITY EXPEDITE', reps:[], note:'Работаем крайне аккуратно! У парней свои грузы — ставьте дороже обычного!'},
+  {rank:11, name:'PRIORITY EXPEDITE', reps:[], note:'Работаем крайне аккуратно! У парней свои грузы – ставьте дороже обычного!'},
   {rank:12, name:'C5 EXPEDITE LLC', reps:[], note:''},
   {rank:13, name:'GSA Transportation, LLC', reps:[], note:''},
   {rank:14, name:'PEI-LAS', reps:[], note:'Работаем крайне аккуратно!'},
   {rank:15, name:'KA PINNACLE PRO LOGISTICS LLC', reps:[], note:''},
-  {rank:16, name:'Expedited America — EP America Inc.', reps:[], note:'Есть чат с 18 репами в вацапе — дублируйте опцию, будет больше шансов забрать груз!'},
-  {rank:17, name:'ASAP EXPEDITING & LOGISTICS — G & H TRANSPORT', reps:[], note:'Работаем крайне аккуратно!'},
+  {rank:16, name:'Expedited America – EP America Inc.', reps:[], note:'Есть чат с 18 репами в вацапе – дублируйте опцию, будет больше шансов забрать груз!'},
+  {rank:17, name:'ASAP EXPEDITING & LOGISTICS – G & H TRANSPORT', reps:[], note:'Работаем крайне аккуратно!'},
   {rank:18, name:'FREEWAY INTERNATIONAL LOGISTICS', reps:[], note:''},
-  {rank:19, name:'ONE8 FREIGHT LLC — CANDOR', reps:[], note:''},
+  {rank:19, name:'ONE8 FREIGHT LLC – CANDOR', reps:[], note:''},
   {rank:20, name:'BURRIS LOGISTICS', reps:[], note:'Работаем крайне аккуратно!'},
   {rank:21, name:'SATURN FREIGHT SYSTEMS', reps:[], note:'Платят детеншн после 1-го часа'},
   {rank:22, name:'TA SERVICES', reps:[], note:''},
@@ -460,7 +461,7 @@ const DATA = [
     {name:'',email:'CarriersalesTL@aitworldwide.com'},
     {name:'',email:'chgonzalez@aitworldwide.com'},
     {name:'',email:'teamstephanie@aitworldwide.com'},
-  ], note:'У парней свои грузы — ставьте дороже обычного!'},
+  ], note:'У парней свои грузы – ставьте дороже обычного!'},
 
   {rank:24, name:'NATIONAL LOGISTICS NETWORK', reps:[
     {name:'',email:'dan@shipnln.com'},
@@ -476,8 +477,8 @@ const DATA = [
   {rank:26, name:'PAR LOGISTICS', reps:[], note:'Работаем крайне аккуратно!'},
   {rank:27, name:'RAVEN CARGO INC', reps:[], note:''},
   {rank:28, name:'ASSET HOUND LLC', reps:[], note:''},
-  {rank:29, name:'ON TIME INTERNATIONAL INC.', reps:[], note:'У парней свои грузы — ставьте дороже обычного!'},
-  {rank:30, name:'AXIS WORLDWIDE', reps:[], note:'У парней свои грузы — ставьте дороже обычного!'},
+  {rank:29, name:'ON TIME INTERNATIONAL INC.', reps:[], note:'У парней свои грузы – ставьте дороже обычного!'},
+  {rank:30, name:'AXIS WORLDWIDE', reps:[], note:'У парней свои грузы – ставьте дороже обычного!'},
 
   {rank:32, name:'GRAND AIRE INC.', reps:[
     {name:'Erin Winseman',email:'eduke@grandaire.com'},
@@ -485,17 +486,17 @@ const DATA = [
   ], note:''},
 
   {rank:33, name:"ANDREY'S DELIVERY EXPRESS LLC", reps:[], note:'Дорогие грузы на Ларджи'},
-  {rank:34, name:'EF CORPORATION — NEW AGE', reps:[], note:''},
+  {rank:34, name:'EF CORPORATION – NEW AGE', reps:[], note:''},
   {rank:35, name:'FREIGHT FLEX', reps:[], note:''},
   {rank:36, name:'GROUND FREIGHT SOLUTIONS LLC', reps:[], note:'Никогда не пиздите за команду!'},
-  {rank:37, name:'STRAIGHT SHOT EXPRESS', reps:[], note:'У парней свои грузы — ставьте дороже обычного!'},
+  {rank:37, name:'STRAIGHT SHOT EXPRESS', reps:[], note:'У парней свои грузы – ставьте дороже обычного!'},
 
   {rank:38, name:'440 TRANSIT, LLC', reps:[
     {name:'Shannon Cantu',email:'scantu@440transit.com'},
-  ], note:'У парней свои грузы — ставьте дороже обычного!'},
+  ], note:'У парней свои грузы – ставьте дороже обычного!'},
 
   {rank:39, name:'JUNG EXPRESS', reps:[], note:'Работаем крайне аккуратно!'},
-  {rank:40, name:'YELLOW DIAMOND', reps:[], note:'Много грузов на TWIC — ставьте дороже!'},
+  {rank:40, name:'YELLOW DIAMOND', reps:[], note:'Много грузов на TWIC – ставьте дороже!'},
 
   {rank:null, name:'KCH TRANSPORTATION INC', reps:[], note:''},
   {rank:null, name:'MILLHOUSE LOGISTICS INC', reps:[], note:'Нужно вернуть!'},
@@ -511,7 +512,7 @@ const I18N = {
   en: {
     title:'Broker Directory', subtitle:'URSA Express · Internal',
     searchPh:'Search broker, rep, email…',
-    tools:'Tools', cargo:'Cargo', rchief:'RChief',
+    tools:'Tools', cargo:'Cargo', rchief:'Order Converter',
     sectionRanked:'Ranked Brokers', sectionWatch:'Watch List',
     catRecover:'To Recover', catRecoverDesc:'Get them back',
     catProspect:'Prospects', catProspectDesc:'Post many loads but don’t give to us',
@@ -520,9 +521,9 @@ const I18N = {
     empty:'Nothing found',
     copied:'✓ Copied',
     helpTitle:'Broker Directory',
-    helpDesc:'Internal directory of brokers, reps, and contacts — searchable, with one-tap email copy.',
+    helpDesc:'Internal directory of brokers, reps, and contacts – searchable, with one-tap email copy.',
     helpHow:'How to use',
-    helpStep1:'Search by anything — broker name, rep name, or email. Results filter as you type.',
+    helpStep1:'Search by anything – broker name, rep name, or email. Results filter as you type.',
     helpStep2:'Tap any email button to copy it to your clipboard instantly.',
     helpStep3:'Color-coded notes: green = charge more, amber = work carefully, blue = recover, purple = unresponsive prospect.',
     helpStep4:'Ranked Brokers (#1–40) are ordered by volume and profit. Watch List groups brokers we want back or want to crack.',
@@ -530,7 +531,7 @@ const I18N = {
   ru: {
     title:'Каталог брокеров', subtitle:'URSA Express · Внутренний',
     searchPh:'Поиск брокера, репа, email…',
-    tools:'Tools', cargo:'Cargo', rchief:'RChief',
+    tools:'Tools', cargo:'Cargo', rchief:'Order Converter',
     sectionRanked:'Рейтинг брокеров', sectionWatch:'На контроле',
     catRecover:'Вернуть', catRecoverDesc:'Нужно вернуть в работу',
     catProspect:'Перспективные', catProspectDesc:'Постят много грузов, но нам не отдают',
@@ -539,10 +540,10 @@ const I18N = {
     empty:'Ничего не найдено',
     copied:'✓ Скопировано',
     helpTitle:'Каталог брокеров',
-    helpDesc:'Внутренний справочник брокеров, репов и контактов — с поиском и копированием email в один клик.',
+    helpDesc:'Внутренний справочник брокеров, репов и контактов – с поиском и копированием email в один клик.',
     helpHow:'Как пользоваться',
-    helpStep1:'Ищи по чему угодно — название брокера, имя репа, email. Фильтр работает по мере ввода.',
-    helpStep2:'Тапни на любой email — он мгновенно копируется в буфер обмена.',
+    helpStep1:'Ищи по чему угодно – название брокера, имя репа, email. Фильтр работает по мере ввода.',
+    helpStep2:'Тапни на любой email – он мгновенно копируется в буфер обмена.',
     helpStep3:'Цветные пометки: зелёный = ставить дороже, жёлтый = работать аккуратно, синий = вернуть, фиолетовый = постят, но не отдают.',
     helpStep4:'Рейтинг брокеров (#1–40) сортируется по объёму и профиту. На контроле сгруппированы брокеры, которых хотим вернуть или пробить.',
   }
@@ -578,7 +579,7 @@ function watchCategory(note) {
 
 function card(b, hideNote) {
   let rk, rc;
-  if (b.rank == null) { rk = '—'; rc = 'r-none'; }
+  if (b.rank == null) { rk = '–'; rc = 'r-none'; }
   else if (b.rank <= 3) { rk = '#'+b.rank; rc = 'r-gold'; }
   else if (b.rank <= 10) { rk = '#'+b.rank; rc = 'r-silver'; }
   else { rk = '#'+b.rank; rc = 'r-plain'; }
@@ -594,7 +595,7 @@ function card(b, hideNote) {
     const rows = b.reps.map(r => {
       const nm = r.name
         ? `<span class="rep-nm">${esc(r.name)}</span>`
-        : `<span class="rep-nm empty">—</span>`;
+        : `<span class="rep-nm empty">–</span>`;
       const em = r.email
         ? `<button class="rep-email" onclick="cp(this,'${r.email.replace(/'/g,"\\'")}')">${esc(r.email)}</button>`
         : '';
@@ -643,9 +644,9 @@ function render(q, opts) {
       const items = watchGroups[cat];
       if (!items.length) return;
       if (cat === 'recover') {
-        html += `<div class="subcat sc-recover"><span class="sc-name">${esc(t('catRecover'))}</span><span class="sc-count">${items.length}</span><span class="sc-desc">— ${esc(t('catRecoverDesc'))}</span></div>`;
+        html += `<div class="subcat sc-recover"><span class="sc-name">${esc(t('catRecover'))}</span><span class="sc-count">${items.length}</span><span class="sc-desc">– ${esc(t('catRecoverDesc'))}</span></div>`;
       } else if (cat === 'prospect') {
-        html += `<div class="subcat sc-prospect"><span class="sc-name">${esc(t('catProspect'))}</span><span class="sc-count">${items.length}</span><span class="sc-desc">— ${esc(t('catProspectDesc'))}</span></div>`;
+        html += `<div class="subcat sc-prospect"><span class="sc-name">${esc(t('catProspect'))}</span><span class="sc-count">${items.length}</span><span class="sc-desc">– ${esc(t('catProspectDesc'))}</span></div>`;
       } else {
         html += `<div class="subcat sc-other"><span class="sc-name">${esc(t('catOther'))}</span><span class="sc-count">${items.length}</span></div>`;
       }

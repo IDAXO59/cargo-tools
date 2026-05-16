@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RChief — Ursa Express</title>
+<title>Order Converter – Ursa Express</title>
 <style>
 :root[data-theme="dark"] {
   --bg: #000000;
@@ -331,8 +331,8 @@ kbd {
 <!-- Help overlay (#7) -->
 <div class="help-backdrop" id="helpBackdrop" onclick="if (event.target.id==='helpBackdrop') toggleHelp()">
   <div class="help-modal">
-    <h3 style="margin-top:0" data-i18n="helpHead">📋  RChief</h3>
-    <p style="font-size:13.5px; color:var(--text-muted); line-height:1.55; margin-bottom:16px;" data-i18n="helpDesc">Parse raw load text from brokers into a clean, structured summary — pickup, delivery, dates, miles, rate. Paste anything, get a clean copy-ready output.</p>
+    <h3 style="margin-top:0" data-i18n="helpHead">📋  Order Converter</h3>
+    <p style="font-size:13.5px; color:var(--text-muted); line-height:1.55; margin-bottom:16px;" data-i18n="helpDesc">Parse raw load text from brokers into a clean, structured summary – pickup, delivery, dates, miles, rate. Paste anything, get a clean copy-ready output.</p>
     <h3 data-i18n="helpShortcuts">⌨️  Keyboard shortcuts</h3>
     <div class="help-row"><span class="help-keys"><kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd></span><span class="help-desc" data-i18n="kbdParse">Parse current input</span></div>
     <div class="help-row"><span class="help-keys"><kbd>Esc</kbd></span><span class="help-desc" data-i18n="kbdReset">Reset form fields</span></div>
@@ -356,14 +356,13 @@ kbd {
     </a>
     <div class="brand">
       <div class="brand-row">
-        <span class="brand-title">RChief</span>
+        <span class="brand-title">Order Converter</span>
       </div>
-      <div class="tagline" data-i18n="tagline">Paste raw load text — get a clean, ready-to-send summary.</div>
+      <div class="tagline" data-i18n="tagline">Paste raw load text – get a clean, ready-to-send summary.</div>
     </div>
     <div class="controls">
-      <a href="index.html" class="nav-btn back-nav" style="font-weight:600;">← Main</a>
-      
-      
+      <a href="index.html" class="icon-btn" style="text-decoration:none; font-size:11px; font-weight:700; letter-spacing:0.04em; width:auto; padding:0 12px;" title="Main">← Main</a>
+      <button class="icon-btn" id="helpBtn" onclick="toggleHelp()" style="font-size:13px; font-weight:700; width:auto; padding:0 12px;" title="Help (?)">?</button>
       <button class="icon-btn" id="langBtn" onclick="toggleLang()" style="font-size:11px; font-weight:700; letter-spacing:0.04em; width:auto; padding:0 10px;" title="Switch language">RU</button>
       <button class="icon-btn active" id="themeBtn" onclick="toggleTheme()" title="Theme">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
@@ -476,7 +475,7 @@ kbd {
 /* ── i18n ──────────────────────────────────────────────────────────────── */
 const I18N = {
   en: {
-    tagline: 'Paste raw load text — get a clean, ready-to-send summary.',
+    tagline: 'Paste raw load text – get a clean, ready-to-send summary.',
     sec1: 'Paste & Parse',
     rawHead: 'Raw Load Text',
     examplesBtn: '📋 Examples',
@@ -492,8 +491,8 @@ const I18N = {
     resetBtn: 'Reset',
     clearBtn: 'Clear',
 
-    helpHead: '📋  RChief',
-    helpDesc: 'Parse raw load text from brokers into a clean, structured summary — pickup, delivery, dates, miles, rate. Paste anything, get a clean copy-ready output.',
+    helpHead: '📋  Order Converter',
+    helpDesc: 'Parse raw load text from brokers into a clean, structured summary – pickup, delivery, dates, miles, rate. Paste anything, get a clean copy-ready output.',
     helpShortcuts: '⌨️  Keyboard shortcuts',
     helpButtons: '🎯  Buttons',
     kbdParse: 'Parse current input',
@@ -512,7 +511,7 @@ const I18N = {
     historyEmpty: 'No parsed loads yet. Parse something to build history.',
   },
   ru: {
-    tagline: 'Вставь сырой текст груза — получи готовый к отправке summary.',
+    tagline: 'Вставь сырой текст груза – получи готовый к отправке summary.',
     sec1: 'Вставить и распарсить',
     rawHead: 'Сырой текст груза',
     examplesBtn: '📋 Примеры',
@@ -528,8 +527,8 @@ const I18N = {
     resetBtn: 'Сбросить',
     clearBtn: 'Очистить',
 
-    helpHead: '📋  RChief',
-    helpDesc: 'Парсит сырой текст груза от брокеров в структурированный вывод — PU, DEL, даты, мили, ставка. Вставляешь что угодно — получаешь готовый к копированию summary.',
+    helpHead: '📋  Order Converter',
+    helpDesc: 'Парсит сырой текст груза от брокеров в структурированный вывод – PU, DEL, даты, мили, ставка. Вставляешь что угодно – получаешь готовый к копированию summary.',
     helpShortcuts: '⌨️  Горячие клавиши',
     helpButtons: '🎯  Кнопки',
     kbdParse: 'Распарсить ввод',
@@ -548,7 +547,15 @@ const I18N = {
     historyEmpty: 'Пока нет распарсенных грузов. Распарсь что-нибудь.',
   }
 };
-let LANG = (localStorage.getItem('rchief_lang') === 'ru') ? 'ru' : 'en';
+// Migrate old localStorage keys
+['lang','theme','history'].forEach(k => {
+  const old = localStorage.getItem('rchief_' + k);
+  if (old != null && localStorage.getItem('oc_' + k) == null) {
+    localStorage.setItem('oc_' + k, old);
+    localStorage.removeItem('rchief_' + k);
+  }
+});
+let LANG = (localStorage.getItem('oc_lang') === 'ru') ? 'ru' : 'en';
 function t(k) { return (I18N[LANG] && I18N[LANG][k]) || I18N.en[k] || k; }
 function applyLang() {
   document.documentElement.setAttribute('lang', LANG);
@@ -559,7 +566,7 @@ function applyLang() {
 }
 function toggleLang() {
   LANG = (LANG === 'en') ? 'ru' : 'en';
-  try { localStorage.setItem('rchief_lang', LANG); } catch(e) {}
+  try { localStorage.setItem('oc_lang', LANG); } catch(e) {}
   applyLang();
 }
 
@@ -568,10 +575,10 @@ function toggleTheme() {
   const cur = document.documentElement.getAttribute('data-theme');
   const next = cur === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('rchief_theme', next);
+  localStorage.setItem('oc_theme', next);
 }
 (function initTheme() {
-  const saved = localStorage.getItem('rchief_theme');
+  const saved = localStorage.getItem('oc_theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
 })();
 
@@ -612,28 +619,28 @@ const STATE_TZ = {
 };
 // City overrides for cities in split-zone states (#11)
 const CITY_TZ_OVERRIDE = {
-  // Texas — El Paso area is Mountain
+  // Texas – El Paso area is Mountain
   'el paso,tx':'MT',
-  // Florida — Panhandle west of Apalachicola is Central
+  // Florida – Panhandle west of Apalachicola is Central
   'pensacola,fl':'CT', 'panama city,fl':'CT', 'fort walton beach,fl':'CT', 'destin,fl':'CT',
-  // Tennessee — Middle/West is Central (most population)
+  // Tennessee – Middle/West is Central (most population)
   'nashville,tn':'CT', 'memphis,tn':'CT', 'clarksville,tn':'CT', 'murfreesboro,tn':'CT',
   'franklin,tn':'CT', 'jackson,tn':'CT', 'columbia,tn':'CT', 'cookeville,tn':'CT',
-  // Kentucky — Western is Central
+  // Kentucky – Western is Central
   'paducah,ky':'CT', 'bowling green,ky':'CT', 'owensboro,ky':'CT', 'hopkinsville,ky':'CT',
-  // Idaho — Northern is Pacific
+  // Idaho – Northern is Pacific
   "coeur d'alene,id":'PT', 'sandpoint,id':'PT', 'lewiston,id':'PT', 'moscow,id':'PT',
   'post falls,id':'PT',
-  // Oregon — Malheur County is Mountain
+  // Oregon – Malheur County is Mountain
   'ontario,or':'MT', 'vale,or':'MT',
-  // Nebraska — Western is Mountain
+  // Nebraska – Western is Mountain
   'scottsbluff,ne':'MT', 'alliance,ne':'MT', 'sidney,ne':'MT', 'chadron,ne':'MT',
-  // North/South Dakota — Western is Mountain
+  // North/South Dakota – Western is Mountain
   'williston,nd':'MT', 'dickinson,nd':'MT',
   'rapid city,sd':'MT', 'spearfish,sd':'MT', 'sturgis,sd':'MT',
-  // Indiana — Southwestern is Central
+  // Indiana – Southwestern is Central
   'evansville,in':'CT', 'jasper,in':'CT', 'vincennes,in':'CT',
-  // Michigan — Upper Peninsula 4 counties are Central
+  // Michigan – Upper Peninsula 4 counties are Central
   'iron mountain,mi':'CT', 'ironwood,mi':'CT', 'crystal falls,mi':'CT'
 };
 
@@ -705,7 +712,7 @@ const CITY_ZIP = {
 const normalizeCity = (s) => {
   if (!s) return s;
   s = s.trim();
-  // Already has ZIP — return as is
+  // Already has ZIP – return as is
   if (/,\s*[A-Z]{2}\s+\d{5}/.test(s)) return s;
   // "City ST ZIP" without comma → add comma
   const m1 = s.match(/^(.+?)\s+([A-Z]{2})\s+(\d{5})\b/);
@@ -818,7 +825,7 @@ function parseLabeled(lines) {
   const puTz  = (text.match(/(?:PU\s*DATE|Pick-?up\s*date)[^:]*\(([A-Z]{2,4})\)/i)  || [,''])[1].toUpperCase();
   const delTz = (text.match(/(?:DEL\s*DATE|Delivery\s*date)[^:]*\(([A-Z]{2,4})\)/i) || [,''])[1].toUpperCase();
 
-  // Accept "City, ST" with or without ZIP — the post-step normalizeCity adds ZIP from the city map (#9)
+  // Accept "City, ST" with or without ZIP – the post-step normalizeCity adds ZIP from the city map (#9)
   const isCityLine = (s) => /(?:,\s*)[A-Z]{2}(?:\s+\d{5}\b|\b\s*$)/.test(s) || /(?:\s)[A-Z]{2}\s+\d{5}\b/.test(s);
   const parseDateValue = (rest, tz) => parseDateExpr(rest, tz);
 
@@ -895,7 +902,7 @@ function parseLabeled(lines) {
       if (!R.pieces) R.pieces = m[1];
       matched = true;
     }
-    // Other "Foo: bar" metadata lines (Stackable, Hazardous, etc.) — ignore
+    // Other "Foo: bar" metadata lines (Stackable, Hazardous, etc.) – ignore
     else if (/^[A-Za-z][\w\s\-]*:\s*\S/.test(l)) {
       matched = true;
     }
@@ -949,7 +956,7 @@ function parseFreeform(lines) {
     }
   }
 
-  // Date — first M/D[/YY] [at HH:MM(am|pm)] anywhere
+  // Date – first M/D[/YY] [at HH:MM(am|pm)] anywhere
   const dm = text.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\s*(?:,?\s*at\s+)?(?:(\d{1,2})(?::(\d{2}))?\s*(am|pm))?/i);
   if (dm) {
     const mm = dm[1].padStart(2, '0');
@@ -967,11 +974,11 @@ function parseFreeform(lines) {
     R.puDate = `${mm}/${dd}/${yr} ${timeStr}`;
   }
 
-  // Pieces — "3 pallets total", "5 skids", etc.
+  // Pieces – "3 pallets total", "5 skids", etc.
   const pm = text.match(/(\d+)\s*(?:pallet|skid|pc|piece|box(?:es)?|crate)/i);
   if (pm) R.pieces = pm[1];
 
-  // Dimensions — find largest by volume; convert cm/mm → in
+  // Dimensions – find largest by volume; convert cm/mm → in
   const isCm = /\bcm\b/i.test(text);
   const isMm = /\bmm\b/i.test(text) && !isCm;
   let largest = null, largestVol = 0;
@@ -996,7 +1003,7 @@ function parseFreeform(lines) {
     R.dims = `${l} x ${w} x ${h}`;
   }
 
-  // Weight — convert kg → lbs
+  // Weight – convert kg → lbs
   const wm = text.match(/(\d[\d,]*(?:\.\d+)?)\s*(kgs?|kilos?|lbs?|pounds?)/i);
   if (wm) {
     let w = parseFloat(wm[1].replace(/,/g, ''));
@@ -1007,7 +1014,7 @@ function parseFreeform(lines) {
     R.weight = String(Math.round(w));
   }
 
-  // Note — include per-pallet breakdown lines
+  // Note – include per-pallet breakdown lines
   const noteParts = [];
   for (const l of lines) {
     if (/^\d+\s*[xX×]\s+\d+\s*[xX×]\s*\d+\s*[xX×]\s*\d+/i.test(l.trim())) noteParts.push(l.trim());
@@ -1059,7 +1066,7 @@ function parseVertical(lines) {
       i = nx.index; side = 'del'; continue;
     }
 
-    // Repeat headers like "Origin Carteret, NJ" / "Destination Punxsutawney, PA" — skip
+    // Repeat headers like "Origin Carteret, NJ" / "Destination Punxsutawney, PA" – skip
     if (/^(Origin|Destination)\s+\S/i.test(l)) continue;
 
     // Vertical labels (no colon) followed by value on next line
@@ -1323,9 +1330,9 @@ function parseChunk(raw) {
       : fmt.freeform ? (detectedFormat='Freeform',  parseFreeform(lines))
       :                (detectedFormat='Chat',      parseChat(lines));
   } catch (err) {
-    console.error('[RChief] Parse failed:', err);
+    console.error('[Order Converter] Parse failed:', err);
     detectedFormat = 'Error';
-    R = { note: 'Parser error — please fill manually. See console for details.' };
+    R = { note: 'Parser error – please fill manually. See console for details.' };
   }
   // Confidence score (#10): count of populated key fields
   const SCORE_FIELDS = ['pu','puDate','del','delDate','loaded','pieces','dims','weight','rate','equipment'];
@@ -1339,7 +1346,7 @@ function parseChunk(raw) {
   if (mstop) {
     const picks = parseInt(mstop[1]), drops = parseInt(mstop[2]);
     if (picks > 1 || drops > 1) {
-      const tag = `⚠ MULTI-STOP: ${picks} pick${picks > 1 ? 's' : ''}, ${drops} drop${drops > 1 ? 's' : ''} — verify additional stops manually`;
+      const tag = `⚠ MULTI-STOP: ${picks} pick${picks > 1 ? 's' : ''}, ${drops} drop${drops > 1 ? 's' : ''} – verify additional stops manually`;
       R.note = R.note ? `${tag} | ${R.note}` : tag;
     }
   }
@@ -1513,9 +1520,9 @@ function doClear() {
   doReset();
 }
 
-/* ── Format detection — single-pass (#13) ─────────────────────────────── */
+/* ── Format detection – single-pass (#13) ─────────────────────────────── */
 const SIG_VERTICAL = /^(Total\s+Weight|Loading\s+Hours?|Unloading\s+Hours?|Ship\s+Date|Delivery\s+Date)\s*:?$/i;
-// Require non-whitespace content after the colon — bare "Delivery:" / "Origin:" stays in Freeform
+// Require non-whitespace content after the colon – bare "Delivery:" / "Origin:" stays in Freeform
 const SIG_LABELED  = /^(?:PU|DEL|Pick-?up|Pickup|Deliver(?:y)?)(?:\s+(?:AT|TO|DATE|at|to|date|time|from|location))?\s*:.*\S/i;
 const SIG_STRUCT   = /^(Shipper|Consignee|Distance):?\s*$/;
 const SIG_FREEFORM = /^(Origin|Delivery|Destination|Pickup|Pick-?up\s*location|Drop-?off|From|To|Receiver)\s*:?\s*$/i;
@@ -1603,7 +1610,7 @@ function selectLoad(i) {
 
 /* ── History (#8) ──────────────────────────────────────────────────────── */
 let HISTORY = [];
-try { HISTORY = JSON.parse(localStorage.getItem('rchief_history') || '[]'); } catch {}
+try { HISTORY = JSON.parse(localStorage.getItem('oc_history') || '[]'); } catch {}
 
 function pushHistory(R, raw, format) {
   if (!R.pu && !R.del) return; // skip empty
@@ -1612,7 +1619,7 @@ function pushHistory(R, raw, format) {
   HISTORY = HISTORY.filter(e => e.raw !== raw);
   HISTORY.unshift(entry);
   if (HISTORY.length > 10) HISTORY.length = 10;
-  try { localStorage.setItem('rchief_history', JSON.stringify(HISTORY)); } catch {}
+  try { localStorage.setItem('oc_history', JSON.stringify(HISTORY)); } catch {}
 }
 
 function toggleHistory() {
@@ -1662,7 +1669,7 @@ function exportHistoryCsv() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `rchief-history-${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `order-converter-history-${new Date().toISOString().slice(0,10)}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1684,7 +1691,7 @@ function loadHistory(i) {
 function clearHistory() {
   if (!confirm('Clear all history?')) return;
   HISTORY = [];
-  try { localStorage.removeItem('rchief_history'); } catch {}
+  try { localStorage.removeItem('oc_history'); } catch {}
   renderHistory();
 }
 
@@ -1906,7 +1913,7 @@ function emptyFromLastDel() {
     document.getElementById('rawInput').value = decoded;
     setTimeout(doParse, 50);
   } catch (err) {
-    console.warn('[RChief] Failed to load from URL:', err);
+    console.warn('[Order Converter] Failed to load from URL:', err);
   }
 })();
 
