@@ -282,7 +282,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
   <div style="background: var(--card); padding: 40px; border-radius: 16px; border: 1px solid var(--border); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
     <h2 style="margin-bottom: 20px;">Internal Access</h2>
     <input type="password" id="pass-input" placeholder="Enter Password" style="padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; width: 200px; text-align: center;">
-    <button onclick="checkPass()" style="margin-top: 15px; padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent); color: #white; font-weight: bold; cursor: pointer; display: block; width: 100%;">Login</button>
+    <button onclick="checkPass()" style="margin-top: 15px; padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; display: block; width: 100%;">Login</button>
     <p id="error-msg" style="color: #ff4d4d; font-size: 12px; margin-top: 10px; display: none;">Invalid Password</p>
   </div>
 </div>
@@ -737,7 +737,7 @@ function checkPass() {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
     // Запоминаем, что вход выполнен (чтобы не вводить при обновлении страницы)
-    sessionStorage.setItem('isAuthorized', 'true');
+    localStorage.setItem('isAuthorized', 'true');
   } else {
     // Если неверный: показываем текст ошибки
     document.getElementById('error-msg').style.display = 'block';
@@ -752,7 +752,7 @@ document.getElementById('pass-input')?.addEventListener('keypress', e => {
 // Дополнение к стандартной загрузке (init)
 (function authInit() {
   // Проверяем, входил ли пользователь ранее
-  if (sessionStorage.getItem('isAuthorized') === 'true') {
+  if (localStorage.getItem('isAuthorized') === 'true') {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
   }

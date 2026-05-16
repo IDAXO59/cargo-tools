@@ -431,7 +431,6 @@ body {
 
   </main>
 </div>
-```javascript
 <script>
 function checkPass() {
   const pass = document.getElementById('pass-input').value;
@@ -441,7 +440,7 @@ function checkPass() {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
     // Сохраняем статус входа на время сессии
-    sessionStorage.setItem('isAuthorized', 'true');
+    localStorage.setItem('isAuthorized', 'true');
   } else {
     document.getElementById('error-msg').style.display = 'block';
   }
@@ -454,7 +453,7 @@ document.getElementById('pass-input').addEventListener('keypress', function(e) {
 
 // Проверка при загрузке страницы
 (function() {
-  if (sessionStorage.getItem('isAuthorized') === 'true') {
+  if (localStorage.getItem('isAuthorized') === 'true') {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
   }
