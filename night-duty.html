@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Night Duty · URSA Express</title>
+<style>
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --card: #0a0a0a;
+  --card-2: #111111;
+  --border: #1f1f1f;
+  --border-strong: #2a2a2a;
+  --text: #ffffff;
+  --text-muted: #71717a;
+  --text-dim: #52525b;
+  --accent: #5b6ef5;
+  --accent-hover: #6f80ff;
+  --accent-soft: rgba(91,110,245,0.12);
+  --success: #22c55e;
+  --success-soft: rgba(34,197,94,0.12);
+  --shadow: 0 0 0 1px rgba(255,255,255,0.04);
+}
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --card: #fafafa;
+  --card-2: #f4f4f5;
+  --border: #e5e7eb;
+  --border-strong: #d4d4d8;
+  --text: #0a0a0a;
+  --text-muted: #6b7280;
+  --text-dim: #a1a1aa;
+  --accent: #5b6ef5;
+  --accent-hover: #4f5ee0;
+  --accent-soft: rgba(91,110,245,0.10);
+  --success: #16a34a;
+  --success-soft: rgba(22,163,74,0.10);
+  --shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+/* Header */
+.topbar {
+  position: relative;
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  min-height: 48px;
+}
+.brand-logo-link {
+  position: absolute;
+  top: 0; left: 0;
+  display: inline-flex;
+  transition: opacity 0.15s;
+  text-decoration: none;
+}
+.brand-logo-link:hover { opacity: 0.8; }
+.brand-logo { height: 38px; width: auto; display: block; }
+@media (max-width: 600px) {
+  .topbar { padding-top: 60px; }
+  .brand-logo-link { left: 50%; transform: translateX(-50%); }
+}
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-top: 4px;
+}
+.page-subtitle {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: 28px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--accent); }
+
+/* Result display */
+.result-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  margin-bottom: 24px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s;
+}
+.result-box.winner {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(91,110,245,0.15);
+}
+.result-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.result-name {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+.result-name.rolling {
+  animation: roll 0.08s infinite;
+}
+@keyframes roll {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+.result-placeholder {
+  font-size: 1rem;
+  color: var(--text-dim);
+}
+
+/* Spin button */
+.spin-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background 0.15s, transform 0.1s, opacity 0.15s;
+  margin-bottom: 24px;
+}
+.spin-btn:hover { background: var(--accent-hover); }
+.spin-btn:active { transform: scale(0.98); }
+.spin-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Controls row */
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.select-all-btn {
+  font-size: 0.78rem;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.select-all-btn:hover { opacity: 0.7; }
+.count-badge {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-left: 8px;
+}
+
+/* Names list */
+.names-list {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  cursor: pointer;
+  user-select: none;
+}
+.name-row:last-child { border-bottom: none; }
+.name-row:hover { background: var(--card-2); }
+.name-row.excluded { opacity: 0.38; }
+.name-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.name-row.winner-highlight .name-text {
+  color: var(--accent);
+}
+
+/* Custom checkbox */
+.cb-wrap {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.cb-wrap input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+}
+.cb-custom {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--card-2);
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+.cb-wrap input:checked + .cb-custom {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.cb-wrap input:checked + .cb-custom::after {
+  content: '';
+  position: absolute;
+  left: 5px; top: 2px;
+  width: 6px; height: 10px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(40deg);
+}
+
+/* Theme toggle */
+.theme-btn {
+  position: absolute;
+  top: 0; right: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+.theme-btn:hover { color: var(--text); border-color: var(--border-strong); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a href="https://ursaexpress.com" target="_blank" rel="noopener noreferrer" class="brand-logo-link" aria-label="URSA Express">
+      <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" width="121" height="49" viewBox="0 0 121 49" fill="none"><g clip-path="url(#clip0_26_2)"><mask id="mask0_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="14" y="28" width="21" height="21"><path d="M34.3989 29.9898C33.2971 30.7423 30.5334 31.3951 28.9904 33.2356C27.5914 34.9061 28.4715 37.719 27.6052 39.5935C26.8874 41.1416 25.9753 41.8375 25.0381 42.4517C24.0963 43.0682 23.7123 43.6916 24.6975 44.4464C27.1891 46.3571 25.4358 48.864 24.5649 48.8822C23.0333 48.9139 19.9382 48.8822 18.4867 48.8822C17.0351 48.8822 14.0246 46.7583 15.3915 41.8987C15.7527 40.6158 15.2658 39.2988 14.7949 38.0114C16.171 37.5059 17.7735 36.9461 18.9987 36.2298C22.7247 34.0493 25.4221 30.6471 26.4439 29.3393C27.5069 27.9793 32.2981 28.4417 34.4012 29.9921" fill="white"/></mask><g mask="url(#mask0_26_2)"><path d="M34.3984 27.977H14.0195V48.9116H34.3984V27.977Z" fill="url(#paint0_linear_26_2)"/></g><mask id="mask1_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="4" width="79" height="45"><path d="M75.5444 18.5614C78.9184 15.7281 78.6829 14.7013 77.6223 14.3704C76.6027 14.0531 74.9157 13.5136 73.6814 13.2348C73.2105 13.1283 74.0448 12.0041 69.8525 9.62183C69.3084 9.3113 70.6548 7.96946 69.3633 7.4096C68.2546 6.92681 65.7813 8.35252 64.5697 8.20065C56.8845 7.23734 48.1569 4.57631 40.3277 4.39498C33.7991 4.24312 27.8192 4.43805 20.8952 6.12215C6.20819 9.68983 2.94162 26.8868 1.01232 35.8807C0.751723 37.0979 -0.000340768 39.6116 0.125384 40.8197C0.408837 43.5419 2.26271 48.8821 5.62757 48.8821H11.1823C14.9724 48.8821 13.4888 44.8181 11.6944 42.6058C10.5994 41.2572 15.7359 40.448 18.6938 38.7186C22.4199 36.5381 25.1172 33.1358 26.139 31.828C27.4123 30.1983 34.0323 31.182 34.9809 33.5234C35.5707 34.9786 33.5705 36.9982 33.1042 39.7997C32.4687 43.6213 32.9396 48.9116 34.8118 48.8844C37.532 48.8436 39.7173 48.8844 40.858 48.8844C42.1312 48.8844 41.8752 45.9627 40.8786 45.0719C39.8316 44.1381 40.9083 42.6081 41.7312 40.0536C42.721 45.4595 44.6526 48.8821 46.8676 48.8821H52.4155C53.6728 48.8821 54.0111 45.659 51.2223 44.1811C48.0129 42.4789 54.85 25.6854 61.4197 22.315C66.1904 19.867 73.8368 20.0007 75.5467 18.5637" fill="white"/></mask><g mask="url(#mask1_26_2)"><path d="M78.9187 4.24084H0V48.9093H78.9187V4.24084Z" fill="url(#paint1_linear_26_2)"/></g><mask id="mask15_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="59" y="24" width="61" height="14"><path d="M115.703 37.2452H119.601L114.268 24.7878H109.454L104.288 37.2452H107.941L108.811 35.0851H114.817L115.703 37.2452ZM113.701 32.3403H109.927L111.792 27.6846L113.703 32.3403H113.701ZM97.4254 37.4628C102.804 37.4628 103.6 35.237 103.6 33.3104V33.1086C103.6 30.9984 102.592 29.5432 98.358 29.4095L96.7533 29.3596C95.0274 29.3098 94.6434 28.8564 94.6434 28.2875C94.6434 27.6846 95.0412 27.2653 96.9819 27.2653H97.119C99.1512 27.2653 99.4415 28.0178 99.5192 28.5369H103.401V28.4031C103.401 26.6623 102.621 24.6201 97.3636 24.6201H96.783C91.9392 24.6201 90.8374 26.2952 90.8374 28.3533V28.5029C90.8374 30.4295 91.9826 32.0864 95.9578 32.2201L97.5168 32.27C99.3958 32.3199 99.7478 32.7732 99.7478 33.426C99.7478 34.0788 99.4575 34.7316 97.2425 34.7316H97.151C94.8903 34.7316 94.6914 33.6254 94.6457 33.1064H90.7025V33.256C90.7025 34.8471 91.3128 37.4583 97.0139 37.4583H97.4254V37.4628ZM79.7896 27.7843H83.8402C84.9854 27.7843 85.3832 28.3193 85.3832 29.0559V29.1058C85.3832 29.8923 84.9854 30.4114 83.8402 30.4114H79.7896V27.7821V27.7843ZM87.8908 37.2452L86.2038 33.1766C88.4486 32.6259 89.1732 31.0891 89.1732 29.1602V28.9584C89.1732 26.5128 88.0577 24.7901 84.1465 24.7901H76.139V37.2475H79.7919V33.3965H82.6904L84.2425 37.2475H87.8954L87.8908 37.2452ZM66.9839 37.4288C72.8061 37.4288 73.5239 33.3942 73.5239 30.9168V24.7878H69.887V30.8647C69.887 32.27 69.535 34.1286 66.801 34.1286H66.7256C63.9894 34.1286 63.5939 32.27 63.5939 30.8647V24.7878H59.957V30.9168C59.957 33.3784 60.4919 37.4288 66.5427 37.4288H66.9862H66.9839Z" fill="white"/></mask><g mask="url(#mask15_26_2)"><path d="M119.599 24.6223H59.9551V37.465H119.599V24.6223Z" fill="url(#paint15_linear_26_2)"/></g><mask id="mask17_26_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="59" y="41" width="61" height="8"><path d="M115.882 49C119.123 49 119.601 47.6581 119.601 46.4976V46.3775C119.601 45.1059 118.993 44.2287 116.444 44.1494L115.477 44.1199C114.437 44.0905 114.206 43.8185 114.206 43.4739C114.206 43.1113 114.446 42.8597 115.614 42.8597H115.697C116.922 42.8597 117.096 43.313 117.141 43.6258H119.48V43.5442C119.48 42.4948 119.011 41.264 115.843 41.264H115.493C112.574 41.264 111.911 42.2726 111.911 43.5125V43.6031C111.911 44.7637 112.602 45.761 114.995 45.8426L115.934 45.872C117.066 45.9015 117.278 46.1758 117.278 46.5679C117.278 46.96 117.102 47.3544 115.77 47.3544H115.715C114.353 47.3544 114.234 46.688 114.204 46.3752H111.829V46.4659C111.829 47.4247 112.197 48.9977 115.63 48.9977H115.879L115.882 49ZM107.072 49C110.313 49 110.791 47.6581 110.791 46.4976V46.3775C110.791 45.1059 110.183 44.2287 107.634 44.1494L106.667 44.1199C105.627 44.0905 105.396 43.8185 105.396 43.4739C105.396 43.1113 105.636 42.8597 106.804 42.8597H106.887C108.112 42.8597 108.286 43.313 108.331 43.6258H110.67V43.5442C110.67 42.4948 110.201 41.264 107.033 41.264H106.683C103.764 41.264 103.101 42.2726 103.101 43.5125V43.6031C103.101 44.7637 103.792 45.761 106.185 45.8426L107.124 45.872C108.256 45.9015 108.469 46.1758 108.469 46.5679C108.469 46.96 108.295 47.3544 106.96 47.3544H106.905C105.543 47.3544 105.424 46.688 105.394 46.3752H103.019V46.4659C103.019 47.4247 103.387 48.9977 106.82 48.9977H107.07L107.072 49ZM95.2423 41.3637V48.8685H101.862V47.1232H97.4254V45.9627H101.67V44.1766H97.4254V43.0863H101.807V41.3614H95.2446L95.2423 41.3637ZM79.2158 43.1702H81.6549C82.3452 43.1702 82.5852 43.4921 82.5852 43.9363V43.9658C82.5852 44.4395 82.3452 44.7523 81.6549 44.7523H79.2158V43.1679V43.1702ZM81.84 46.5498C84.1785 46.5498 84.8689 45.4595 84.8689 43.9975V43.8774C84.8689 42.4041 84.1968 41.366 81.84 41.366H77.0168V48.8708H79.2158V46.552H81.84V46.5498ZM59.957 41.3637V48.8685H66.577V47.1232H62.1401V45.9627H66.385V44.1766H62.1401V43.0863H66.5222V41.3614H59.9593L59.957 41.3637Z" fill="white"/></mask><g mask="url(#mask17_26_2)"><path d="M119.599 41.264H59.9551V49H119.599V41.264Z" fill="url(#paint17_linear_26_2)"/></g></g><defs><linearGradient id="paint0_linear_26_2" x1="38.7028" y1="34.3304" x2="11.5653" y2="42.163" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="0.6" stop-color="#30348A"/><stop offset="1" stop-color="#0C0224"/></linearGradient><linearGradient id="paint1_linear_26_2" x1="10.2614" y1="30.4454" x2="66.8321" y2="22.8169" gradientUnits="userSpaceOnUse"><stop stop-color="#5992CD"/><stop offset="0.37" stop-color="#4E2482"/><stop offset="0.63" stop-color="#CA1574"/><stop offset="1" stop-color="#DA5845"/></linearGradient><linearGradient id="paint15_linear_26_2" x1="120.301" y1="19.6923" x2="53.9161" y2="44.7978" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="0.44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><linearGradient id="paint17_linear_26_2" x1="120.07" y1="42.5084" x2="1.79856" y2="52.9226" gradientUnits="userSpaceOnUse"><stop stop-color="#C1262D"/><stop offset="0.44" stop-color="#403585"/><stop offset="1" stop-color="#000003"/></linearGradient><clipPath id="clip0_26_2"><rect width="121" height="49" fill="white"/></clipPath></defs></svg>
+    </a>
+    <h1 class="page-title">Night Duty</h1>
+    <p class="page-subtitle">Random pick for night shift</p>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️ Light</button>
+  </header>
+
+  <a href="index.html" class="back-link">← Back to Tools</a>
+
+  <div class="result-box" id="result-box">
+    <div class="result-label">On duty tonight</div>
+    <div class="result-name" id="result-name">
+      <span class="result-placeholder">Press Spin to pick</span>
+    </div>
+  </div>
+
+  <button class="spin-btn" id="spin-btn" onclick="spin()">🎲 Spin</button>
+
+  <div class="controls-row">
+    <span class="section-label">Participants <span class="count-badge" id="count-badge"></span></span>
+    <button class="select-all-btn" id="toggle-all-btn" onclick="toggleAll()">Deselect all</button>
+  </div>
+
+  <div class="names-list" id="names-list"></div>
+</div>
+
+<script>
+const NAMES = [
+  'Evgeny V.', 'Pavel Z.', 'Leon M.', 'Alex M.', 'Kent B.',
+  'Andrew A.', 'Mike W.', 'Nate W.', 'Blake W.', 'Nick F.',
+  'Jim S.', 'Tim S.', 'Michael K.', 'Jonas M.'
+];
+
+let checked = new Array(NAMES.length).fill(true);
+let spinning = false;
+let lastWinner = -1;
+
+function render() {
+  const list = document.getElementById('names-list');
+  list.innerHTML = '';
+  NAMES.forEach((name, i) => {
+    const row = document.createElement('div');
+    row.className = 'name-row' + (checked[i] ? '' : ' excluded') + (lastWinner === i ? ' winner-highlight' : '');
+    row.onclick = () => toggle(i);
+    row.innerHTML = `
+      <span class="name-text">${name}</span>
+      <label class="cb-wrap" onclick="event.stopPropagation()">
+        <input type="checkbox" ${checked[i] ? 'checked' : ''} onchange="toggle(${i})">
+        <span class="cb-custom"></span>
+      </label>`;
+    list.appendChild(row);
+  });
+  const active = checked.filter(Boolean).length;
+  document.getElementById('count-badge').textContent = `(${active}/${NAMES.length})`;
+  document.getElementById('toggle-all-btn').textContent = active === NAMES.length ? 'Deselect all' : 'Select all';
+}
+
+function toggle(i) {
+  checked[i] = !checked[i];
+  render();
+}
+
+function toggleAll() {
+  const active = checked.filter(Boolean).length;
+  checked = new Array(NAMES.length).fill(active < NAMES.length);
+  render();
+}
+
+function spin() {
+  const pool = NAMES.map((_, i) => i).filter(i => checked[i]);
+  if (pool.length === 0) {
+    alert('Select at least one participant!');
+    return;
+  }
+  if (spinning) return;
+  spinning = true;
+
+  const btn = document.getElementById('spin-btn');
+  const nameEl = document.getElementById('result-name');
+  const box = document.getElementById('result-box');
+
+  btn.disabled = true;
+  box.classList.remove('winner');
+  lastWinner = -1;
+  nameEl.classList.add('rolling');
+
+  let ticks = 0;
+  const totalTicks = 24 + Math.floor(Math.random() * 12);
+  let interval = 60;
+
+  function tick() {
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    nameEl.textContent = NAMES[pick];
+    ticks++;
+    if (ticks >= totalTicks) {
+      const winner = pool[Math.floor(Math.random() * pool.length)];
+      nameEl.textContent = NAMES[winner];
+      nameEl.classList.remove('rolling');
+      box.classList.add('winner');
+      lastWinner = winner;
+      spinning = false;
+      btn.disabled = false;
+      btn.textContent = '🎲 Spin again';
+      render();
+      return;
+    }
+    interval = Math.min(interval * 1.06, 320);
+    setTimeout(tick, interval);
+  }
+  tick();
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn = document.getElementById('theme-btn');
+  if (html.getAttribute('data-theme') === 'dark') {
+    html.setAttribute('data-theme', 'light');
+    btn.textContent = '🌙 Dark';
+  } else {
+    html.setAttribute('data-theme', 'dark');
+    btn.textContent = '☀️ Light';
+  }
+}
+
+render();
+</script>
+</body>
+</html>
