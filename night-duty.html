@@ -76,6 +76,8 @@ body {
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.03em;
+  background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
   margin-top: 4px;
 }
 .page-subtitle {
@@ -344,7 +346,11 @@ function toggleAll() {
 function spin() {
   const pool = NAMES.map((_, i) => i).filter(i => checked[i]);
   if (pool.length === 0) {
-    alert('Select at least one participant!');
+    const label = document.querySelector('.result-label');
+    const orig = label.textContent;
+    label.style.color = '#ef4444';
+    label.textContent = 'Select at least one participant';
+    setTimeout(() => { label.style.color = ''; label.textContent = orig; }, 2000);
     return;
   }
   if (spinning) return;
@@ -357,22 +363,22 @@ function spin() {
   btn.disabled = true;
   box.classList.remove('winner');
   lastWinner = -1;
+  render();
   nameEl.classList.add('rolling');
 
   let ticks = 0;
   const totalTicks = 24 + Math.floor(Math.random() * 12);
   let interval = 60;
+  let lastPick = -1;
 
   function tick() {
-    const pick = pool[Math.floor(Math.random() * pool.length)];
-    nameEl.textContent = NAMES[pick];
+    lastPick = pool[Math.floor(Math.random() * pool.length)];
+    nameEl.textContent = NAMES[lastPick];
     ticks++;
     if (ticks >= totalTicks) {
-      const winner = pool[Math.floor(Math.random() * pool.length)];
-      nameEl.textContent = NAMES[winner];
       nameEl.classList.remove('rolling');
       box.classList.add('winner');
-      lastWinner = winner;
+      lastWinner = lastPick;
       spinning = false;
       btn.disabled = false;
       btn.textContent = '🎲 Spin again';

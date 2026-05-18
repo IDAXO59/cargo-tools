@@ -125,12 +125,16 @@
     letter-spacing: -0.02em;
     line-height: 1.1;
   }
-  .app-header h1 .accent { color: var(--primary); }
+  .app-header h1 .accent {
+    background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
 
   .brand-logo-link {
     position: absolute;
-    top: 0;
+    top: 50%;
     left: 0;
+    transform: translateY(-50%);
     display: inline-flex;
     align-items: center;
     text-decoration: none;
@@ -138,15 +142,16 @@
   }
   .brand-logo-link:hover { opacity: 0.8; }
   .brand-logo {
-    height: 36px;
+    height: 38px;
     width: auto;
     display: block;
   }
   @media (max-width: 600px) {
     .app-header { padding-top: 56px; }
-    .brand-logo-link { left: 50%; transform: translateX(-50%); }
+    .brand-logo-link { top: 0; left: 50%; transform: translateX(-50%); }
     .header-controls {
       position: static;
+      transform: none;
       justify-content: center;
       margin-top: 14px;
       flex-wrap: wrap;
@@ -166,8 +171,9 @@
 
   .header-controls {
     position: absolute;
-    top: 0;
+    top: 50%;
     right: 0;
+    transform: translateY(-50%);
     display: flex;
     gap: 8px;
     flex-shrink: 0;
@@ -189,8 +195,8 @@
   }
   .header-btn:hover { background: var(--hover); border-color: var(--border-strong); }
 
-  .back-nav { padding: 0 12px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; }
-  .lang-toggle { padding: 0 12px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; }
+  .back-nav { padding: 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; }
+  .lang-toggle { padding: 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
   .theme-toggle { width: 36px; font-size: 1rem; }
 
   /* Section label */
@@ -1676,7 +1682,7 @@ function resetAll() {
   if (!el) return;
   el.addEventListener('input', () => {
     if (el.value && el.value.indexOf(',') !== -1) {
-      el.value = el.value.replace(',', '.');
+      el.value = el.value.replace(/,/g, '.');
     }
   });
 });
@@ -1701,7 +1707,7 @@ function addCargoItem(prefill) {
   const id = nextItemId++;
   cargoItems.push({
     id,
-    name: prefill?.name || `${t('cargoBase')} ${cargoItems.length + 1}`,
+    name: prefill?.name || `${t('cargoBase')} ${id}`,
     l: prefill?.l ?? '',
     w: prefill?.w ?? '',
     h: prefill?.h ?? '',
@@ -1741,8 +1747,9 @@ function updateCargoItem(id, field, value) {
   else if (field === 'stackable' || field === 'rotatable') item[field] = !!value;
   else {
     // accept comma-decimals (RU keyboard layout)
-    const v = String(value).replace(',', '.');
-    item[field] = v === '' ? '' : parseFloat(v);
+    const v = String(value).replace(/,/g, '.');
+    const n = parseFloat(v);
+    item[field] = (v === '' || isNaN(n)) ? '' : n;
   }
   scheduleRecheck();
 }
@@ -1925,7 +1932,7 @@ function val(id) {
   const el = document.getElementById(id);
   if (!el) return 0;
   // Accept both "5.5" and "5,5" (RU keyboard layout uses comma as decimal)
-  const raw = String(el.value).replace(',', '.');
+  const raw = String(el.value).replace(/,/g, '.');
   const v = parseFloat(raw);
   return isNaN(v) || v < 0 ? 0 : v;
 }
@@ -2169,11 +2176,9 @@ function checkCargo() {
     return;
   }
 
-  // 2. Compute totals
+  // 2. Compute weight totals and pack
   const truckVol = truck.l * truck.w * truck.h;
-  const totalCargoVol = cargos.reduce((s, c) => s + c.l*c.w*c.h*c.qty, 0);
   const totalCargoWeight = cargos.reduce((s, c) => s + c.weight*c.qty, 0);
-  const volPct = (totalCargoVol / truckVol) * 100;
 
   let weightFit = true, weightPct = 0;
   if (payload > 0 && totalCargoWeight > 0) {
@@ -2184,6 +2189,10 @@ function checkCargo() {
   // 3. Pack and apply load-direction shift
   const packResult = packCargo(truck, cargos);
   applyLoadDirectionShift(truck, packResult);
+
+  // Volume based on actually placed items only
+  const totalCargoVol = packResult.placements.reduce((s, p) => s + p.l * p.w * p.h, 0);
+  const volPct = (totalCargoVol / truckVol) * 100;
 
   const fits = packResult.fits && volPct <= 100 && weightFit;
   const totalQty = cargos.reduce((s, c) => s + c.qty, 0);
@@ -2339,6 +2348,7 @@ function drawScene(ctx, s) {
   const scale = Math.min(W, H) * 0.50 * zoom;
   const cx = W / 2;
   const cy = H / 2 + (NT.h + NChassis + NWheelR) * scale * 0.1;
+  if (vizState) vizState.cyOffset = (NT.h + NChassis + NWheelR) * scale * 0.1;
 
   function project(x, y, z) {
     const x1 = x * Math.cos(rotY) + z * Math.sin(rotY);
@@ -2642,7 +2652,7 @@ function drawWheel(ctx, wheel) {
     const z2 = y1 * Math.sin(s.rotX) + z1 * Math.cos(s.rotX);
     const scale = Math.min(s.W, s.H) * 0.50 * s.zoom;
     const cx = s.W / 2;
-    const cy = s.H / 2 + 0.05 * scale;
+    const cy = s.H / 2 + (s.cyOffset ?? 0.05 * scale);
     return { x: cx + x1 * scale, y: cy - y2 * scale, z: z2 };
   };
   const c = project(wheel.center.x, wheel.center.y, wheel.center.z);

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cargo Tools · URSA Express</title>
 <style>
-:root[data-theme="dark"] {
+:root {
   --bg: #0a0a0b;
   --card: #131418;
   --card-elev: #1a1c22;
@@ -66,7 +66,8 @@ body {
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: var(--text);
+  background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
   line-height: 1.1;
   margin-top: 4px;
 }
@@ -101,11 +102,13 @@ body {
   cursor: pointer;
 }
 
-.tool-card:hover {
+.tool-card:hover,
+.tool-card:focus-visible {
   border-color: var(--primary);
   box-shadow: 0 0 0 1px var(--primary), 0 8px 32px rgba(59,130,246,0.12);
   background: var(--card-elev);
   transform: translateY(-2px);
+  outline: none;
 }
 
 .card-icon {
@@ -138,7 +141,9 @@ body {
   transition: opacity 0.15s;
 }
 
-.tool-card:hover .card-arrow { opacity: 1; }
+.tool-card:hover .card-arrow,
+.tool-card:focus .card-arrow,
+.tool-card:focus-visible .card-arrow { opacity: 1; }
 
 @media (max-width: 620px) {
   .tool-card { width: 100%; }
@@ -183,12 +188,14 @@ body {
       <div class="card-name">Resources</div>
       <div class="card-desc">Documents, templates and reference files</div>
       <div class="card-arrow">Open tool →</div>
-    </a>    <a href="night-duty.html" class="tool-card">
+    </a>
+    <a href="night-duty.html" class="tool-card">
       <div class="card-icon">🌙</div>
       <div class="card-name">Night Duty</div>
       <div class="card-desc">Random pick for night shift</div>
       <div class="card-arrow">Open tool →</div>
-    </a></main>
+    </a>
+  </main>
 </div>
 </body>
 </html>

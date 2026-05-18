@@ -164,7 +164,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
   font-size: 11.5px;
   border: 1px solid transparent;
 }
-.subcat:first-of-type { margin-top: 0; }
+.grid-full + .subcat { margin-top: 0; }
 .subcat .sc-name { font-weight: 700; letter-spacing: 0.02em; }
 .subcat .sc-count { font-size: 10.5px; font-weight: 600; opacity: 0.7; }
 .subcat .sc-desc { font-size: 11.5px; opacity: 0.85; }
@@ -288,8 +288,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
 </div>
 
 <div class="wrap" id="main-content" style="display: none;">
-  <header class="topbar">
-<div class="wrap">
 
   <header class="topbar">
     <a href="https://ursaexpress.com" target="_blank" rel="noopener noreferrer" class="brand-logo-link" aria-label="URSA Express">
@@ -480,6 +478,7 @@ const DATA = [
   {rank:29, name:'ON TIME INTERNATIONAL INC.', reps:[], note:'У парней свои грузы – ставьте дороже обычного!'},
   {rank:30, name:'AXIS WORLDWIDE', reps:[], note:'У парней свои грузы – ставьте дороже обычного!'},
 
+  // rank 31 intentionally absent
   {rank:32, name:'GRAND AIRE INC.', reps:[
     {name:'Erin Winseman',email:'eduke@grandaire.com'},
     {name:'Laura Hageman',email:'lhageman@grandaire.com'},

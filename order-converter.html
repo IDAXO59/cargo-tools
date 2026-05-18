@@ -53,17 +53,18 @@ body {
 .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 40px 60px; }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
-.topbar { position: relative; text-align: center; margin-bottom: 28px; min-height: 48px; }
+.topbar { position: relative; text-align: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); min-height: 48px; }
 .brand { display: inline-flex; flex-direction: column; gap: 4px; align-items: center; }
 .brand-row { display: flex; align-items: center; gap: 10px; justify-content: center; }
-.brand-logo-link { position: absolute; top: 0; left: 0; display: inline-flex; transition: opacity 0.15s; }
+.brand-logo-link { position: absolute; top: 50%; left: 0; transform: translateY(-50%); display: inline-flex; transition: opacity 0.15s; }
 .brand-logo-link:hover { opacity: 0.8; }
-.controls { position: absolute; top: 0; right: 0; display: flex; gap: 8px; }
+.controls { position: absolute; top: 50%; right: 0; transform: translateY(-50%); display: flex; gap: 8px; }
 @media (max-width: 600px) {
   .topbar { padding-top: 56px; }
-  .brand-logo-link { left: 50%; transform: translateX(-50%); }
+  .brand-logo-link { top: 0; left: 50%; transform: translateX(-50%); }
   .controls {
     position: static;
+    transform: none;
     justify-content: center;
     margin-top: 14px;
     flex-wrap: wrap;
@@ -547,15 +548,42 @@ const I18N = {
     historyEmpty: 'Пока нет распарсенных грузов. Распарсь что-нибудь.',
   }
 };
+
+/* ── Constants ─────────────────────────────────────────────────────────── */
+const SK     = { lang: 'oc_lang', theme: 'oc_theme', history: 'oc_history' };
+const SK_OLD = { lang: 'rchief_lang', theme: 'rchief_theme', history: 'rchief_history' };
+const HISTORY_MAX        = 10;
+const COPY_FLASH_MS      = 2000;
+const PASTE_DEBOUNCE_MS  = 300;
+const MAPS_BASE  = 'https://www.google.com/maps/dir/?api=1';
+const TZ_PH   = '___';
+const TIME_PH = '__:__';
+const DT_PH   = `${TIME_PH} ${TZ_PH}`;   // '__:__ ___'
+const RESULT_KEYS  = ['pu','puDate','del','delDate','empty','loaded','pieces','dims','weight','rate','equipment','note'];
+const SCORE_FIELDS = RESULT_KEYS.filter(k => !['empty','note'].includes(k));
+
+const stripCommas = (s) => String(s).replace(/,/g, '');
+
+function flashCopyBtn(msgKey) {
+  const b = document.getElementById('copyBtn');
+  b.textContent = t(msgKey);
+  b.classList.add('ok');
+  setTimeout(() => { b.textContent = t('copyBtn'); b.classList.remove('ok'); }, COPY_FLASH_MS);
+}
+
+function mapsUrl(from, to) {
+  return `${MAPS_BASE}&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}`;
+}
+
 // Migrate old localStorage keys
 ['lang','theme','history'].forEach(k => {
-  const old = localStorage.getItem('rchief_' + k);
-  if (old != null && localStorage.getItem('oc_' + k) == null) {
-    localStorage.setItem('oc_' + k, old);
-    localStorage.removeItem('rchief_' + k);
+  const old = localStorage.getItem(SK_OLD[k]);
+  if (old != null && localStorage.getItem(SK[k]) == null) {
+    localStorage.setItem(SK[k], old);
+    localStorage.removeItem(SK_OLD[k]);
   }
 });
-let LANG = (localStorage.getItem('oc_lang') === 'ru') ? 'ru' : 'en';
+let LANG = (localStorage.getItem(SK.lang) === 'ru') ? 'ru' : 'en';
 function t(k) { return (I18N[LANG] && I18N[LANG][k]) || I18N.en[k] || k; }
 function applyLang() {
   document.documentElement.setAttribute('lang', LANG);
@@ -566,7 +594,7 @@ function applyLang() {
 }
 function toggleLang() {
   LANG = (LANG === 'en') ? 'ru' : 'en';
-  try { localStorage.setItem('oc_lang', LANG); } catch(e) {}
+  try { localStorage.setItem(SK.lang, LANG); } catch(e) {}
   applyLang();
 }
 
@@ -575,10 +603,10 @@ function toggleTheme() {
   const cur = document.documentElement.getAttribute('data-theme');
   const next = cur === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('oc_theme', next);
+  localStorage.setItem(SK.theme, next);
 }
 (function initTheme() {
-  const saved = localStorage.getItem('oc_theme');
+  const saved = localStorage.getItem(SK.theme);
   if (saved) document.documentElement.setAttribute('data-theme', saved);
 })();
 
@@ -745,24 +773,24 @@ function parseDateExpr(rest, fallbackTz) {
   let v = (rest || '').trim();
   if (!v) return '';
   if (/^ASAP/i.test(v)) return 'ASAP';
-  const tzSuffix = ` ${fallbackTz || '___'}`;
+  const tzSuffix = ` ${fallbackTz || TZ_PH}`;
   let m;
   // 1. Full M/D/YYYY HH:MM [TZ]
   if ((m = v.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{2,4})\s+(\d{1,4})(?::(\d{2}))?\s*(am|pm)?\s*([A-Z]{2,4})?/i))) {
     const yr = m[3].length === 4 ? m[3].slice(2) : m[3];
-    const tz = (m[7] || fallbackTz || '___').toUpperCase();
+    const tz = (m[7] || fallbackTz || TZ_PH).toUpperCase();
     return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${yr} ${formatTime(m[4], m[5], m[6])} ${tz}`;
   }
   // 2. Day name + M/D[/YY] [@/at] time
   if ((m = v.match(/\b(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\s+(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?:\s+(?:@\s*|at\s+)?(\d{1,4})(?::(\d{2}))?\s*(am|pm)?)?/i))) {
     const yr = m[3] ? (m[3].length === 4 ? m[3].slice(2) : m[3]) : YR2();
-    const t = m[4] ? `${formatTime(m[4], m[5], m[6])}${tzSuffix}` : `__:__${tzSuffix}`;
+    const t = m[4] ? `${formatTime(m[4], m[5], m[6])}${tzSuffix}` : `${TIME_PH}${tzSuffix}`;
     return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${yr} ${t}`;
   }
   // 3. M/D[/YY] [@/at/space] [time]
   if ((m = v.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?:\s+(?:@\s*|at\s+)?(\d{1,4})(?::(\d{2}))?\s*(am|pm)?)?/i))) {
     const yr = m[3] ? (m[3].length === 4 ? m[3].slice(2) : m[3]) : YR2();
-    const t = m[4] ? `${formatTime(m[4], m[5], m[6])}${tzSuffix}` : `__:__${tzSuffix}`;
+    const t = m[4] ? `${formatTime(m[4], m[5], m[6])}${tzSuffix}` : `${TIME_PH}${tzSuffix}`;
     return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${yr} ${t}`;
   }
   // 4. "today at HH(am|pm)?" → today's date + start time
@@ -790,7 +818,7 @@ function toDate(s) {
     const mon = MON[m[1].slice(0,3).toLowerCase()];
     const day = m[2].padStart(2,'0');
     const yr  = m[3] ? m[3].slice(2) : YR2();
-    return `${mon}/${day}/${yr} __:__ ___`;
+    return `${mon}/${day}/${yr} ${DT_PH}`;
   }
   // Day-of-week → next occurrence of that day from today
   m = s.match(/\b(mon|tue|wed|thu|fri|sat|sun)(?:day|sday|nesday|rsday|urday)?\b/i);
@@ -805,7 +833,7 @@ function toDate(s) {
       const mm = String(t.getMonth()+1).padStart(2,'0');
       const dd = String(t.getDate()).padStart(2,'0');
       const yr = String(t.getFullYear()).slice(2);
-      return `${mm}/${dd}/${yr} __:__ ___`;
+      return `${mm}/${dd}/${yr} ${DT_PH}`;
     }
   }
   return s;
@@ -877,11 +905,11 @@ function parseLabeled(lines) {
       matched = true;
     }
     // Miles
-    else if ((m = l.match(/^Miles?\s*:\s*([\d,]+)/i))) { R.loaded = m[1].replace(/,/g,''); matched = true; }
+    else if ((m = l.match(/^Miles?\s*:\s*([\d,]+)/i))) { R.loaded = stripCommas(m[1]); matched = true; }
     // Pieces (labeled)
     else if ((m = l.match(/^Pieces?\s*:\s*(\d+)/i))) { R.pieces = m[1]; matched = true; }
     // Weight (labeled)
-    else if ((m = l.match(/^Weight\s*:\s*([\d,]+)/i))) { R.weight = m[1].replace(/,/g,''); matched = true; }
+    else if ((m = l.match(/^Weight\s*:\s*([\d,]+)/i))) { R.weight = stripCommas(m[1]); matched = true; }
     // Dims (labeled)
     else if ((m = l.match(/^Dims?\s*:\s*(.+)$/i))) {
       const dm = m[1].match(/(\d+)\s*(?:in\s*)?L?\s*[xX×]\s*(\d+)\s*(?:in\s*)?W?\s*[xX×]\s*(\d+)\s*(?:in\s*)?H?/i);
@@ -894,7 +922,7 @@ function parseLabeled(lines) {
     }
     // Standalone weight: "3736 LBS"
     else if ((m = l.match(/^([\d,]+)\s*lbs?\.?\s*$/i))) {
-      if (!R.weight) R.weight = m[1].replace(/,/g,'');
+      if (!R.weight) R.weight = stripCommas(m[1]);
       matched = true;
     }
     // Standalone pieces: "6 pallets", "1 case"
@@ -962,14 +990,14 @@ function parseFreeform(lines) {
     const mm = dm[1].padStart(2, '0');
     const dd = dm[2].padStart(2, '0');
     const yr = dm[3] ? (dm[3].length === 4 ? dm[3].slice(2) : dm[3]) : YR2();
-    let timeStr = '__:__ ___';
+    let timeStr = DT_PH;
     if (dm[4]) {
       let h = parseInt(dm[4]);
       const min = dm[5] || '00';
       const ampm = (dm[6] || '').toLowerCase();
       if (ampm === 'pm' && h < 12) h += 12;
       if (ampm === 'am' && h === 12) h = 0;
-      timeStr = `${String(h).padStart(2,'0')}:${min} ___`;
+      timeStr = `${String(h).padStart(2,'0')}:${min} ${TZ_PH}`;
     }
     R.puDate = `${mm}/${dd}/${yr} ${timeStr}`;
   }
@@ -1006,9 +1034,9 @@ function parseFreeform(lines) {
   // Weight – convert kg → lbs
   const wm = text.match(/(\d[\d,]*(?:\.\d+)?)\s*(kgs?|kilos?|lbs?|pounds?)/i);
   if (wm) {
-    let w = parseFloat(wm[1].replace(/,/g, ''));
+    let w = parseFloat(stripCommas(wm[1]));
     if (/kg|kilo/i.test(wm[2])) {
-      R._weightSrc = `${wm[1].replace(/,/g,'')} kg`;
+      R._weightSrc = `${stripCommas(wm[1])} kg`;
       w *= 2.20462;
     }
     R.weight = String(Math.round(w));
@@ -1073,13 +1101,13 @@ function parseVertical(lines) {
     if (/^Miles$/i.test(l)) {
       const nx = nextValue(i+1);
       const num = nx.value.match(/[\d,]+/);
-      if (num) R.loaded = num[0].replace(/,/g,'');
+      if (num) R.loaded = stripCommas(num[0]);
       i = nx.index; continue;
     }
     if (/^Total\s+Weight$/i.test(l)) {
       const nx = nextValue(i+1);
       const num = nx.value.match(/[\d,]+/);
-      if (num) R.weight = num[0].replace(/,/g,'');
+      if (num) R.weight = stripCommas(num[0]);
       i = nx.index; continue;
     }
     // Skip these labels and their values
@@ -1100,11 +1128,11 @@ function parseVertical(lines) {
       }
       if (/^ship\s+date$/.test(label)) {
         const d = extractDate(val);
-        if (d) R.puDate = `${d} __:__ ___`;
+        if (d) R.puDate = `${d} ${DT_PH}`;
         side = 'pu';
       } else if (/^delivery\s+date$/.test(label)) {
         const d = extractDate(val);
-        if (d) R.delDate = `${d} __:__ ___`;
+        if (d) R.delDate = `${d} ${DT_PH}`;
         side = 'del';
       } else if (/^loading\s+hour/.test(label)) {
         const t = extractTime(val);
@@ -1289,13 +1317,13 @@ function parseChat(lines) {
       if (!vals[i] || vals[i] === '–' || vals[i] === '-') return;
       if (lbl === 'Weight') {
         const m = vals[i].match(/([\d,]+)\s*lbs/i);
-        R.weight = m ? m[1].replace(/,/g,'') : vals[i];
+        R.weight = m ? stripCommas(m[1]) : vals[i];
       }
     });
   }
   if (!R.weight) for (const l of lines) {
     const m = l.trim().match(/^([\d,]+)\s*lbs$/i);
-    if (m) { R.weight = m[1].replace(/,/g,''); break; }
+    if (m) { R.weight = stripCommas(m[1]); break; }
   }
   const ci = lines.findIndex(l => /^COMMENTS$/i.test(l.trim()));
   if (ci >= 0) {
@@ -1318,8 +1346,7 @@ function doParse() {
 function parseChunk(raw) {
   if (!raw || !raw.trim()) return;
   // Clear all auto-parsed fields so a previous parse doesn't leak through
-  ['f_pu','f_puDate','f_del','f_delDate','f_empty','f_loaded','f_pieces','f_dims','f_weight','f_rate','f_equipment','f_note']
-    .forEach(id => { document.getElementById(id).value = ''; });
+  RESULT_KEYS.forEach(k => { document.getElementById('f_' + k).value = ''; });
   const lines = raw.split(/\r?\n/);
   const fmt = detectFormat(lines);
   let detectedFormat, R;
@@ -1335,7 +1362,6 @@ function parseChunk(raw) {
     R = { note: 'Parser error – please fill manually. See console for details.' };
   }
   // Confidence score (#10): count of populated key fields
-  const SCORE_FIELDS = ['pu','puDate','del','delDate','loaded','pieces','dims','weight','rate','equipment'];
   const filled = SCORE_FIELDS.filter(k => R[k]).length;
   const fb = document.getElementById('formatBadge');
   fb.textContent = `${detectedFormat} · ${filled}/${SCORE_FIELDS.length}`;
@@ -1355,7 +1381,7 @@ function parseChunk(raw) {
   if (!R.rate) {
     const rm = raw.match(/Rate\s*[:#]?\s*\$?\s*([\d,]+(?:\.\d+)?)/i)
             || raw.match(/(?:^|[\s\n])\$\s*([\d,]+(?:\.\d+)?)\b/);
-    if (rm) R.rate = rm[1].replace(/,/g,'').replace(/\.0+$/,'');
+    if (rm) R.rate = stripCommas(rm[1]).replace(/\.0+$/,'');
   }
   if (!R.equipment) {
     const em = raw.match(/\b(Sprinter\s*Van|Cargo\s*Van|Straight\s*Box\s*Truck|Straight\s*Truck|Box\s*Truck|Reefer|Flatbed|Step\s*Deck|Tractor)\b/i)
@@ -1482,12 +1508,7 @@ function doCopy(ev) {
   if (ev && (ev.metaKey || ev.ctrlKey)) return doCopyShareUrl();
   const el = document.getElementById('preview');
   if (el.querySelector('.preview-empty')) return;
-  navigator.clipboard.writeText(el.textContent).then(() => {
-    const b = document.getElementById('copyBtn');
-    b.textContent = t('copyOk');
-    b.classList.add('ok');
-    setTimeout(() => { b.textContent = t('copyBtn'); b.classList.remove('ok'); }, 2000);
-  });
+  navigator.clipboard.writeText(el.textContent).then(() => { flashCopyBtn('copyOk'); });
 }
 
 function doCopyShareUrl() {
@@ -1496,18 +1517,12 @@ function doCopyShareUrl() {
   // base64 encoding that handles unicode safely
   const encoded = btoa(unescape(encodeURIComponent(raw)));
   const url = `${location.origin}${location.pathname}?raw=${encodeURIComponent(encoded)}`;
-  navigator.clipboard.writeText(url).then(() => {
-    const b = document.getElementById('copyBtn');
-    b.textContent = t('urlOk');
-    b.classList.add('ok');
-    setTimeout(() => { b.textContent = t('copyBtn'); b.classList.remove('ok'); }, 2000);
-  });
+  navigator.clipboard.writeText(url).then(() => { flashCopyBtn('urlOk'); });
 }
 
 function doReset() {
   // Clear only the form output fields and preview, keep the raw input
-  ['f_pu','f_puDate','f_del','f_delDate','f_empty','f_loaded','f_pieces','f_dims','f_weight','f_rate','f_equipment','f_note']
-    .forEach(id => { document.getElementById(id).value = ''; });
+  RESULT_KEYS.forEach(k => { document.getElementById('f_' + k).value = ''; });
   document.getElementById('formatBadge').textContent = '';
   document.getElementById('loadsTabs').innerHTML = '';
   LOADS = []; activeLoad = 0;
@@ -1610,7 +1625,7 @@ function selectLoad(i) {
 
 /* ── History (#8) ──────────────────────────────────────────────────────── */
 let HISTORY = [];
-try { HISTORY = JSON.parse(localStorage.getItem('oc_history') || '[]'); } catch {}
+try { HISTORY = JSON.parse(localStorage.getItem(SK.history) || '[]'); } catch {}
 
 function pushHistory(R, raw, format) {
   if (!R.pu && !R.del) return; // skip empty
@@ -1618,8 +1633,8 @@ function pushHistory(R, raw, format) {
   // De-dup: drop existing entry with same raw
   HISTORY = HISTORY.filter(e => e.raw !== raw);
   HISTORY.unshift(entry);
-  if (HISTORY.length > 10) HISTORY.length = 10;
-  try { localStorage.setItem('oc_history', JSON.stringify(HISTORY)); } catch {}
+  if (HISTORY.length > HISTORY_MAX) HISTORY.length = HISTORY_MAX;
+  try { localStorage.setItem(SK.history, JSON.stringify(HISTORY)); } catch {}
 }
 
 function toggleHistory() {
@@ -1680,9 +1695,7 @@ function loadHistory(i) {
   const e = HISTORY[i];
   if (!e) return;
   document.getElementById('rawInput').value = e.raw || '';
-  ['pu','puDate','del','delDate','empty','loaded','pieces','dims','weight','rate','equipment','note'].forEach(k => {
-    document.getElementById('f_'+k).value = e[k] || '';
-  });
+  RESULT_KEYS.forEach(k => { document.getElementById('f_' + k).value = e[k] || ''; });
   document.getElementById('formatBadge').textContent = e.format || '';
   renderPreview();
   document.getElementById('historyPanel').hidden = true;
@@ -1691,7 +1704,7 @@ function loadHistory(i) {
 function clearHistory() {
   if (!confirm('Clear all history?')) return;
   HISTORY = [];
-  try { localStorage.removeItem('oc_history'); } catch {}
+  try { localStorage.removeItem(SK.history); } catch {}
   renderHistory();
 }
 
@@ -1847,7 +1860,7 @@ function openInMaps() {
   const pu  = document.getElementById('f_pu').value.trim();
   const del = document.getElementById('f_del').value.trim();
   if (!pu || !del) { alert('Need both PU and DEL to open route.'); return; }
-  const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pu)}&destination=${encodeURIComponent(del)}`;
+  const url = mapsUrl(pu, del);
   window.open(url, '_blank', 'noopener');
 }
 
@@ -1858,7 +1871,7 @@ function emptyFromLastDel() {
   // Find last different DEL in history (skip current top entry which IS this load)
   const lastDel = (HISTORY.find((e, i) => i > 0 && e.del && e.del !== pu) || HISTORY[1] || HISTORY[0])?.del;
   if (!lastDel) { alert('No previous delivery in history yet.'); return; }
-  const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(lastDel)}&destination=${encodeURIComponent(pu)}`;
+  const url = mapsUrl(lastDel, pu);
   window.open(url, '_blank', 'noopener');
 }
 
@@ -1870,7 +1883,7 @@ function emptyFromLastDel() {
   let pasteTimer;
   raw.addEventListener('paste', () => {
     clearTimeout(pasteTimer);
-    pasteTimer = setTimeout(() => { if (raw.value.trim()) doParse(); }, 300);
+    pasteTimer = setTimeout(() => { if (raw.value.trim()) doParse(); }, PASTE_DEBOUNCE_MS);
   });
 
   // #3 Cmd/Ctrl+Enter in textarea = parse
