@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Transit Time · URSA Express</title>
 <style>
-:root {
+/* ── Themes ── */
+:root[data-theme="dark"] {
   --bg: #0a0a0b;
   --card: #131418;
   --card-elev: #1a1c22;
@@ -20,7 +21,31 @@
   --hover: #1f2128;
   --input-bg: #0e0f12;
   --success: #4ade80;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
+:root[data-theme="light"] {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --card-elev: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --muted: #64748b;
+  --divider: #e2e8f0;
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-soft: rgba(59,130,246,0.10);
+  --hover: #f1f5f9;
+  --input-bg: #f8fafc;
+  --success: #16a34a;
+  --shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+/* ── Theme icon visibility ── */
+:root[data-theme="dark"] .icon-sun  { display: block; }
+:root[data-theme="dark"] .icon-moon { display: none;  }
+:root[data-theme="light"] .icon-sun  { display: none;  }
+:root[data-theme="light"] .icon-moon { display: block; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--bg); color: var(--text); }
@@ -30,6 +55,7 @@ body {
   padding: 24px 16px 72px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.2s, color 0.2s;
 }
 
 .wrap { max-width: 680px; margin: 0 auto; }
@@ -82,9 +108,43 @@ body {
   font-size: 0.875rem;
 }
 
+/* Right-side header controls */
+.header-controls {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.hdr-btn {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.hdr-btn:hover { background: var(--hover); border-color: var(--border-strong); }
+.hdr-btn svg { width: 16px; height: 16px; }
+
 @media (max-width: 600px) {
   .topbar { padding-top: 56px; }
   .back-btn { top: 0; transform: none; }
+  .header-controls { top: 0; transform: none; }
 }
 
 /* ── Input card ── */
@@ -94,6 +154,7 @@ body {
   border-radius: 14px;
   padding: 24px;
   margin-bottom: 20px;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .zip-row {
@@ -129,7 +190,7 @@ body {
   letter-spacing: 0.12em;
   padding: 10px 14px;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.2s;
   font-family: 'SF Mono', 'Fira Mono', 'Courier New', monospace;
   width: 100%;
   text-align: center;
@@ -215,6 +276,7 @@ body {
   border-radius: 14px;
   padding: 18px 22px;
   margin-bottom: 12px;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .route-label {
@@ -244,6 +306,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px 16px;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .stat-label {
@@ -261,7 +324,6 @@ body {
   color: var(--text);
   letter-spacing: -0.02em;
 }
-
 .stat-value.blue { color: var(--primary); }
 
 /* ── Delivery window ── */
@@ -299,6 +361,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 20px 22px;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .tl-header {
@@ -312,20 +375,14 @@ body {
   border-bottom: 1px solid var(--divider);
 }
 
-.tl-list {
-  display: flex;
-  flex-direction: column;
-}
+.tl-list { display: flex; flex-direction: column; }
 
 .tl-item {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   position: relative;
-  padding-bottom: 6px;
 }
-
-.tl-item:not(:last-child) { padding-bottom: 0; }
 
 .tl-track {
   display: flex;
@@ -336,8 +393,7 @@ body {
 }
 
 .tl-dot {
-  width: 26px;
-  height: 26px;
+  width: 26px; height: 26px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -347,12 +403,11 @@ body {
   flex-shrink: 0;
   letter-spacing: 0;
 }
-
-.tl-dot.drive  { background: rgba(59,130,246,0.15); border: 2px solid var(--primary); color: var(--primary); }
-.tl-dot.rest   { background: rgba(251,191,36,0.12); border: 2px solid #fbbf24; color: #fbbf24; }
-.tl-dot.fuel   { background: rgba(52,211,153,0.12); border: 2px solid #34d399; color: #34d399; }
-.tl-dot.brk    { background: rgba(167,139,250,0.12); border: 2px solid #a78bfa; color: #a78bfa; }
-.tl-dot.done   { background: rgba(74,222,128,0.15); border: 2px solid var(--success); color: var(--success); }
+.tl-dot.drive { background: rgba(59,130,246,0.15); border: 2px solid var(--primary); color: var(--primary); }
+.tl-dot.rest  { background: rgba(251,191,36,0.12);  border: 2px solid #fbbf24; color: #fbbf24; }
+.tl-dot.fuel  { background: rgba(52,211,153,0.12);  border: 2px solid #34d399; color: #34d399; }
+.tl-dot.brk   { background: rgba(167,139,250,0.12); border: 2px solid #a78bfa; color: #a78bfa; }
+.tl-dot.done  { background: rgba(74,222,128,0.15);  border: 2px solid var(--success); color: var(--success); }
 
 .tl-line {
   width: 2px;
@@ -369,17 +424,103 @@ body {
 }
 .tl-item:last-child .tl-body { padding-bottom: 0; }
 
-.tl-name {
-  font-size: 0.9rem;
-  font-weight: 600;
+.tl-name { font-size: 0.9rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+.tl-sub  { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+/* ── Help modal ── */
+.help-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.help-overlay.open { display: flex; animation: fadeIn 0.15s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.help-card {
+  background: var(--card);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.15s ease;
+}
+@keyframes slideUp { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.help-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.help-title {
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text);
-  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.help-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0 4px;
+  margin-top: -2px;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+.help-close:hover { color: var(--text); }
+
+.help-desc {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 18px;
 }
 
-.tl-sub {
-  font-size: 0.78rem;
+.help-section {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   color: var(--muted);
-  margin-top: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.help-steps { list-style: none; padding: 0; margin: 0; }
+.help-steps li {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text);
+  border-top: 1px solid var(--divider);
+}
+.help-steps li:first-child { border-top: none; padding-top: 4px; }
+.help-num {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 1px;
 }
 </style>
 </head>
@@ -387,26 +528,43 @@ body {
 <div class="wrap">
 
   <header class="topbar">
-    <a href="index.html" class="back-btn">← Cargo Tools</a>
-    <h1 class="page-title">⏱️ Transit Time</h1>
-    <p class="page-subtitle">Drive time with HOS logbook rules</p>
+    <a href="index.html" class="back-btn" id="backBtn">← <span data-i18n="backLabel">Cargo Tools</span></a>
+
+    <h1 class="page-title">⏱️ <span data-i18n="pageTitle">Transit Time</span></h1>
+    <p class="page-subtitle" data-i18n="pageSubtitle">Drive time with HOS logbook rules</p>
+
+    <div class="header-controls">
+      <button class="hdr-btn" id="helpBtn" title="Help / Справка">?</button>
+      <button class="hdr-btn" id="langBtn" title="Switch language">RU</button>
+      <button class="hdr-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+    </div>
   </header>
 
   <div class="input-card">
     <div class="zip-row">
       <div class="zip-field">
-        <label for="zip-origin">Origin ZIP</label>
+        <label for="zip-origin" data-i18n="originLabel">Origin ZIP</label>
         <input id="zip-origin" type="text" inputmode="numeric" maxlength="5"
                placeholder="e.g. 60601" autocomplete="off" spellcheck="false">
       </div>
       <div class="arrow-sep">→</div>
       <div class="zip-field">
-        <label for="zip-dest">Destination ZIP</label>
+        <label for="zip-dest" data-i18n="destLabel">Destination ZIP</label>
         <input id="zip-dest" type="text" inputmode="numeric" maxlength="5"
                placeholder="e.g. 75201" autocomplete="off" spellcheck="false">
       </div>
     </div>
-    <button class="calc-btn" id="calcBtn">Calculate Transit Time</button>
+    <button class="calc-btn" id="calcBtn" data-i18n="calcBtn">Calculate Transit Time</button>
   </div>
 
   <div class="msg" id="msgBox"></div>
@@ -420,19 +578,19 @@ body {
 
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">🚗 Wheel Time</div>
+        <div class="stat-label" data-i18n="statWheelTime">🚗 Wheel Time</div>
         <div class="stat-value" id="statDrive"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">⏱️ Total Elapsed</div>
+        <div class="stat-label" data-i18n="statElapsed">⏱️ Total Elapsed</div>
         <div class="stat-value blue" id="statElapsed"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">🛏️ HOS Rests</div>
+        <div class="stat-label" data-i18n="statRests">🛏️ HOS Rests</div>
         <div class="stat-value" id="statRests"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">⛽ Fuel Stops</div>
+        <div class="stat-label" data-i18n="statFuel">⛽ Fuel Stops</div>
         <div class="stat-value" id="statFuel"></div>
       </div>
     </div>
@@ -440,28 +598,217 @@ body {
     <div class="delivery-card">
       <div class="delivery-icon">📦</div>
       <div class="delivery-text">
-        <div class="dlabel">Estimated Delivery Window</div>
+        <div class="dlabel" data-i18n="deliveryLabel">Estimated Delivery Window</div>
         <div class="dvalue" id="deliveryVal"></div>
       </div>
     </div>
 
     <div class="timeline-card">
-      <div class="tl-header">Step-by-Step Timeline</div>
+      <div class="tl-header" data-i18n="timelineHeader">Step-by-Step Timeline</div>
       <div class="tl-list" id="tlList"></div>
     </div>
 
   </div>
 </div>
 
+<!-- Help modal -->
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-card" role="dialog" aria-labelledby="helpTitle">
+    <div class="help-head">
+      <div class="help-title" id="helpTitle" data-i18n="helpTitle">How Transit Time Works</div>
+      <button class="help-close" id="helpClose" aria-label="Close">×</button>
+    </div>
+    <p class="help-desc" data-i18n="helpDesc">
+      Calculates realistic drive time using FMCSA Hours of Service rules.
+    </p>
+    <div class="help-section" data-i18n="helpHow">How to use</div>
+    <ol class="help-steps">
+      <li><span class="help-num">1</span><span data-i18n="helpStep1">Enter 5-digit origin and destination ZIP codes</span></li>
+      <li><span class="help-num">2</span><span data-i18n="helpStep2">Coordinates fetched from Zippopotam.us, road distance from OSRM</span></li>
+      <li><span class="help-num">3</span><span data-i18n="helpStep3">Average speed of 50 mph applied to total road miles</span></li>
+      <li><span class="help-num">4</span><span data-i18n="helpStep4">After 8h continuous driving → mandatory 30-min break</span></li>
+      <li><span class="help-num">5</span><span data-i18n="helpStep5">After 11h of driving in a shift → 10h HOS rest</span></li>
+      <li><span class="help-num">6</span><span data-i18n="helpStep6">Every 500 miles → 30-min fuel stop (also resets continuous counter)</span></li>
+    </ol>
+  </div>
+</div>
+
 <script>
-// ── Formatting helpers ─────────────────────────────────────────────────────
+// ── i18n ─────────────────────────────────────────────────────────────────────
+const STRINGS = {
+  en: {
+    backLabel:       'Cargo Tools',
+    pageTitle:       'Transit Time',
+    pageSubtitle:    'Drive time with HOS logbook rules',
+    originLabel:     'Origin ZIP',
+    destLabel:       'Destination ZIP',
+    calcBtn:         'Calculate Transit Time',
+    loadingZip:      'Looking up ZIP codes…',
+    loadingRoute:    'Calculating road distance…',
+    roadMiles:       n => `${n.toLocaleString()} road miles`,
+    statWheelTime:   '🚗 Wheel Time',
+    statElapsed:     '⏱️ Total Elapsed',
+    statRests:       '🛏️ HOS Rests',
+    statFuel:        '⛽ Fuel Stops',
+    deliveryLabel:   'Estimated Delivery Window',
+    deliveryVal:     t => `Ready in ~${t}`,
+    timelineHeader:  'Step-by-Step Timeline',
+    helpTitle:       'How Transit Time Works',
+    helpDesc:        'Calculates realistic drive time using FMCSA Hours of Service (HOS) rules.',
+    helpHow:         'How to use',
+    helpStep1:       'Enter 5-digit origin and destination ZIP codes',
+    helpStep2:       'Coordinates fetched from Zippopotam.us, road distance from OSRM',
+    helpStep3:       'Average speed of 50 mph applied to total road miles',
+    helpStep4:       'After 8h continuous driving → mandatory 30-min break',
+    helpStep5:       'After 11h driving in a shift → 10h HOS rest period',
+    helpStep6:       'Every 500 miles → 30-min fuel stop (also resets continuous counter)',
+    tl_drive:        h => `Drive ${h}`,
+    tl_driveSub:     n => `${n.toLocaleString()} miles`,
+    tl_rest:         '10h HOS rest',
+    tl_restSub:      'Mandatory logbook off-duty period',
+    tl_fuel:         'Fuel stop — 30 min',
+    tl_fuelSub:      'Resets continuous driving counter',
+    tl_brk:          '30-min break',
+    tl_brkSub:       '8h continuous driving limit reached',
+    tl_done:         'Delivered',
+    switchLang:      'Переключить на русский',
+    switchToLight:   'Switch to light theme',
+    switchToDark:    'Switch to dark theme',
+    errOrigin:       'Enter a valid 5-digit origin ZIP code.',
+    errDest:         'Enter a valid 5-digit destination ZIP code.',
+    errSame:         'Origin and destination ZIP codes must be different.',
+    errClose:        'These locations are too close to calculate transit time.',
+    errRoute:        'No drivable route found between these locations.',
+    days:            n => n === 1 ? '1 day' : `${n} days`,
+    hours:           n => `${n}h`,
+    mins:            n => `${n}min`,
+  },
+  ru: {
+    backLabel:       'Cargo Tools',
+    pageTitle:       'Время в пути',
+    pageSubtitle:    'Расчёт по нормам HOS (путевой лист)',
+    originLabel:     'ZIP отправления',
+    destLabel:       'ZIP назначения',
+    calcBtn:         'Рассчитать время в пути',
+    loadingZip:      'Поиск ZIP-кодов…',
+    loadingRoute:    'Расчёт дорожного расстояния…',
+    roadMiles:       n => `${n.toLocaleString()} миль по дороге`,
+    statWheelTime:   '🚗 Время за рулём',
+    statElapsed:     '⏱️ Общее время',
+    statRests:       '🛏️ Отдых HOS',
+    statFuel:        '⛽ Заправки',
+    deliveryLabel:   'Ожидаемое время доставки',
+    deliveryVal:     t => `Готово через ~${t}`,
+    timelineHeader:  'Пошаговый маршрут',
+    helpTitle:       'Как работает расчёт',
+    helpDesc:        'Расчёт реального времени в пути по нормам FMCSA Hours of Service (HOS).',
+    helpHow:         'Как пользоваться',
+    helpStep1:       'Введите 5-значные ZIP-коды отправления и назначения',
+    helpStep2:       'Координаты из Zippopotam.us, дорожное расстояние из OSRM',
+    helpStep3:       'Средняя скорость 50 миль/ч × общий километраж по дорогам',
+    helpStep4:       'После 8ч непрерывного вождения → обязательный перерыв 30 мин',
+    helpStep5:       'После 11ч вождения за смену → обязательный отдых 10ч (HOS)',
+    helpStep6:       'Каждые 500 миль → заправка 30 мин (сбрасывает непрерывное вождение)',
+    tl_drive:        h => `Езда ${h}`,
+    tl_driveSub:     n => `${n.toLocaleString()} миль`,
+    tl_rest:         'Отдых 10ч (HOS)',
+    tl_restSub:      'Обязательный перерыв по путевому листу',
+    tl_fuel:         'Заправка — 30 мин',
+    tl_fuelSub:      'Сброс счётчика непрерывного вождения',
+    tl_brk:          'Перерыв 30 мин',
+    tl_brkSub:       'Достигнут лимит 8ч непрерывного вождения',
+    tl_done:         'Доставлено',
+    switchLang:      'Switch to English',
+    switchToLight:   'Светлая тема',
+    switchToDark:    'Тёмная тема',
+    errOrigin:       'Введите корректный 5-значный ZIP-код отправления.',
+    errDest:         'Введите корректный 5-значный ZIP-код назначения.',
+    errSame:         'ZIP-коды отправления и назначения должны быть разными.',
+    errClose:        'Точки слишком близко для расчёта времени в пути.',
+    errRoute:        'Маршрут между этими точками не найден.',
+    days:            n => `${n} дн.`,
+    hours:           n => `${n}ч`,
+    mins:            n => `${n}мин`,
+  },
+};
+
+let currentLang = 'en';
+
+function t(key, arg) {
+  const val = STRINGS[currentLang][key] ?? STRINGS.en[key] ?? key;
+  return typeof val === 'function' ? val(arg) : val;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const val = STRINGS[currentLang][key];
+    if (val !== undefined && typeof val === 'string') el.textContent = val;
+  });
+
+  const langBtn = document.getElementById('langBtn');
+  langBtn.textContent = currentLang === 'en' ? 'RU' : 'EN';
+  langBtn.title = t('switchLang');
+
+  const isDark = document.documentElement.dataset.theme === 'dark';
+  document.getElementById('themeBtn').title = isDark ? t('switchToLight') : t('switchToDark');
+
+  // Re-render timeline if results are showing
+  if (document.getElementById('results').classList.contains('show') && _lastSteps) {
+    renderTimeline(_lastSteps);
+  }
+  // Re-render delivery window
+  if (_lastElapsed !== null) {
+    document.getElementById('deliveryVal').textContent = t('deliveryVal', fmtElapsed(_lastElapsed));
+  }
+  // Re-render route sub
+  if (_lastMiles !== null) {
+    document.getElementById('routeSub').textContent = t('roadMiles', Math.round(_lastMiles));
+  }
+  // Re-render stats labels
+  document.getElementById('statDrive') && (_lastDrive !== null) &&
+    (document.getElementById('statDrive').textContent = fmtH(_lastDrive));
+  (_lastElapsed !== null) &&
+    (document.getElementById('statElapsed').textContent = fmtElapsed(_lastElapsed));
+
+  // Update input placeholders
+  document.getElementById('zip-origin').placeholder = currentLang === 'ru' ? 'напр. 60601' : 'e.g. 60601';
+  document.getElementById('zip-dest').placeholder   = currentLang === 'ru' ? 'напр. 75201' : 'e.g. 75201';
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'ru' : 'en';
+  document.documentElement.lang = currentLang;
+  try { localStorage.setItem('transit-lang', currentLang); } catch(e) {}
+  applyTranslations();
+}
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  try { localStorage.setItem('transit-theme', theme); } catch(e) {}
+  const isDark = theme === 'dark';
+  document.getElementById('themeBtn').title = isDark ? t('switchToLight') : t('switchToDark');
+}
+
+function toggleTheme() {
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+
+// ── Help ──────────────────────────────────────────────────────────────────────
+
+function openHelp()  { document.getElementById('helpOverlay').classList.add('open'); }
+function closeHelp() { document.getElementById('helpOverlay').classList.remove('open'); }
+
+// ── Formatting ────────────────────────────────────────────────────────────────
 
 function fmtH(h) {
   const hrs  = Math.floor(h);
   const mins = Math.round((h - hrs) * 60);
-  if (hrs === 0) return `${mins}min`;
-  if (mins === 0) return `${hrs}h`;
-  return `${hrs}h ${mins}min`;
+  if (hrs === 0) return t('mins', mins);
+  if (mins === 0) return t('hours', hrs);
+  return `${t('hours', hrs)} ${t('mins', mins)}`;
 }
 
 function fmtElapsed(h) {
@@ -470,75 +817,58 @@ function fmtElapsed(h) {
   const hrs  = Math.floor(rem);
   const mins = Math.round((rem - hrs) * 60);
   const parts = [];
-  if (days > 0) parts.push(days === 1 ? '1 day' : `${days} days`);
-  if (hrs  > 0) parts.push(`${hrs}h`);
-  if (mins > 0) parts.push(`${mins}min`);
-  return parts.length ? parts.join(' ') : '< 1 min';
+  if (days > 0) parts.push(t('days', days));
+  if (hrs  > 0) parts.push(t('hours', hrs));
+  if (mins > 0) parts.push(t('mins', mins));
+  return parts.length ? parts.join(' ') : t('mins', 1);
 }
 
-// ── HOS Simulation ────────────────────────────────────────────────────────
-// Rules:
-//   Speed:       50 mph average
-//   HOS shift:   11 h max driving → 10 h mandatory rest
-//   Cont. break: 8 h continuous driving → 30 min break
-//   Fuel stop:   every 500 miles → 30 min (also resets continuous counter)
+// ── HOS Simulation ────────────────────────────────────────────────────────────
+// Speed 50 mph | Shift max 11h → 10h rest | Continuous max 8h → 30min break
+// Fuel every 500 mi → 30min (resets continuous counter)
 
 function simulateTrip(totalMiles) {
-  const SPEED      = 50;   // mph
-  const SHIFT_MAX  = 11;   // hours per shift
-  const CONT_MAX   = 8;    // hours continuous driving before mandatory break
-  const BREAK_DUR  = 0.5;  // 30-min break
-  const FUEL_EVERY = 500;  // miles
-  const FUEL_DUR   = 0.5;  // 30-min fuel stop
-  const REST_DUR   = 10;   // 10-hour HOS rest
+  const SPEED      = 50;
+  const SHIFT_MAX  = 11;
+  const CONT_MAX   = 8;
+  const BREAK_DUR  = 0.5;
+  const FUEL_EVERY = 500;
+  const FUEL_DUR   = 0.5;
+  const REST_DUR   = 10;
   const EPS        = 1e-4;
 
-  let remaining   = totalMiles;
-  let shiftH      = 0;  // hours driven this HOS shift
-  let contH       = 0;  // hours driven continuously since last break/stop
-  let milesFuel   = 0;  // miles since last fuel stop
-
-  let totalDrive   = 0;
-  let totalElapsed = 0;
-  let hosRests     = 0;
-  let fuelStops    = 0;
-  let shortBreaks  = 0;
-  const steps      = [];
+  let remaining = totalMiles, shiftH = 0, contH = 0, milesFuel = 0;
+  let totalDrive = 0, totalElapsed = 0, hosRests = 0, fuelStops = 0, shortBreaks = 0;
+  const steps = [];
 
   for (let i = 0; i < 5000 && remaining > EPS; i++) {
-    // Time until each constraint
     const tBreak  = CONT_MAX - contH;
     const tFuel   = (FUEL_EVERY - milesFuel) / SPEED;
     const tHOS    = SHIFT_MAX - shiftH;
     const tFinish = remaining / SPEED;
 
-    // Drive until nearest event
-    const drive  = Math.min(tBreak, tFuel, tHOS, tFinish);
+    const drive = Math.min(tBreak, tFuel, tHOS, tFinish);
     const dMiles = drive * SPEED;
 
-    remaining   -= dMiles;
-    totalDrive  += drive;
+    remaining    -= dMiles;
+    totalDrive   += drive;
     totalElapsed += drive;
-    shiftH      += drive;
-    contH       += drive;
-    milesFuel   += dMiles;
+    shiftH       += drive;
+    contH        += drive;
+    milesFuel    += dMiles;
 
     steps.push({ type: 'drive', hours: drive, miles: dMiles });
+    if (remaining <= EPS) break;
 
-    if (remaining <= EPS) break; // destination reached
-
-    // Determine which constraint fired (priority: HOS > fuel > break)
     if (shiftH + EPS >= SHIFT_MAX) {
       hosRests++;
       totalElapsed += REST_DUR;
-      shiftH = 0;
-      contH  = 0;
+      shiftH = 0; contH = 0;
       steps.push({ type: 'rest', hours: REST_DUR });
     } else if (milesFuel + EPS >= FUEL_EVERY) {
       fuelStops++;
       totalElapsed += FUEL_DUR;
-      milesFuel = 0;
-      contH     = 0;
+      milesFuel = 0; contH = 0;
       steps.push({ type: 'fuel', hours: FUEL_DUR });
     } else {
       shortBreaks++;
@@ -549,11 +879,10 @@ function simulateTrip(totalMiles) {
   }
 
   steps.push({ type: 'done' });
-
   return { totalDrive, totalElapsed, hosRests, fuelStops, shortBreaks, steps };
 }
 
-// ── API calls ─────────────────────────────────────────────────────────────
+// ── API ───────────────────────────────────────────────────────────────────────
 
 async function timed(url, ms = 12000) {
   const ctrl = new AbortController();
@@ -564,37 +893,30 @@ async function timed(url, ms = 12000) {
     return r;
   } catch (e) {
     clearTimeout(tid);
-    if (e.name === 'AbortError') throw new Error('Request timed out — please try again.');
+    if (e.name === 'AbortError') throw new Error(t('errOrigin').replace('ZIP', 'timed out —'));
     throw e;
   }
 }
 
 async function lookupZip(zip) {
   const r = await timed(`https://api.zippopotam.us/us/${zip}`);
-  if (r.status === 404) throw new Error(`ZIP code ${zip} was not found. Please check and try again.`);
-  if (!r.ok) throw new Error(`Could not look up ZIP ${zip} (HTTP ${r.status}).`);
-  const d    = await r.json();
-  const p    = d.places[0];
-  return {
-    lat:   parseFloat(p.latitude),
-    lng:   parseFloat(p.longitude),
-    city:  p['place name'],
-    state: p['state abbreviation'],
-  };
+  if (r.status === 404) throw new Error(`ZIP ${zip} not found.`);
+  if (!r.ok) throw new Error(`ZIP ${zip} lookup failed (HTTP ${r.status}).`);
+  const d = await r.json();
+  const p = d.places[0];
+  return { lat: parseFloat(p.latitude), lng: parseFloat(p.longitude), city: p['place name'], state: p['state abbreviation'] };
 }
 
 async function roadMiles(o, d) {
   const url = `https://router.project-osrm.org/route/v1/driving/${o.lng},${o.lat};${d.lng},${d.lat}?overview=false`;
   const r   = await timed(url);
-  if (!r.ok) throw new Error('Route lookup failed. Please try again.');
+  if (!r.ok) throw new Error(t('errRoute'));
   const data = await r.json();
-  if (data.code !== 'Ok' || !data.routes?.length) {
-    throw new Error('No drivable route found between these locations.');
-  }
-  return data.routes[0].distance / 1609.344; // meters → miles
+  if (data.code !== 'Ok' || !data.routes?.length) throw new Error(t('errRoute'));
+  return data.routes[0].distance / 1609.344;
 }
 
-// ── UI helpers ────────────────────────────────────────────────────────────
+// ── UI helpers ────────────────────────────────────────────────────────────────
 
 function showMsg(text, type = 'error') {
   const box = document.getElementById('msgBox');
@@ -607,11 +929,12 @@ function showMsg(text, type = 'error') {
   document.getElementById('results').classList.remove('show');
 }
 
-function hideMsg() {
-  document.getElementById('msgBox').className = 'msg';
-}
+function hideMsg() { document.getElementById('msgBox').className = 'msg'; }
+
+let _lastSteps = null, _lastElapsed = null, _lastMiles = null, _lastDrive = null;
 
 function renderTimeline(steps) {
+  _lastSteps = steps;
   const list = document.getElementById('tlList');
   list.innerHTML = '';
 
@@ -626,29 +949,14 @@ function renderTimeline(steps) {
   steps.forEach((step, idx) => {
     const m    = meta[step.type];
     const last = idx === steps.length - 1;
-
     let name = '', sub = '';
+
     switch (step.type) {
-      case 'drive':
-        name = `Drive ${fmtH(step.hours)}`;
-        sub  = `${Math.round(step.miles).toLocaleString()} miles`;
-        break;
-      case 'rest':
-        name = '10h HOS rest';
-        sub  = 'Mandatory logbook off-duty period';
-        break;
-      case 'fuel':
-        name = 'Fuel stop — 30 min';
-        sub  = 'Resets continuous driving counter';
-        break;
-      case 'brk':
-        name = '30-min break';
-        sub  = '8h continuous driving limit reached';
-        break;
-      case 'done':
-        name = 'Delivered';
-        sub  = '';
-        break;
+      case 'drive': name = t('tl_drive', fmtH(step.hours)); sub = t('tl_driveSub', Math.round(step.miles)); break;
+      case 'rest':  name = t('tl_rest');  sub = t('tl_restSub'); break;
+      case 'fuel':  name = t('tl_fuel');  sub = t('tl_fuelSub'); break;
+      case 'brk':   name = t('tl_brk');   sub = t('tl_brkSub');  break;
+      case 'done':  name = t('tl_done');  break;
     }
 
     const item = document.createElement('div');
@@ -666,85 +974,104 @@ function renderTimeline(steps) {
   });
 }
 
-// ── Main calculate ────────────────────────────────────────────────────────
+// ── Main calculate ────────────────────────────────────────────────────────────
 
 async function calculate() {
   const originVal = document.getElementById('zip-origin').value.trim();
   const destVal   = document.getElementById('zip-dest').value.trim();
 
-  if (!/^\d{5}$/.test(originVal)) {
-    showMsg('Enter a valid 5-digit origin ZIP code.');
-    return;
-  }
-  if (!/^\d{5}$/.test(destVal)) {
-    showMsg('Enter a valid 5-digit destination ZIP code.');
-    return;
-  }
-  if (originVal === destVal) {
-    showMsg('Origin and destination ZIP codes must be different.');
-    return;
-  }
+  if (!/^\d{5}$/.test(originVal)) { showMsg(t('errOrigin')); return; }
+  if (!/^\d{5}$/.test(destVal))   { showMsg(t('errDest'));   return; }
+  if (originVal === destVal)       { showMsg(t('errSame'));   return; }
 
   const btn = document.getElementById('calcBtn');
   btn.disabled = true;
-  showMsg('Looking up ZIP codes…', 'loading');
+  _lastSteps = null; _lastElapsed = null; _lastMiles = null; _lastDrive = null;
+  showMsg(t('loadingZip'), 'loading');
 
   try {
     const [origin, dest] = await Promise.all([lookupZip(originVal), lookupZip(destVal)]);
 
-    showMsg('Calculating road distance…', 'loading');
+    showMsg(t('loadingRoute'), 'loading');
     const miles = await roadMiles(origin, dest);
 
-    if (miles < 1) {
-      showMsg('These locations are too close to calculate a meaningful transit time.');
-      return;
-    }
+    if (miles < 1) { showMsg(t('errClose')); return; }
 
     hideMsg();
 
-    const { totalDrive, totalElapsed, hosRests, fuelStops, shortBreaks, steps } = simulateTrip(miles);
+    const { totalDrive, totalElapsed, hosRests, fuelStops, steps } = simulateTrip(miles);
+    _lastElapsed = totalElapsed;
+    _lastMiles   = miles;
+    _lastDrive   = totalDrive;
 
     document.getElementById('routeLabel').textContent =
       `${origin.city}, ${origin.state} → ${dest.city}, ${dest.state}`;
-    document.getElementById('routeSub').textContent =
-      `${Math.round(miles).toLocaleString()} road miles`;
+    document.getElementById('routeSub').textContent = t('roadMiles', Math.round(miles));
 
     document.getElementById('statDrive').textContent   = fmtH(totalDrive);
     document.getElementById('statElapsed').textContent = fmtElapsed(totalElapsed);
-    document.getElementById('statRests').textContent   = hosRests   || '—';
-    document.getElementById('statFuel').textContent    = fuelStops  || '—';
-
-    document.getElementById('deliveryVal').textContent =
-      `Ready in ~${fmtElapsed(totalElapsed)}`;
+    document.getElementById('statRests').textContent   = hosRests  || '—';
+    document.getElementById('statFuel').textContent    = fuelStops || '—';
+    document.getElementById('deliveryVal').textContent = t('deliveryVal', fmtElapsed(totalElapsed));
 
     renderTimeline(steps);
     document.getElementById('results').classList.add('show');
 
   } catch (err) {
-    showMsg(err.message || 'Something went wrong. Please check the ZIP codes and try again.');
+    showMsg(err.message || t('errRoute'));
   } finally {
     btn.disabled = false;
   }
 }
 
-// ── Event wiring ──────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 
-document.getElementById('calcBtn').addEventListener('click', calculate);
+(function init() {
+  // Restore theme
+  let savedTheme = 'dark';
+  try {
+    const s = localStorage.getItem('transit-theme');
+    if (s) savedTheme = s;
+    else if (matchMedia('(prefers-color-scheme: light)').matches) savedTheme = 'light';
+  } catch(e) {}
+  applyTheme(savedTheme);
 
-// Only allow digits in ZIP inputs
-['zip-origin', 'zip-dest'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('input', () => {
-    el.value = el.value.replace(/\D/g, '').slice(0, 5);
+  // Restore language
+  try {
+    const s = localStorage.getItem('transit-lang');
+    if (s === 'ru' || s === 'en') currentLang = s;
+  } catch(e) {}
+  document.documentElement.lang = currentLang;
+  applyTranslations();
+
+  // Button events
+  document.getElementById('calcBtn').addEventListener('click', calculate);
+  document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+  document.getElementById('langBtn').addEventListener('click', toggleLang);
+  document.getElementById('helpBtn').addEventListener('click', openHelp);
+  document.getElementById('helpClose').addEventListener('click', closeHelp);
+  document.getElementById('helpOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeHelp();
   });
-});
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeHelp();
+  });
 
-document.getElementById('zip-origin').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('zip-dest').focus();
-});
-document.getElementById('zip-dest').addEventListener('keydown', e => {
-  if (e.key === 'Enter') calculate();
-});
+  // Digit-only ZIP inputs
+  ['zip-origin', 'zip-dest'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/g, '').slice(0, 5);
+    });
+  });
+
+  document.getElementById('zip-origin').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('zip-dest').focus();
+  });
+  document.getElementById('zip-dest').addEventListener('keydown', e => {
+    if (e.key === 'Enter') calculate();
+  });
+})();
 </script>
 </body>
 </html>
