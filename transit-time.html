@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transit Time · URSA Express</title>
+<style>
+:root {
+  --bg: #0a0a0b;
+  --card: #131418;
+  --card-elev: #1a1c22;
+  --border: #2a2d35;
+  --border-strong: #3a3d47;
+  --text: #f1f5f9;
+  --muted: #8a8f9a;
+  --divider: #1f2128;
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-soft: rgba(59,130,246,0.12);
+  --hover: #1f2128;
+  --input-bg: #0e0f12;
+  --success: #4ade80;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  padding: 24px 16px 72px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.wrap { max-width: 680px; margin: 0 auto; }
+
+/* ── Header ── */
+.topbar {
+  position: relative;
+  text-align: center;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--divider);
+  min-height: 52px;
+}
+
+.back-btn {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.back-btn:hover { background: var(--hover); border-color: var(--border-strong); }
+
+.page-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  line-height: 1.15;
+  margin-top: 4px;
+}
+
+.page-subtitle {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 600px) {
+  .topbar { padding-top: 56px; }
+  .back-btn { top: 0; transform: none; }
+}
+
+/* ── Input card ── */
+.input-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.zip-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.zip-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.zip-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.zip-field input {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: 'SF Mono', 'Fira Mono', 'Courier New', monospace;
+  width: 100%;
+  text-align: center;
+}
+.zip-field input::placeholder {
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: normal;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+.zip-field input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.arrow-sep {
+  font-size: 1.1rem;
+  color: var(--muted);
+  padding-bottom: 10px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.calc-btn {
+  width: 100%;
+  padding: 12px 24px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, opacity 0.15s;
+  font-family: inherit;
+}
+.calc-btn:hover:not(:disabled) { background: var(--primary-dark); }
+.calc-btn:active:not(:disabled) { transform: scale(0.99); }
+.calc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Messages ── */
+.msg {
+  text-align: center;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  margin-bottom: 20px;
+  display: none;
+  line-height: 1.4;
+}
+.msg.show { display: block; }
+.msg.error { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); color: #f87171; }
+.msg.loading {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.msg.loading.show { display: flex; }
+
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Results ── */
+.results { display: none; }
+.results.show { display: block; }
+
+.result-header {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 12px;
+}
+
+.route-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.route-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ── Stats grid ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+@media (max-width: 440px) { .stats-grid { grid-template-columns: 1fr; } }
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.stat-value.blue { color: var(--primary); }
+
+/* ── Delivery window ── */
+.delivery-card {
+  background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(91,110,245,0.04));
+  border: 1px solid rgba(59,130,246,0.22);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.delivery-icon { font-size: 1.6rem; line-height: 1; }
+
+.delivery-text .dlabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+
+.delivery-text .dvalue {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── Timeline ── */
+.timeline-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+
+.tl-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.tl-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tl-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  padding-bottom: 6px;
+}
+
+.tl-item:not(:last-child) { padding-bottom: 0; }
+
+.tl-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.tl-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.tl-dot.drive  { background: rgba(59,130,246,0.15); border: 2px solid var(--primary); color: var(--primary); }
+.tl-dot.rest   { background: rgba(251,191,36,0.12); border: 2px solid #fbbf24; color: #fbbf24; }
+.tl-dot.fuel   { background: rgba(52,211,153,0.12); border: 2px solid #34d399; color: #34d399; }
+.tl-dot.brk    { background: rgba(167,139,250,0.12); border: 2px solid #a78bfa; color: #a78bfa; }
+.tl-dot.done   { background: rgba(74,222,128,0.15); border: 2px solid var(--success); color: var(--success); }
+
+.tl-line {
+  width: 2px;
+  flex: 1;
+  min-height: 12px;
+  background: var(--border);
+  margin: 2px 0;
+}
+
+.tl-body {
+  flex: 1;
+  padding-top: 3px;
+  padding-bottom: 14px;
+}
+.tl-item:last-child .tl-body { padding-bottom: 0; }
+
+.tl-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.tl-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <a href="index.html" class="back-btn">← Cargo Tools</a>
+    <h1 class="page-title">⏱️ Transit Time</h1>
+    <p class="page-subtitle">Drive time with HOS logbook rules</p>
+  </header>
+
+  <div class="input-card">
+    <div class="zip-row">
+      <div class="zip-field">
+        <label for="zip-origin">Origin ZIP</label>
+        <input id="zip-origin" type="text" inputmode="numeric" maxlength="5"
+               placeholder="e.g. 60601" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="arrow-sep">→</div>
+      <div class="zip-field">
+        <label for="zip-dest">Destination ZIP</label>
+        <input id="zip-dest" type="text" inputmode="numeric" maxlength="5"
+               placeholder="e.g. 75201" autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+    <button class="calc-btn" id="calcBtn">Calculate Transit Time</button>
+  </div>
+
+  <div class="msg" id="msgBox"></div>
+
+  <div class="results" id="results">
+
+    <div class="result-header">
+      <div class="route-label" id="routeLabel"></div>
+      <div class="route-sub" id="routeSub"></div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">🚗 Wheel Time</div>
+        <div class="stat-value" id="statDrive"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">⏱️ Total Elapsed</div>
+        <div class="stat-value blue" id="statElapsed"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">🛏️ HOS Rests</div>
+        <div class="stat-value" id="statRests"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">⛽ Fuel Stops</div>
+        <div class="stat-value" id="statFuel"></div>
+      </div>
+    </div>
+
+    <div class="delivery-card">
+      <div class="delivery-icon">📦</div>
+      <div class="delivery-text">
+        <div class="dlabel">Estimated Delivery Window</div>
+        <div class="dvalue" id="deliveryVal"></div>
+      </div>
+    </div>
+
+    <div class="timeline-card">
+      <div class="tl-header">Step-by-Step Timeline</div>
+      <div class="tl-list" id="tlList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Formatting helpers ─────────────────────────────────────────────────────
+
+function fmtH(h) {
+  const hrs  = Math.floor(h);
+  const mins = Math.round((h - hrs) * 60);
+  if (hrs === 0) return `${mins}min`;
+  if (mins === 0) return `${hrs}h`;
+  return `${hrs}h ${mins}min`;
+}
+
+function fmtElapsed(h) {
+  const days = Math.floor(h / 24);
+  const rem  = h % 24;
+  const hrs  = Math.floor(rem);
+  const mins = Math.round((rem - hrs) * 60);
+  const parts = [];
+  if (days > 0) parts.push(days === 1 ? '1 day' : `${days} days`);
+  if (hrs  > 0) parts.push(`${hrs}h`);
+  if (mins > 0) parts.push(`${mins}min`);
+  return parts.length ? parts.join(' ') : '< 1 min';
+}
+
+// ── HOS Simulation ────────────────────────────────────────────────────────
+// Rules:
+//   Speed:       50 mph average
+//   HOS shift:   11 h max driving → 10 h mandatory rest
+//   Cont. break: 8 h continuous driving → 30 min break
+//   Fuel stop:   every 500 miles → 30 min (also resets continuous counter)
+
+function simulateTrip(totalMiles) {
+  const SPEED      = 50;   // mph
+  const SHIFT_MAX  = 11;   // hours per shift
+  const CONT_MAX   = 8;    // hours continuous driving before mandatory break
+  const BREAK_DUR  = 0.5;  // 30-min break
+  const FUEL_EVERY = 500;  // miles
+  const FUEL_DUR   = 0.5;  // 30-min fuel stop
+  const REST_DUR   = 10;   // 10-hour HOS rest
+  const EPS        = 1e-4;
+
+  let remaining   = totalMiles;
+  let shiftH      = 0;  // hours driven this HOS shift
+  let contH       = 0;  // hours driven continuously since last break/stop
+  let milesFuel   = 0;  // miles since last fuel stop
+
+  let totalDrive   = 0;
+  let totalElapsed = 0;
+  let hosRests     = 0;
+  let fuelStops    = 0;
+  let shortBreaks  = 0;
+  const steps      = [];
+
+  for (let i = 0; i < 5000 && remaining > EPS; i++) {
+    // Time until each constraint
+    const tBreak  = CONT_MAX - contH;
+    const tFuel   = (FUEL_EVERY - milesFuel) / SPEED;
+    const tHOS    = SHIFT_MAX - shiftH;
+    const tFinish = remaining / SPEED;
+
+    // Drive until nearest event
+    const drive  = Math.min(tBreak, tFuel, tHOS, tFinish);
+    const dMiles = drive * SPEED;
+
+    remaining   -= dMiles;
+    totalDrive  += drive;
+    totalElapsed += drive;
+    shiftH      += drive;
+    contH       += drive;
+    milesFuel   += dMiles;
+
+    steps.push({ type: 'drive', hours: drive, miles: dMiles });
+
+    if (remaining <= EPS) break; // destination reached
+
+    // Determine which constraint fired (priority: HOS > fuel > break)
+    if (shiftH + EPS >= SHIFT_MAX) {
+      hosRests++;
+      totalElapsed += REST_DUR;
+      shiftH = 0;
+      contH  = 0;
+      steps.push({ type: 'rest', hours: REST_DUR });
+    } else if (milesFuel + EPS >= FUEL_EVERY) {
+      fuelStops++;
+      totalElapsed += FUEL_DUR;
+      milesFuel = 0;
+      contH     = 0;
+      steps.push({ type: 'fuel', hours: FUEL_DUR });
+    } else {
+      shortBreaks++;
+      totalElapsed += BREAK_DUR;
+      contH = 0;
+      steps.push({ type: 'brk', hours: BREAK_DUR });
+    }
+  }
+
+  steps.push({ type: 'done' });
+
+  return { totalDrive, totalElapsed, hosRests, fuelStops, shortBreaks, steps };
+}
+
+// ── API calls ─────────────────────────────────────────────────────────────
+
+async function timed(url, ms = 12000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
+    return r;
+  } catch (e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('Request timed out — please try again.');
+    throw e;
+  }
+}
+
+async function lookupZip(zip) {
+  const r = await timed(`https://api.zippopotam.us/us/${zip}`);
+  if (r.status === 404) throw new Error(`ZIP code ${zip} was not found. Please check and try again.`);
+  if (!r.ok) throw new Error(`Could not look up ZIP ${zip} (HTTP ${r.status}).`);
+  const d    = await r.json();
+  const p    = d.places[0];
+  return {
+    lat:   parseFloat(p.latitude),
+    lng:   parseFloat(p.longitude),
+    city:  p['place name'],
+    state: p['state abbreviation'],
+  };
+}
+
+async function roadMiles(o, d) {
+  const url = `https://router.project-osrm.org/route/v1/driving/${o.lng},${o.lat};${d.lng},${d.lat}?overview=false`;
+  const r   = await timed(url);
+  if (!r.ok) throw new Error('Route lookup failed. Please try again.');
+  const data = await r.json();
+  if (data.code !== 'Ok' || !data.routes?.length) {
+    throw new Error('No drivable route found between these locations.');
+  }
+  return data.routes[0].distance / 1609.344; // meters → miles
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────
+
+function showMsg(text, type = 'error') {
+  const box = document.getElementById('msgBox');
+  if (type === 'loading') {
+    box.innerHTML = `<div class="spinner"></div>${text}`;
+  } else {
+    box.textContent = text;
+  }
+  box.className = `msg ${type} show`;
+  document.getElementById('results').classList.remove('show');
+}
+
+function hideMsg() {
+  document.getElementById('msgBox').className = 'msg';
+}
+
+function renderTimeline(steps) {
+  const list = document.getElementById('tlList');
+  list.innerHTML = '';
+
+  const meta = {
+    drive: { cls: 'drive', dot: '▶' },
+    rest:  { cls: 'rest',  dot: 'Z' },
+    fuel:  { cls: 'fuel',  dot: 'F' },
+    brk:   { cls: 'brk',  dot: 'B' },
+    done:  { cls: 'done',  dot: '✓' },
+  };
+
+  steps.forEach((step, idx) => {
+    const m    = meta[step.type];
+    const last = idx === steps.length - 1;
+
+    let name = '', sub = '';
+    switch (step.type) {
+      case 'drive':
+        name = `Drive ${fmtH(step.hours)}`;
+        sub  = `${Math.round(step.miles).toLocaleString()} miles`;
+        break;
+      case 'rest':
+        name = '10h HOS rest';
+        sub  = 'Mandatory logbook off-duty period';
+        break;
+      case 'fuel':
+        name = 'Fuel stop — 30 min';
+        sub  = 'Resets continuous driving counter';
+        break;
+      case 'brk':
+        name = '30-min break';
+        sub  = '8h continuous driving limit reached';
+        break;
+      case 'done':
+        name = 'Delivered';
+        sub  = '';
+        break;
+    }
+
+    const item = document.createElement('div');
+    item.className = 'tl-item';
+    item.innerHTML = `
+      <div class="tl-track">
+        <div class="tl-dot ${m.cls}">${m.dot}</div>
+        ${!last ? '<div class="tl-line"></div>' : ''}
+      </div>
+      <div class="tl-body">
+        <div class="tl-name">${name}</div>
+        ${sub ? `<div class="tl-sub">${sub}</div>` : ''}
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+// ── Main calculate ────────────────────────────────────────────────────────
+
+async function calculate() {
+  const originVal = document.getElementById('zip-origin').value.trim();
+  const destVal   = document.getElementById('zip-dest').value.trim();
+
+  if (!/^\d{5}$/.test(originVal)) {
+    showMsg('Enter a valid 5-digit origin ZIP code.');
+    return;
+  }
+  if (!/^\d{5}$/.test(destVal)) {
+    showMsg('Enter a valid 5-digit destination ZIP code.');
+    return;
+  }
+  if (originVal === destVal) {
+    showMsg('Origin and destination ZIP codes must be different.');
+    return;
+  }
+
+  const btn = document.getElementById('calcBtn');
+  btn.disabled = true;
+  showMsg('Looking up ZIP codes…', 'loading');
+
+  try {
+    const [origin, dest] = await Promise.all([lookupZip(originVal), lookupZip(destVal)]);
+
+    showMsg('Calculating road distance…', 'loading');
+    const miles = await roadMiles(origin, dest);
+
+    if (miles < 1) {
+      showMsg('These locations are too close to calculate a meaningful transit time.');
+      return;
+    }
+
+    hideMsg();
+
+    const { totalDrive, totalElapsed, hosRests, fuelStops, shortBreaks, steps } = simulateTrip(miles);
+
+    document.getElementById('routeLabel').textContent =
+      `${origin.city}, ${origin.state} → ${dest.city}, ${dest.state}`;
+    document.getElementById('routeSub').textContent =
+      `${Math.round(miles).toLocaleString()} road miles`;
+
+    document.getElementById('statDrive').textContent   = fmtH(totalDrive);
+    document.getElementById('statElapsed').textContent = fmtElapsed(totalElapsed);
+    document.getElementById('statRests').textContent   = hosRests   || '—';
+    document.getElementById('statFuel').textContent    = fuelStops  || '—';
+
+    document.getElementById('deliveryVal').textContent =
+      `Ready in ~${fmtElapsed(totalElapsed)}`;
+
+    renderTimeline(steps);
+    document.getElementById('results').classList.add('show');
+
+  } catch (err) {
+    showMsg(err.message || 'Something went wrong. Please check the ZIP codes and try again.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Event wiring ──────────────────────────────────────────────────────────
+
+document.getElementById('calcBtn').addEventListener('click', calculate);
+
+// Only allow digits in ZIP inputs
+['zip-origin', 'zip-dest'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    el.value = el.value.replace(/\D/g, '').slice(0, 5);
+  });
+});
+
+document.getElementById('zip-origin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('zip-dest').focus();
+});
+document.getElementById('zip-dest').addEventListener('keydown', e => {
+  if (e.key === 'Enter') calculate();
+});
+</script>
+</body>
+</html>
