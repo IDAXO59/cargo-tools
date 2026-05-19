@@ -41,7 +41,6 @@
   --shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
 
-/* ── Theme icon visibility ── */
 :root[data-theme="dark"] .icon-sun  { display: block; }
 :root[data-theme="dark"] .icon-moon { display: none;  }
 :root[data-theme="light"] .icon-sun  { display: none;  }
@@ -72,71 +71,39 @@ body {
 
 .back-btn {
   position: absolute;
-  top: 50%;
-  left: 0;
+  top: 50%; left: 0;
   transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  height: 36px;
-  padding: 0 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text);
-  text-decoration: none;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  transition: background 0.15s, border-color 0.15s;
-  white-space: nowrap;
+  display: inline-flex; align-items: center;
+  height: 36px; padding: 0 12px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); text-decoration: none;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  transition: background 0.15s, border-color 0.15s; white-space: nowrap;
 }
 .back-btn:hover { background: var(--hover); border-color: var(--border-strong); }
 
 .page-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em;
   background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
   -webkit-background-clip: text; background-clip: text; color: transparent;
-  line-height: 1.15;
-  margin-top: 4px;
+  line-height: 1.15; margin-top: 4px;
 }
 
-.page-subtitle {
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
+.page-subtitle { margin-top: 6px; color: var(--muted); font-size: 0.875rem; }
 
-/* Right-side header controls */
 .header-controls {
-  position: absolute;
-  top: 50%;
-  right: 0;
+  position: absolute; top: 50%; right: 0;
   transform: translateY(-50%);
-  display: flex;
-  gap: 6px;
-  align-items: center;
+  display: flex; gap: 6px; align-items: center;
 }
 
 .hdr-btn {
-  height: 36px;
-  min-width: 36px;
-  padding: 0 10px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, border-color 0.15s;
-  white-space: nowrap;
+  height: 36px; min-width: 36px; padding: 0 10px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); cursor: pointer;
+  font-family: inherit; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.04em; display: inline-flex; align-items: center;
+  justify-content: center; transition: background 0.15s, border-color 0.15s;
 }
 .hdr-btn:hover { background: var(--hover); border-color: var(--border-strong); }
 .hdr-btn svg { width: 16px; height: 16px; }
@@ -149,120 +116,174 @@ body {
 
 /* ── Input card ── */
 .input-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px;
-  margin-bottom: 20px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px; margin-bottom: 14px;
   transition: background 0.2s, border-color 0.2s;
 }
 
 .zip-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  margin-bottom: 16px;
+  display: flex; align-items: flex-end; gap: 10px; margin-bottom: 0;
 }
 
 .zip-field {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0;
 }
-
 .zip-field label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
 }
-
 .zip-field input {
-  background: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  padding: 10px 14px;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.2s;
+  background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 1.25rem;
+  font-weight: 700; letter-spacing: 0.12em; padding: 10px 14px;
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s, background 0.2s;
   font-family: 'SF Mono', 'Fira Mono', 'Courier New', monospace;
-  width: 100%;
-  text-align: center;
+  width: 100%; text-align: center;
 }
 .zip-field input::placeholder {
-  color: var(--muted);
-  font-weight: 400;
-  letter-spacing: normal;
-  font-size: 0.9rem;
-  font-family: inherit;
+  color: var(--muted); font-weight: 400; letter-spacing: normal;
+  font-size: 0.9rem; font-family: inherit;
 }
-.zip-field input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-soft);
-}
+.zip-field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
 
 .arrow-sep {
-  font-size: 1.1rem;
-  color: var(--muted);
-  padding-bottom: 10px;
-  flex-shrink: 0;
-  user-select: none;
+  font-size: 1.1rem; color: var(--muted);
+  padding-bottom: 10px; flex-shrink: 0; user-select: none;
 }
 
+/* ── Parameters section ── */
+.params-divider {
+  border: none; border-top: 1px solid var(--divider);
+  margin: 18px 0 0;
+}
+
+.params-toggle {
+  width: 100%; background: none; border: none; padding: 12px 0 0;
+  cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  color: var(--muted); font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; font-family: inherit;
+  transition: color 0.15s;
+}
+.params-toggle:hover { color: var(--text); }
+
+.params-toggle-left { display: flex; align-items: center; gap: 6px; }
+
+.modified-dot {
+  display: none;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #fbbf24; flex-shrink: 0;
+}
+.modified-dot.visible { display: block; }
+
+.caret {
+  font-size: 0.9rem; transition: transform 0.22s; line-height: 1;
+}
+.params-toggle.open .caret { transform: rotate(180deg); }
+
+.params-body {
+  overflow: hidden; max-height: 0;
+  transition: max-height 0.28s ease;
+}
+.params-body.open { max-height: 600px; }
+
+.params-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 14px;
+}
+@media (max-width: 420px) { .params-grid { grid-template-columns: 1fr; } }
+
+.param-row { display: flex; flex-direction: column; gap: 5px; }
+
+.param-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+.param-input-wrap { display: flex; align-items: center; gap: 6px; }
+
+.param-input {
+  flex: 1; min-width: 0;
+  background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--text); font-size: 0.95rem;
+  font-weight: 600; padding: 7px 10px; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.2s;
+  font-family: inherit; width: 100%;
+  -moz-appearance: textfield;
+}
+.param-input::-webkit-inner-spin-button,
+.param-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.param-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft); }
+.param-input.modified { border-color: rgba(251,191,36,0.6); background: rgba(251,191,36,0.03); }
+
+.param-unit {
+  font-size: 0.75rem; color: var(--muted); white-space: nowrap;
+  min-width: 22px; flex-shrink: 0;
+}
+
+.params-footer {
+  display: flex; justify-content: flex-end; align-items: center;
+  padding-top: 12px;
+}
+
+.reset-link {
+  background: none; border: none; color: var(--muted);
+  font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: color 0.15s; padding: 4px 0;
+}
+.reset-link:hover { color: var(--text); }
+
+/* ── Calc button ── */
+.calc-btn-wrap { margin-top: 16px; }
+
 .calc-btn {
-  width: 100%;
-  padding: 12px 24px;
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s, opacity 0.15s;
+  width: 100%; padding: 12px 24px; background: var(--primary);
+  color: #fff; border: none; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 700; letter-spacing: 0.01em;
+  cursor: pointer; transition: background 0.15s, transform 0.1s, opacity 0.15s;
   font-family: inherit;
 }
 .calc-btn:hover:not(:disabled) { background: var(--primary-dark); }
 .calc-btn:active:not(:disabled) { transform: scale(0.99); }
 .calc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── Stale hint ── */
+.stale-hint {
+  display: none;
+  background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25);
+  border-radius: 10px; padding: 10px 16px;
+  margin-bottom: 14px;
+  align-items: center; justify-content: space-between; gap: 12px;
+  font-size: 0.83rem; color: #fbbf24;
+}
+.stale-hint.show { display: flex; }
+.stale-hint-text { display: flex; align-items: center; gap: 7px; }
+.recalc-btn {
+  background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3);
+  border-radius: 7px; color: #fbbf24; font-size: 0.8rem; font-weight: 700;
+  padding: 5px 12px; cursor: pointer; font-family: inherit;
+  transition: background 0.15s; white-space: nowrap;
+}
+.recalc-btn:hover { background: rgba(251,191,36,0.25); }
+
 /* ── Messages ── */
 .msg {
-  text-align: center;
-  padding: 14px 18px;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  margin-bottom: 20px;
-  display: none;
-  line-height: 1.4;
+  text-align: center; padding: 14px 18px; border-radius: 10px;
+  font-size: 0.875rem; margin-bottom: 14px; display: none; line-height: 1.4;
 }
 .msg.show { display: block; }
 .msg.error { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); color: #f87171; }
 .msg.loading {
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 .msg.loading.show { display: flex; }
 
 .spinner {
   width: 16px; height: 16px;
-  border: 2px solid var(--border-strong);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  flex-shrink: 0;
+  border: 2px solid var(--border-strong); border-top-color: var(--primary);
+  border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -271,159 +292,71 @@ body {
 .results.show { display: block; }
 
 .result-header {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px 22px;
-  margin-bottom: 12px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 22px; margin-bottom: 12px;
   transition: background 0.2s, border-color 0.2s;
 }
+.route-label { font-size: 1.05rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+.route-sub   { font-size: 0.85rem; color: var(--muted); margin-top: 3px; }
 
-.route-label {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
-
-.route-sub {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: 3px;
-}
-
-/* ── Stats grid ── */
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 12px;
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 10px; margin-bottom: 12px;
 }
 @media (max-width: 440px) { .stats-grid { grid-template-columns: 1fr; } }
 
 .stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px;
   transition: background 0.2s, border-color 0.2s;
 }
-
 .stat-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--muted);
-  margin-bottom: 5px;
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--muted); margin-bottom: 5px;
 }
-
-.stat-value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.02em;
-}
+.stat-value { font-size: 1.25rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
 .stat-value.blue { color: var(--primary); }
 
-/* ── Delivery window ── */
 .delivery-card {
   background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(91,110,245,0.04));
-  border: 1px solid rgba(59,130,246,0.22);
-  border-radius: 12px;
-  padding: 16px 20px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  border: 1px solid rgba(59,130,246,0.22); border-radius: 12px;
+  padding: 16px 20px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 14px;
 }
-
 .delivery-icon { font-size: 1.6rem; line-height: 1; }
-
 .delivery-text .dlabel {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--muted);
-  margin-bottom: 3px;
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--muted); margin-bottom: 3px;
 }
-
-.delivery-text .dvalue {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text);
-}
+.delivery-text .dvalue { font-size: 1.15rem; font-weight: 700; color: var(--text); }
 
 /* ── Timeline ── */
 .timeline-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px 22px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px 22px;
   transition: background 0.2s, border-color 0.2s;
 }
-
 .tl-header {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--divider);
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--muted);
+  margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--divider);
 }
-
 .tl-list { display: flex; flex-direction: column; }
-
-.tl-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  position: relative;
-}
-
-.tl-track {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 28px;
-  flex-shrink: 0;
-}
-
+.tl-item { display: flex; align-items: flex-start; gap: 12px; }
+.tl-track { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
 .tl-dot {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.65rem;
-  font-weight: 800;
-  flex-shrink: 0;
-  letter-spacing: 0;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 800; flex-shrink: 0;
 }
 .tl-dot.drive { background: rgba(59,130,246,0.15); border: 2px solid var(--primary); color: var(--primary); }
 .tl-dot.rest  { background: rgba(251,191,36,0.12);  border: 2px solid #fbbf24; color: #fbbf24; }
 .tl-dot.fuel  { background: rgba(52,211,153,0.12);  border: 2px solid #34d399; color: #34d399; }
 .tl-dot.brk   { background: rgba(167,139,250,0.12); border: 2px solid #a78bfa; color: #a78bfa; }
 .tl-dot.done  { background: rgba(74,222,128,0.15);  border: 2px solid var(--success); color: var(--success); }
-
-.tl-line {
-  width: 2px;
-  flex: 1;
-  min-height: 12px;
-  background: var(--border);
-  margin: 2px 0;
-}
-
-.tl-body {
-  flex: 1;
-  padding-top: 3px;
-  padding-bottom: 14px;
-}
+.tl-line { width: 2px; flex: 1; min-height: 12px; background: var(--border); margin: 2px 0; }
+.tl-body { flex: 1; padding-top: 3px; padding-bottom: 14px; }
 .tl-item:last-child .tl-body { padding-bottom: 0; }
-
 .tl-name { font-size: 0.9rem; font-weight: 600; color: var(--text); line-height: 1.3; }
 .tl-sub  { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
 
@@ -432,95 +365,38 @@ body {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.55);
   backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-  z-index: 200;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  z-index: 200; display: none;
+  align-items: center; justify-content: center; padding: 20px;
 }
 .help-overlay.open { display: flex; animation: fadeIn 0.15s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .help-card {
-  background: var(--card);
-  border: 1px solid var(--border-strong);
-  border-radius: 16px;
-  max-width: 520px;
-  width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  padding: 24px;
-  box-shadow: var(--shadow);
-  animation: slideUp 0.15s ease;
+  background: var(--card); border: 1px solid var(--border-strong);
+  border-radius: 16px; max-width: 520px; width: 100%;
+  max-height: 85vh; overflow-y: auto; padding: 24px;
+  box-shadow: var(--shadow); animation: slideUp 0.15s ease;
 }
 @keyframes slideUp { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-.help-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.help-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
+.help-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.help-title { font-size: 1.05rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
 .help-close {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--muted);
-  font-size: 1.4rem;
-  line-height: 1;
-  padding: 0 4px;
-  margin-top: -2px;
-  font-family: inherit;
-  transition: color 0.15s;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--muted); font-size: 1.4rem; line-height: 1;
+  padding: 0 4px; margin-top: -2px; font-family: inherit; transition: color 0.15s;
 }
 .help-close:hover { color: var(--text); }
-
-.help-desc {
-  font-size: 0.875rem;
-  color: var(--muted);
-  line-height: 1.55;
-  margin-bottom: 18px;
-}
-
-.help-section {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
+.help-desc { font-size: 0.875rem; color: var(--muted); line-height: 1.55; margin-bottom: 18px; }
+.help-section { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
 .help-steps { list-style: none; padding: 0; margin: 0; }
-.help-steps li {
-  display: flex;
-  gap: 12px;
-  padding: 10px 0;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--text);
-  border-top: 1px solid var(--divider);
-}
+.help-steps li { display: flex; gap: 12px; padding: 10px 0; font-size: 0.875rem; line-height: 1.5; color: var(--text); border-top: 1px solid var(--divider); }
 .help-steps li:first-child { border-top: none; padding-top: 4px; }
 .help-num {
-  flex-shrink: 0;
-  width: 22px; height: 22px;
-  border-radius: 6px;
-  background: var(--primary-soft);
-  color: var(--primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  margin-top: 1px;
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px;
+  background: var(--primary-soft); color: var(--primary);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; margin-top: 1px;
 }
 </style>
 </head>
@@ -528,15 +404,13 @@ body {
 <div class="wrap">
 
   <header class="topbar">
-    <a href="index.html" class="back-btn" id="backBtn">← <span data-i18n="backLabel">Cargo Tools</span></a>
-
+    <a href="index.html" class="back-btn">← <span data-i18n="backLabel">Cargo Tools</span></a>
     <h1 class="page-title">⏱️ <span data-i18n="pageTitle">Transit Time</span></h1>
     <p class="page-subtitle" data-i18n="pageSubtitle">Drive time with HOS logbook rules</p>
-
     <div class="header-controls">
-      <button class="hdr-btn" id="helpBtn" title="Help / Справка">?</button>
-      <button class="hdr-btn" id="langBtn" title="Switch language">RU</button>
-      <button class="hdr-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+      <button class="hdr-btn" id="helpBtn">?</button>
+      <button class="hdr-btn" id="langBtn">RU</button>
+      <button class="hdr-btn" id="themeBtn" aria-label="Toggle theme">
         <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
           <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
@@ -551,6 +425,7 @@ body {
   </header>
 
   <div class="input-card">
+    <!-- ZIP row -->
     <div class="zip-row">
       <div class="zip-field">
         <label for="zip-origin" data-i18n="originLabel">Origin ZIP</label>
@@ -564,18 +439,101 @@ body {
                placeholder="e.g. 75201" autocomplete="off" spellcheck="false">
       </div>
     </div>
-    <button class="calc-btn" id="calcBtn" data-i18n="calcBtn">Calculate Transit Time</button>
+
+    <!-- Parameters section -->
+    <hr class="params-divider">
+    <button class="params-toggle" id="paramsToggle" aria-expanded="false">
+      <span class="params-toggle-left">
+        <span>⚙</span>
+        <span data-i18n="paramsTitle">Parameters</span>
+        <span class="modified-dot" id="modifiedDot" title="Custom values active"></span>
+      </span>
+      <span class="caret">▾</span>
+    </button>
+    <div class="params-body" id="paramsBody">
+      <div class="params-grid">
+
+        <div class="param-row">
+          <label class="param-label" for="p-speed" data-i18n="paramSpeed">Avg. Speed</label>
+          <div class="param-input-wrap">
+            <input class="param-input" id="p-speed" type="number" min="10" max="120" step="1" value="50">
+            <span class="param-unit" data-i18n="unitMph">mph</span>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <label class="param-label" for="p-shift" data-i18n="paramShift">Max shift</label>
+          <div class="param-input-wrap">
+            <input class="param-input" id="p-shift" type="number" min="1" max="24" step="0.5" value="11">
+            <span class="param-unit" data-i18n="unitH">h</span>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <label class="param-label" for="p-cont" data-i18n="paramCont">Cont. limit</label>
+          <div class="param-input-wrap">
+            <input class="param-input" id="p-cont" type="number" min="1" max="11" step="0.5" value="8">
+            <span class="param-unit" data-i18n="unitH">h</span>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <label class="param-label" for="p-break" data-i18n="paramBreak">Break</label>
+          <div class="param-input-wrap">
+            <input class="param-input" id="p-break" type="number" min="10" max="120" step="5" value="30">
+            <span class="param-unit" data-i18n="unitMin">min</span>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <label class="param-label" for="p-fuel-mi" data-i18n="paramFuelEvery">Fuel every</label>
+          <div class="param-input-wrap">
+            <input class="param-input" id="p-fuel-mi" type="number" min="100" max="2000" step="50" value="500">
+            <span class="param-unit" data-i18n="unitMi">mi</span>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <label class="param-label" for="p-fuel-min" data-i18n="paramFuelDur">Fuel stop</label>
+          <div class="param-input-wrap">
+            <input class="param-input" id="p-fuel-min" type="number" min="5" max="120" step="5" value="30">
+            <span class="param-unit" data-i18n="unitMin">min</span>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <label class="param-label" for="p-rest" data-i18n="paramRest">HOS rest</label>
+          <div class="param-input-wrap">
+            <input class="param-input" id="p-rest" type="number" min="1" max="24" step="0.5" value="10">
+            <span class="param-unit" data-i18n="unitH">h</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="params-footer">
+        <button class="reset-link" id="resetParams" data-i18n="paramsReset">↺ Reset to defaults</button>
+      </div>
+    </div>
+
+    <!-- Calculate button -->
+    <div class="calc-btn-wrap">
+      <button class="calc-btn" id="calcBtn" data-i18n="calcBtn">Calculate Transit Time</button>
+    </div>
+  </div>
+
+  <!-- Stale hint (params changed after calculation) -->
+  <div class="stale-hint" id="staleHint">
+    <span class="stale-hint-text">⚡ <span data-i18n="staleHint">Parameters changed</span></span>
+    <button class="recalc-btn" id="recalcBtn" data-i18n="staleRecalc">Recalculate →</button>
   </div>
 
   <div class="msg" id="msgBox"></div>
 
   <div class="results" id="results">
-
     <div class="result-header">
       <div class="route-label" id="routeLabel"></div>
-      <div class="route-sub" id="routeSub"></div>
+      <div class="route-sub"   id="routeSub"></div>
     </div>
-
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label" data-i18n="statWheelTime">🚗 Wheel Time</div>
@@ -594,7 +552,6 @@ body {
         <div class="stat-value" id="statFuel"></div>
       </div>
     </div>
-
     <div class="delivery-card">
       <div class="delivery-icon">📦</div>
       <div class="delivery-text">
@@ -602,12 +559,10 @@ body {
         <div class="dvalue" id="deliveryVal"></div>
       </div>
     </div>
-
     <div class="timeline-card">
       <div class="tl-header" data-i18n="timelineHeader">Step-by-Step Timeline</div>
       <div class="tl-list" id="tlList"></div>
     </div>
-
   </div>
 </div>
 
@@ -616,119 +571,215 @@ body {
   <div class="help-card" role="dialog" aria-labelledby="helpTitle">
     <div class="help-head">
       <div class="help-title" id="helpTitle" data-i18n="helpTitle">How Transit Time Works</div>
-      <button class="help-close" id="helpClose" aria-label="Close">×</button>
+      <button class="help-close" id="helpClose">×</button>
     </div>
-    <p class="help-desc" data-i18n="helpDesc">
-      Calculates realistic drive time using FMCSA Hours of Service rules.
-    </p>
+    <p class="help-desc" data-i18n="helpDesc">Calculates realistic drive time using FMCSA Hours of Service (HOS) rules.</p>
     <div class="help-section" data-i18n="helpHow">How to use</div>
     <ol class="help-steps">
       <li><span class="help-num">1</span><span data-i18n="helpStep1">Enter 5-digit origin and destination ZIP codes</span></li>
       <li><span class="help-num">2</span><span data-i18n="helpStep2">Coordinates fetched from Zippopotam.us, road distance from OSRM</span></li>
       <li><span class="help-num">3</span><span data-i18n="helpStep3">Average speed of 50 mph applied to total road miles</span></li>
       <li><span class="help-num">4</span><span data-i18n="helpStep4">After 8h continuous driving → mandatory 30-min break</span></li>
-      <li><span class="help-num">5</span><span data-i18n="helpStep5">After 11h of driving in a shift → 10h HOS rest</span></li>
+      <li><span class="help-num">5</span><span data-i18n="helpStep5">After 11h driving in a shift → 10h HOS rest period</span></li>
       <li><span class="help-num">6</span><span data-i18n="helpStep6">Every 500 miles → 30-min fuel stop (also resets continuous counter)</span></li>
+      <li><span class="help-num">7</span><span data-i18n="helpStep7">All parameters can be adjusted in the Parameters section</span></li>
     </ol>
   </div>
 </div>
 
 <script>
+// ── Defaults ─────────────────────────────────────────────────────────────────
+
+const DEFAULTS = {
+  speed:    50,   // mph
+  shift:    11,   // hours
+  cont:     8,    // hours
+  breakMin: 30,   // minutes
+  fuelMi:   500,  // miles
+  fuelMin:  30,   // minutes
+  rest:     10,   // hours
+};
+
+const PARAM_IDS = ['p-speed','p-shift','p-cont','p-break','p-fuel-mi','p-fuel-min','p-rest'];
+const PARAM_KEYS = ['speed','shift','cont','breakMin','fuelMi','fuelMin','rest'];
+
+function getParams() {
+  return {
+    speed:    clamp(parseFloat(document.getElementById('p-speed').value),   10, 120) || DEFAULTS.speed,
+    shift:    clamp(parseFloat(document.getElementById('p-shift').value),    1,  24) || DEFAULTS.shift,
+    cont:     clamp(parseFloat(document.getElementById('p-cont').value),     1,  11) || DEFAULTS.cont,
+    breakMin: clamp(parseFloat(document.getElementById('p-break').value),   10, 120) || DEFAULTS.breakMin,
+    fuelMi:   clamp(parseFloat(document.getElementById('p-fuel-mi').value), 100,2000) || DEFAULTS.fuelMi,
+    fuelMin:  clamp(parseFloat(document.getElementById('p-fuel-min').value),  5, 120) || DEFAULTS.fuelMin,
+    rest:     clamp(parseFloat(document.getElementById('p-rest').value),     1,  24) || DEFAULTS.rest,
+  };
+}
+
+function clamp(v, min, max) { return isNaN(v) ? min : Math.min(max, Math.max(min, v)); }
+
+function resetParams() {
+  document.getElementById('p-speed').value    = DEFAULTS.speed;
+  document.getElementById('p-shift').value    = DEFAULTS.shift;
+  document.getElementById('p-cont').value     = DEFAULTS.cont;
+  document.getElementById('p-break').value    = DEFAULTS.breakMin;
+  document.getElementById('p-fuel-mi').value  = DEFAULTS.fuelMi;
+  document.getElementById('p-fuel-min').value = DEFAULTS.fuelMin;
+  document.getElementById('p-rest').value     = DEFAULTS.rest;
+  updateModifiedState();
+}
+
+function updateModifiedState() {
+  const p = getParams();
+  const checks = [
+    [p.speed,    DEFAULTS.speed,    'p-speed'],
+    [p.shift,    DEFAULTS.shift,    'p-shift'],
+    [p.cont,     DEFAULTS.cont,     'p-cont'],
+    [p.breakMin, DEFAULTS.breakMin, 'p-break'],
+    [p.fuelMi,   DEFAULTS.fuelMi,   'p-fuel-mi'],
+    [p.fuelMin,  DEFAULTS.fuelMin,  'p-fuel-min'],
+    [p.rest,     DEFAULTS.rest,     'p-rest'],
+  ];
+  let anyModified = false;
+  checks.forEach(([val, def, id]) => {
+    const modified = Math.abs(val - def) > 0.001;
+    document.getElementById(id).classList.toggle('modified', modified);
+    if (modified) anyModified = true;
+  });
+  document.getElementById('modifiedDot').classList.toggle('visible', anyModified);
+
+  // Show stale hint only when results are showing AND something changed
+  const resultsVisible = document.getElementById('results').classList.contains('show');
+  document.getElementById('staleHint').classList.toggle('show', resultsVisible && anyModified);
+}
+
 // ── i18n ─────────────────────────────────────────────────────────────────────
+
 const STRINGS = {
   en: {
-    backLabel:       'Cargo Tools',
-    pageTitle:       'Transit Time',
-    pageSubtitle:    'Drive time with HOS logbook rules',
-    originLabel:     'Origin ZIP',
-    destLabel:       'Destination ZIP',
-    calcBtn:         'Calculate Transit Time',
-    loadingZip:      'Looking up ZIP codes…',
-    loadingRoute:    'Calculating road distance…',
-    roadMiles:       n => `${n.toLocaleString()} road miles`,
-    statWheelTime:   '🚗 Wheel Time',
-    statElapsed:     '⏱️ Total Elapsed',
-    statRests:       '🛏️ HOS Rests',
-    statFuel:        '⛽ Fuel Stops',
-    deliveryLabel:   'Estimated Delivery Window',
-    deliveryVal:     t => `Ready in ~${t}`,
-    timelineHeader:  'Step-by-Step Timeline',
-    helpTitle:       'How Transit Time Works',
-    helpDesc:        'Calculates realistic drive time using FMCSA Hours of Service (HOS) rules.',
-    helpHow:         'How to use',
-    helpStep1:       'Enter 5-digit origin and destination ZIP codes',
-    helpStep2:       'Coordinates fetched from Zippopotam.us, road distance from OSRM',
-    helpStep3:       'Average speed of 50 mph applied to total road miles',
-    helpStep4:       'After 8h continuous driving → mandatory 30-min break',
-    helpStep5:       'After 11h driving in a shift → 10h HOS rest period',
-    helpStep6:       'Every 500 miles → 30-min fuel stop (also resets continuous counter)',
-    tl_drive:        h => `Drive ${h}`,
-    tl_driveSub:     n => `${n.toLocaleString()} miles`,
-    tl_rest:         '10h HOS rest',
-    tl_restSub:      'Mandatory logbook off-duty period',
-    tl_fuel:         'Fuel stop — 30 min',
-    tl_fuelSub:      'Resets continuous driving counter',
-    tl_brk:          '30-min break',
-    tl_brkSub:       '8h continuous driving limit reached',
-    tl_done:         'Delivered',
-    switchLang:      'Переключить на русский',
-    switchToLight:   'Switch to light theme',
-    switchToDark:    'Switch to dark theme',
-    errOrigin:       'Enter a valid 5-digit origin ZIP code.',
-    errDest:         'Enter a valid 5-digit destination ZIP code.',
-    errSame:         'Origin and destination ZIP codes must be different.',
-    errClose:        'These locations are too close to calculate transit time.',
-    errRoute:        'No drivable route found between these locations.',
-    days:            n => n === 1 ? '1 day' : `${n} days`,
-    hours:           n => `${n}h`,
-    mins:            n => `${n}min`,
+    backLabel:      'Cargo Tools',
+    pageTitle:      'Transit Time',
+    pageSubtitle:   'Drive time with HOS logbook rules',
+    originLabel:    'Origin ZIP',
+    destLabel:      'Destination ZIP',
+    calcBtn:        'Calculate Transit Time',
+    paramsTitle:    'Parameters',
+    paramsReset:    '↺ Reset to defaults',
+    paramSpeed:     'Avg. Speed',
+    paramShift:     'Max shift',
+    paramCont:      'Cont. limit',
+    paramBreak:     'Break',
+    paramFuelEvery: 'Fuel every',
+    paramFuelDur:   'Fuel stop',
+    paramRest:      'HOS rest',
+    unitMph:        'mph',
+    unitH:          'h',
+    unitMin:        'min',
+    unitMi:         'mi',
+    staleHint:      'Parameters changed',
+    staleRecalc:    'Recalculate →',
+    loadingZip:     'Looking up ZIP codes…',
+    loadingRoute:   'Calculating road distance…',
+    roadMiles:      n => `${n.toLocaleString()} road miles`,
+    statWheelTime:  '🚗 Wheel Time',
+    statElapsed:    '⏱️ Total Elapsed',
+    statRests:      '🛏️ HOS Rests',
+    statFuel:       '⛽ Fuel Stops',
+    deliveryLabel:  'Estimated Delivery Window',
+    deliveryVal:    s => `Ready in ~${s}`,
+    timelineHeader: 'Step-by-Step Timeline',
+    helpTitle:      'How Transit Time Works',
+    helpDesc:       'Calculates realistic drive time using FMCSA Hours of Service (HOS) rules.',
+    helpHow:        'How to use',
+    helpStep1:      'Enter 5-digit origin and destination ZIP codes',
+    helpStep2:      'Coordinates fetched from Zippopotam.us, road distance from OSRM',
+    helpStep3:      'Average speed of 50 mph applied to total road miles',
+    helpStep4:      'After 8h continuous driving → mandatory 30-min break',
+    helpStep5:      'After 11h driving in a shift → 10h HOS rest period',
+    helpStep6:      'Every 500 miles → 30-min fuel stop (also resets continuous counter)',
+    helpStep7:      'All parameters can be adjusted in the Parameters section',
+    tl_drive:       h => `Drive ${h}`,
+    tl_driveSub:    n => `${n.toLocaleString()} miles`,
+    tl_rest:        h => `${h} HOS rest`,
+    tl_restSub:     'Mandatory logbook off-duty period',
+    tl_fuel:        m => `Fuel stop — ${m}`,
+    tl_fuelSub:     'Resets continuous driving counter',
+    tl_brk:         m => `Break — ${m}`,
+    tl_brkSub:      'Continuous driving limit reached',
+    tl_done:        'Delivered',
+    days:           n => n === 1 ? '1 day' : `${n} days`,
+    hours:          n => `${n}h`,
+    mins:           n => `${n}min`,
+    switchLang:     'Переключить на русский',
+    switchToLight:  'Switch to light theme',
+    switchToDark:   'Switch to dark theme',
+    errOrigin:      'Enter a valid 5-digit origin ZIP code.',
+    errDest:        'Enter a valid 5-digit destination ZIP code.',
+    errSame:        'Origin and destination ZIP codes must be different.',
+    errClose:       'These locations are too close to calculate transit time.',
+    errRoute:       'No drivable route found between these locations.',
   },
   ru: {
-    backLabel:       'Cargo Tools',
-    pageTitle:       'Время в пути',
-    pageSubtitle:    'Расчёт по нормам HOS (путевой лист)',
-    originLabel:     'ZIP отправления',
-    destLabel:       'ZIP назначения',
-    calcBtn:         'Рассчитать время в пути',
-    loadingZip:      'Поиск ZIP-кодов…',
-    loadingRoute:    'Расчёт дорожного расстояния…',
-    roadMiles:       n => `${n.toLocaleString()} миль по дороге`,
-    statWheelTime:   '🚗 Время за рулём',
-    statElapsed:     '⏱️ Общее время',
-    statRests:       '🛏️ Отдых HOS',
-    statFuel:        '⛽ Заправки',
-    deliveryLabel:   'Ожидаемое время доставки',
-    deliveryVal:     t => `Готово через ~${t}`,
-    timelineHeader:  'Пошаговый маршрут',
-    helpTitle:       'Как работает расчёт',
-    helpDesc:        'Расчёт реального времени в пути по нормам FMCSA Hours of Service (HOS).',
-    helpHow:         'Как пользоваться',
-    helpStep1:       'Введите 5-значные ZIP-коды отправления и назначения',
-    helpStep2:       'Координаты из Zippopotam.us, дорожное расстояние из OSRM',
-    helpStep3:       'Средняя скорость 50 миль/ч × общий километраж по дорогам',
-    helpStep4:       'После 8ч непрерывного вождения → обязательный перерыв 30 мин',
-    helpStep5:       'После 11ч вождения за смену → обязательный отдых 10ч (HOS)',
-    helpStep6:       'Каждые 500 миль → заправка 30 мин (сбрасывает непрерывное вождение)',
-    tl_drive:        h => `Езда ${h}`,
-    tl_driveSub:     n => `${n.toLocaleString()} миль`,
-    tl_rest:         'Отдых 10ч (HOS)',
-    tl_restSub:      'Обязательный перерыв по путевому листу',
-    tl_fuel:         'Заправка — 30 мин',
-    tl_fuelSub:      'Сброс счётчика непрерывного вождения',
-    tl_brk:          'Перерыв 30 мин',
-    tl_brkSub:       'Достигнут лимит 8ч непрерывного вождения',
-    tl_done:         'Доставлено',
-    switchLang:      'Switch to English',
-    switchToLight:   'Светлая тема',
-    switchToDark:    'Тёмная тема',
-    errOrigin:       'Введите корректный 5-значный ZIP-код отправления.',
-    errDest:         'Введите корректный 5-значный ZIP-код назначения.',
-    errSame:         'ZIP-коды отправления и назначения должны быть разными.',
-    errClose:        'Точки слишком близко для расчёта времени в пути.',
-    errRoute:        'Маршрут между этими точками не найден.',
-    days:            n => `${n} дн.`,
-    hours:           n => `${n}ч`,
-    mins:            n => `${n}мин`,
+    backLabel:      'Cargo Tools',
+    pageTitle:      'Время в пути',
+    pageSubtitle:   'Расчёт по нормам HOS (путевой лист)',
+    originLabel:    'ZIP отправления',
+    destLabel:      'ZIP назначения',
+    calcBtn:        'Рассчитать время в пути',
+    paramsTitle:    'Параметры',
+    paramsReset:    '↺ Сбросить',
+    paramSpeed:     'Средняя скорость',
+    paramShift:     'Макс. смена',
+    paramCont:      'Лимит непрерыв.',
+    paramBreak:     'Перерыв',
+    paramFuelEvery: 'Заправка каждые',
+    paramFuelDur:   'Остановка',
+    paramRest:      'Отдых HOS',
+    unitMph:        'м/ч',
+    unitH:          'ч',
+    unitMin:        'мин',
+    unitMi:         'ми',
+    staleHint:      'Параметры изменены',
+    staleRecalc:    'Пересчитать →',
+    loadingZip:     'Поиск ZIP-кодов…',
+    loadingRoute:   'Расчёт дорожного расстояния…',
+    roadMiles:      n => `${n.toLocaleString()} миль по дороге`,
+    statWheelTime:  '🚗 Время за рулём',
+    statElapsed:    '⏱️ Общее время',
+    statRests:      '🛏️ Отдых HOS',
+    statFuel:       '⛽ Заправки',
+    deliveryLabel:  'Ожидаемое время доставки',
+    deliveryVal:    s => `Готово через ~${s}`,
+    timelineHeader: 'Пошаговый маршрут',
+    helpTitle:      'Как работает расчёт',
+    helpDesc:       'Расчёт реального времени в пути по нормам FMCSA Hours of Service (HOS).',
+    helpHow:        'Как пользоваться',
+    helpStep1:      'Введите 5-значные ZIP-коды отправления и назначения',
+    helpStep2:      'Координаты из Zippopotam.us, дорожное расстояние из OSRM',
+    helpStep3:      'Средняя скорость 50 м/ч применяется к дорожному расстоянию',
+    helpStep4:      'После 8ч непрерывного вождения → обязательный перерыв 30 мин',
+    helpStep5:      'После 11ч вождения за смену → обязательный отдых 10ч (HOS)',
+    helpStep6:      'Каждые 500 миль → заправка 30 мин (сбрасывает непрерывное вождение)',
+    helpStep7:      'Все параметры можно изменить в разделе «Параметры»',
+    tl_drive:       h => `Езда ${h}`,
+    tl_driveSub:    n => `${n.toLocaleString()} миль`,
+    tl_rest:        h => `Отдых ${h} (HOS)`,
+    tl_restSub:     'Обязательный перерыв по путевому листу',
+    tl_fuel:        m => `Заправка — ${m}`,
+    tl_fuelSub:     'Сброс счётчика непрерывного вождения',
+    tl_brk:         m => `Перерыв — ${m}`,
+    tl_brkSub:      'Достигнут лимит непрерывного вождения',
+    tl_done:        'Доставлено',
+    days:           n => `${n} дн.`,
+    hours:          n => `${n}ч`,
+    mins:           n => `${n}мин`,
+    switchLang:     'Switch to English',
+    switchToLight:  'Светлая тема',
+    switchToDark:   'Тёмная тема',
+    errOrigin:      'Введите корректный 5-значный ZIP-код отправления.',
+    errDest:        'Введите корректный 5-значный ZIP-код назначения.',
+    errSame:        'ZIP-коды отправления и назначения должны быть разными.',
+    errClose:       'Точки слишком близко для расчёта времени в пути.',
+    errRoute:       'Маршрут между этими точками не найден.',
   },
 };
 
@@ -741,11 +792,9 @@ function t(key, arg) {
 
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    const val = STRINGS[currentLang][key];
-    if (val !== undefined && typeof val === 'string') el.textContent = val;
+    const v = STRINGS[currentLang][el.dataset.i18n];
+    if (typeof v === 'string') el.textContent = v;
   });
-
   const langBtn = document.getElementById('langBtn');
   langBtn.textContent = currentLang === 'en' ? 'RU' : 'EN';
   langBtn.title = t('switchLang');
@@ -753,27 +802,13 @@ function applyTranslations() {
   const isDark = document.documentElement.dataset.theme === 'dark';
   document.getElementById('themeBtn').title = isDark ? t('switchToLight') : t('switchToDark');
 
-  // Re-render timeline if results are showing
-  if (document.getElementById('results').classList.contains('show') && _lastSteps) {
-    renderTimeline(_lastSteps);
-  }
-  // Re-render delivery window
-  if (_lastElapsed !== null) {
-    document.getElementById('deliveryVal').textContent = t('deliveryVal', fmtElapsed(_lastElapsed));
-  }
-  // Re-render route sub
-  if (_lastMiles !== null) {
-    document.getElementById('routeSub').textContent = t('roadMiles', Math.round(_lastMiles));
-  }
-  // Re-render stats labels
-  document.getElementById('statDrive') && (_lastDrive !== null) &&
-    (document.getElementById('statDrive').textContent = fmtH(_lastDrive));
-  (_lastElapsed !== null) &&
-    (document.getElementById('statElapsed').textContent = fmtElapsed(_lastElapsed));
-
-  // Update input placeholders
   document.getElementById('zip-origin').placeholder = currentLang === 'ru' ? 'напр. 60601' : 'e.g. 60601';
   document.getElementById('zip-dest').placeholder   = currentLang === 'ru' ? 'напр. 75201' : 'e.g. 75201';
+
+  // Re-render dynamic result text if visible
+  if (_cache && document.getElementById('results').classList.contains('show')) {
+    renderResults(_cache.miles, _cache.origin, _cache.dest, _cache.params);
+  }
 }
 
 function toggleLang() {
@@ -788,16 +823,14 @@ function toggleLang() {
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   try { localStorage.setItem('transit-theme', theme); } catch(e) {}
-  const isDark = theme === 'dark';
-  document.getElementById('themeBtn').title = isDark ? t('switchToLight') : t('switchToDark');
+  document.getElementById('themeBtn').title =
+    theme === 'dark' ? t('switchToLight') : t('switchToDark');
 }
-
 function toggleTheme() {
   applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
 }
 
 // ── Help ──────────────────────────────────────────────────────────────────────
-
 function openHelp()  { document.getElementById('helpOverlay').classList.add('open'); }
 function closeHelp() { document.getElementById('helpOverlay').classList.remove('open'); }
 
@@ -824,17 +857,15 @@ function fmtElapsed(h) {
 }
 
 // ── HOS Simulation ────────────────────────────────────────────────────────────
-// Speed 50 mph | Shift max 11h → 10h rest | Continuous max 8h → 30min break
-// Fuel every 500 mi → 30min (resets continuous counter)
 
-function simulateTrip(totalMiles) {
-  const SPEED      = 50;
-  const SHIFT_MAX  = 11;
-  const CONT_MAX   = 8;
-  const BREAK_DUR  = 0.5;
-  const FUEL_EVERY = 500;
-  const FUEL_DUR   = 0.5;
-  const REST_DUR   = 10;
+function simulateTrip(totalMiles, params) {
+  const SPEED      = params.speed;
+  const SHIFT_MAX  = params.shift;
+  const CONT_MAX   = params.cont;
+  const BREAK_DUR  = params.breakMin / 60;
+  const FUEL_EVERY = params.fuelMi;
+  const FUEL_DUR   = params.fuelMin / 60;
+  const REST_DUR   = params.rest;
   const EPS        = 1e-4;
 
   let remaining = totalMiles, shiftH = 0, contH = 0, milesFuel = 0;
@@ -847,7 +878,7 @@ function simulateTrip(totalMiles) {
     const tHOS    = SHIFT_MAX - shiftH;
     const tFinish = remaining / SPEED;
 
-    const drive = Math.min(tBreak, tFuel, tHOS, tFinish);
+    const drive  = Math.min(tBreak, tFuel, tHOS, tFinish);
     const dMiles = drive * SPEED;
 
     remaining    -= dMiles;
@@ -889,11 +920,10 @@ async function timed(url, ms = 12000) {
   const tid  = setTimeout(() => ctrl.abort(), ms);
   try {
     const r = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(tid);
-    return r;
+    clearTimeout(tid); return r;
   } catch (e) {
     clearTimeout(tid);
-    if (e.name === 'AbortError') throw new Error(t('errOrigin').replace('ZIP', 'timed out —'));
+    if (e.name === 'AbortError') throw new Error('Request timed out — please try again.');
     throw e;
   }
 }
@@ -902,12 +932,11 @@ async function lookupZip(zip) {
   const r = await timed(`https://api.zippopotam.us/us/${zip}`);
   if (r.status === 404) throw new Error(`ZIP ${zip} not found.`);
   if (!r.ok) throw new Error(`ZIP ${zip} lookup failed (HTTP ${r.status}).`);
-  const d = await r.json();
-  const p = d.places[0];
+  const d = await r.json(), p = d.places[0];
   return { lat: parseFloat(p.latitude), lng: parseFloat(p.longitude), city: p['place name'], state: p['state abbreviation'] };
 }
 
-async function roadMiles(o, d) {
+async function fetchRoadMiles(o, d) {
   const url = `https://router.project-osrm.org/route/v1/driving/${o.lng},${o.lat};${d.lng},${d.lat}?overview=false`;
   const r   = await timed(url);
   if (!r.ok) throw new Error(t('errRoute'));
@@ -916,54 +945,43 @@ async function roadMiles(o, d) {
   return data.routes[0].distance / 1609.344;
 }
 
-// ── UI helpers ────────────────────────────────────────────────────────────────
+// ── UI ────────────────────────────────────────────────────────────────────────
 
 function showMsg(text, type = 'error') {
   const box = document.getElementById('msgBox');
-  if (type === 'loading') {
-    box.innerHTML = `<div class="spinner"></div>${text}`;
-  } else {
-    box.textContent = text;
-  }
+  box.innerHTML = type === 'loading' ? `<div class="spinner"></div>${text}` : '';
+  if (type !== 'loading') box.textContent = text;
   box.className = `msg ${type} show`;
   document.getElementById('results').classList.remove('show');
+  document.getElementById('staleHint').classList.remove('show');
 }
 
 function hideMsg() { document.getElementById('msgBox').className = 'msg'; }
 
-let _lastSteps = null, _lastElapsed = null, _lastMiles = null, _lastDrive = null;
+let _lastSteps = null;
 
 function renderTimeline(steps) {
   _lastSteps = steps;
   const list = document.getElementById('tlList');
   list.innerHTML = '';
-
-  const meta = {
-    drive: { cls: 'drive', dot: '▶' },
-    rest:  { cls: 'rest',  dot: 'Z' },
-    fuel:  { cls: 'fuel',  dot: 'F' },
-    brk:   { cls: 'brk',  dot: 'B' },
-    done:  { cls: 'done',  dot: '✓' },
-  };
+  const meta = { drive:'drive', rest:'rest', fuel:'fuel', brk:'brk', done:'done' };
+  const dots = { drive:'▶', rest:'Z', fuel:'F', brk:'B', done:'✓' };
 
   steps.forEach((step, idx) => {
-    const m    = meta[step.type];
     const last = idx === steps.length - 1;
     let name = '', sub = '';
-
     switch (step.type) {
-      case 'drive': name = t('tl_drive', fmtH(step.hours)); sub = t('tl_driveSub', Math.round(step.miles)); break;
-      case 'rest':  name = t('tl_rest');  sub = t('tl_restSub'); break;
-      case 'fuel':  name = t('tl_fuel');  sub = t('tl_fuelSub'); break;
-      case 'brk':   name = t('tl_brk');   sub = t('tl_brkSub');  break;
-      case 'done':  name = t('tl_done');  break;
+      case 'drive': name = t('tl_drive', fmtH(step.hours));   sub = t('tl_driveSub', Math.round(step.miles)); break;
+      case 'rest':  name = t('tl_rest',  fmtH(step.hours));   sub = t('tl_restSub'); break;
+      case 'fuel':  name = t('tl_fuel',  fmtH(step.hours));   sub = t('tl_fuelSub'); break;
+      case 'brk':   name = t('tl_brk',   fmtH(step.hours));   sub = t('tl_brkSub');  break;
+      case 'done':  name = t('tl_done'); break;
     }
-
     const item = document.createElement('div');
     item.className = 'tl-item';
     item.innerHTML = `
       <div class="tl-track">
-        <div class="tl-dot ${m.cls}">${m.dot}</div>
+        <div class="tl-dot ${meta[step.type]}">${dots[step.type]}</div>
         ${!last ? '<div class="tl-line"></div>' : ''}
       </div>
       <div class="tl-body">
@@ -973,6 +991,25 @@ function renderTimeline(steps) {
     list.appendChild(item);
   });
 }
+
+function renderResults(miles, origin, dest, params) {
+  const { totalDrive, totalElapsed, hosRests, fuelStops, steps } = simulateTrip(miles, params);
+
+  document.getElementById('routeLabel').textContent =
+    `${origin.city}, ${origin.state} → ${dest.city}, ${dest.state}`;
+  document.getElementById('routeSub').textContent    = t('roadMiles', Math.round(miles));
+  document.getElementById('statDrive').textContent   = fmtH(totalDrive);
+  document.getElementById('statElapsed').textContent = fmtElapsed(totalElapsed);
+  document.getElementById('statRests').textContent   = hosRests  || '—';
+  document.getElementById('statFuel').textContent    = fuelStops || '—';
+  document.getElementById('deliveryVal').textContent = t('deliveryVal', fmtElapsed(totalElapsed));
+  renderTimeline(steps);
+  document.getElementById('results').classList.add('show');
+}
+
+// ── Route cache (skip re-fetching when only params changed) ───────────────────
+
+let _cache = null; // { originZip, destZip, miles, origin, dest, params }
 
 // ── Main calculate ────────────────────────────────────────────────────────────
 
@@ -984,38 +1021,35 @@ async function calculate() {
   if (!/^\d{5}$/.test(destVal))   { showMsg(t('errDest'));   return; }
   if (originVal === destVal)       { showMsg(t('errSame'));   return; }
 
-  const btn = document.getElementById('calcBtn');
+  const params = getParams();
+  const btn    = document.getElementById('calcBtn');
   btn.disabled = true;
-  _lastSteps = null; _lastElapsed = null; _lastMiles = null; _lastDrive = null;
-  showMsg(t('loadingZip'), 'loading');
 
   try {
-    const [origin, dest] = await Promise.all([lookupZip(originVal), lookupZip(destVal)]);
+    let miles, origin, dest;
 
-    showMsg(t('loadingRoute'), 'loading');
-    const miles = await roadMiles(origin, dest);
+    // Reuse cached route if ZIPs haven't changed
+    if (_cache && _cache.originZip === originVal && _cache.destZip === destVal) {
+      ({ miles, origin, dest } = _cache);
+      hideMsg();
+    } else {
+      showMsg(t('loadingZip'), 'loading');
+      [origin, dest] = await Promise.all([lookupZip(originVal), lookupZip(destVal)]);
 
-    if (miles < 1) { showMsg(t('errClose')); return; }
+      showMsg(t('loadingRoute'), 'loading');
+      miles = await fetchRoadMiles(origin, dest);
+
+      if (miles < 1) { showMsg(t('errClose')); return; }
+      _cache = { originZip: originVal, destZip: destVal, miles, origin, dest };
+    }
 
     hideMsg();
+    _cache.params = params;
+    renderResults(miles, origin, dest, params);
 
-    const { totalDrive, totalElapsed, hosRests, fuelStops, steps } = simulateTrip(miles);
-    _lastElapsed = totalElapsed;
-    _lastMiles   = miles;
-    _lastDrive   = totalDrive;
-
-    document.getElementById('routeLabel').textContent =
-      `${origin.city}, ${origin.state} → ${dest.city}, ${dest.state}`;
-    document.getElementById('routeSub').textContent = t('roadMiles', Math.round(miles));
-
-    document.getElementById('statDrive').textContent   = fmtH(totalDrive);
-    document.getElementById('statElapsed').textContent = fmtElapsed(totalElapsed);
-    document.getElementById('statRests').textContent   = hosRests  || '—';
-    document.getElementById('statFuel').textContent    = fuelStops || '—';
-    document.getElementById('deliveryVal').textContent = t('deliveryVal', fmtElapsed(totalElapsed));
-
-    renderTimeline(steps);
-    document.getElementById('results').classList.add('show');
+    // Hide stale hint after successful recalculate
+    document.getElementById('staleHint').classList.remove('show');
+    updateModifiedState(); // re-evaluate (will stay hidden since just recalculated)
 
   } catch (err) {
     showMsg(err.message || t('errRoute'));
@@ -1027,7 +1061,7 @@ async function calculate() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 (function init() {
-  // Restore theme
+  // Theme
   let savedTheme = 'dark';
   try {
     const s = localStorage.getItem('transit-theme');
@@ -1036,7 +1070,7 @@ async function calculate() {
   } catch(e) {}
   applyTheme(savedTheme);
 
-  // Restore language
+  // Language
   try {
     const s = localStorage.getItem('transit-lang');
     if (s === 'ru' || s === 'en') currentLang = s;
@@ -1044,8 +1078,9 @@ async function calculate() {
   document.documentElement.lang = currentLang;
   applyTranslations();
 
-  // Button events
+  // Buttons
   document.getElementById('calcBtn').addEventListener('click', calculate);
+  document.getElementById('recalcBtn').addEventListener('click', calculate);
   document.getElementById('themeBtn').addEventListener('click', toggleTheme);
   document.getElementById('langBtn').addEventListener('click', toggleLang);
   document.getElementById('helpBtn').addEventListener('click', openHelp);
@@ -1053,15 +1088,32 @@ async function calculate() {
   document.getElementById('helpOverlay').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeHelp();
   });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeHelp();
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHelp(); });
+
+  document.getElementById('resetParams').addEventListener('click', resetParams);
+
+  // Parameters panel toggle
+  const toggle = document.getElementById('paramsToggle');
+  const body   = document.getElementById('paramsBody');
+  toggle.addEventListener('click', () => {
+    const open = body.classList.toggle('open');
+    toggle.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open);
   });
 
-  // Digit-only ZIP inputs
+  // Watch param inputs for changes
+  document.querySelectorAll('.param-input').forEach(el => {
+    el.addEventListener('input', updateModifiedState);
+  });
+
+  // ZIP input: digits only
   ['zip-origin', 'zip-dest'].forEach(id => {
     const el = document.getElementById(id);
     el.addEventListener('input', () => {
       el.value = el.value.replace(/\D/g, '').slice(0, 5);
+      // Invalidate cache when ZIPs change
+      _cache = null;
+      document.getElementById('staleHint').classList.remove('show');
     });
   });
 
