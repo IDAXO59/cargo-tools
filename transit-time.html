@@ -84,9 +84,12 @@ body {
 
 .page-title {
   font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em;
+  line-height: 1.15; margin-top: 4px;
+  color: var(--text);
+}
+.page-title .title-text {
   background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
   -webkit-background-clip: text; background-clip: text; color: transparent;
-  line-height: 1.15; margin-top: 4px;
 }
 
 .page-subtitle { margin-top: 6px; color: var(--muted); font-size: 0.875rem; }
@@ -405,7 +408,7 @@ body {
 
   <header class="topbar">
     <a href="index.html" class="back-btn">← <span data-i18n="backLabel">Cargo Tools</span></a>
-    <h1 class="page-title">⏱️ <span data-i18n="pageTitle">Transit Time</span></h1>
+    <h1 class="page-title">⏱️ <span class="title-text" data-i18n="pageTitle">Transit Time</span></h1>
     <p class="page-subtitle" data-i18n="pageSubtitle">Drive time with HOS logbook rules</p>
     <div class="header-controls">
       <button class="hdr-btn" id="helpBtn">?</button>
@@ -442,7 +445,7 @@ body {
 
     <!-- Parameters section -->
     <hr class="params-divider">
-    <button class="params-toggle" id="paramsToggle" aria-expanded="false">
+    <button class="params-toggle open" id="paramsToggle" aria-expanded="true">
       <span class="params-toggle-left">
         <span>⚙</span>
         <span data-i18n="paramsTitle">Parameters</span>
@@ -450,7 +453,7 @@ body {
       </span>
       <span class="caret">▾</span>
     </button>
-    <div class="params-body" id="paramsBody">
+    <div class="params-body open" id="paramsBody">
       <div class="params-grid">
 
         <div class="param-row">
