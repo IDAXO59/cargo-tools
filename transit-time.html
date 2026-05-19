@@ -475,7 +475,7 @@ body {
         <div class="param-row">
           <label class="param-label" for="p-cont" data-i18n="paramCont">Cont. limit</label>
           <div class="param-input-wrap">
-            <input class="param-input" id="p-cont" type="number" min="1" max="11" step="0.5" value="8">
+            <input class="param-input" id="p-cont" type="number" min="1" max="24" step="0.5" value="8">
             <span class="param-unit" data-i18n="unitH">h</span>
           </div>
         </div>
@@ -602,9 +602,6 @@ const DEFAULTS = {
   fuelMin:  30,   // minutes
   rest:     10,   // hours
 };
-
-const PARAM_IDS = ['p-speed','p-shift','p-cont','p-break','p-fuel-mi','p-fuel-min','p-rest'];
-const PARAM_KEYS = ['speed','shift','cont','breakMin','fuelMi','fuelMin','rest'];
 
 function getParams() {
   return {
@@ -935,7 +932,9 @@ async function lookupZip(zip) {
   const r = await timed(`https://api.zippopotam.us/us/${zip}`);
   if (r.status === 404) throw new Error(`ZIP ${zip} not found.`);
   if (!r.ok) throw new Error(`ZIP ${zip} lookup failed (HTTP ${r.status}).`);
-  const d = await r.json(), p = d.places[0];
+  const d = await r.json();
+  if (!d.places || !d.places.length) throw new Error(`ZIP ${zip} not found.`);
+  const p = d.places[0];
   return { lat: parseFloat(p.latitude), lng: parseFloat(p.longitude), city: p['place name'], state: p['state abbreviation'] };
 }
 
@@ -961,10 +960,7 @@ function showMsg(text, type = 'error') {
 
 function hideMsg() { document.getElementById('msgBox').className = 'msg'; }
 
-let _lastSteps = null;
-
 function renderTimeline(steps) {
-  _lastSteps = steps;
   const list = document.getElementById('tlList');
   list.innerHTML = '';
   const meta = { drive:'drive', rest:'rest', fuel:'fuel', brk:'brk', done:'done' };
@@ -1052,7 +1048,6 @@ async function calculate() {
 
     // Hide stale hint after successful recalculate
     document.getElementById('staleHint').classList.remove('show');
-    updateModifiedState(); // re-evaluate (will stay hidden since just recalculated)
 
   } catch (err) {
     showMsg(err.message || t('errRoute'));
