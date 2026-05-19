@@ -607,7 +607,7 @@ function getParams() {
   return {
     speed:    clamp(parseFloat(document.getElementById('p-speed').value),   10, 120) || DEFAULTS.speed,
     shift:    clamp(parseFloat(document.getElementById('p-shift').value),    1,  24) || DEFAULTS.shift,
-    cont:     clamp(parseFloat(document.getElementById('p-cont').value),     1,  11) || DEFAULTS.cont,
+    cont:     clamp(parseFloat(document.getElementById('p-cont').value),     1,  24) || DEFAULTS.cont,
     breakMin: clamp(parseFloat(document.getElementById('p-break').value),   10, 120) || DEFAULTS.breakMin,
     fuelMi:   clamp(parseFloat(document.getElementById('p-fuel-mi').value), 100,2000) || DEFAULTS.fuelMi,
     fuelMin:  clamp(parseFloat(document.getElementById('p-fuel-min').value),  5, 120) || DEFAULTS.fuelMin,
@@ -615,7 +615,7 @@ function getParams() {
   };
 }
 
-function clamp(v, min, max) { return isNaN(v) ? min : Math.min(max, Math.max(min, v)); }
+function clamp(v, min, max) { return isNaN(v) ? NaN : Math.min(max, Math.max(min, v)); }
 
 function resetParams() {
   document.getElementById('p-speed').value    = DEFAULTS.speed;
@@ -647,9 +647,14 @@ function updateModifiedState() {
   });
   document.getElementById('modifiedDot').classList.toggle('visible', anyModified);
 
-  // Show stale hint only when results are showing AND something changed
+  // Show stale hint only when results are showing AND params differ from last calculation
   const resultsVisible = document.getElementById('results').classList.contains('show');
-  document.getElementById('staleHint').classList.toggle('show', resultsVisible && anyModified);
+  let stale = false;
+  if (resultsVisible && _calcParams) {
+    const p = getParams();
+    stale = Object.keys(DEFAULTS).some(k => Math.abs((p[k] ?? 0) - (_calcParams[k] ?? 0)) > 0.001);
+  }
+  document.getElementById('staleHint').classList.toggle('show', stale);
 }
 
 // ── i18n ─────────────────────────────────────────────────────────────────────
@@ -1008,7 +1013,8 @@ function renderResults(miles, origin, dest, params) {
 
 // ── Route cache (skip re-fetching when only params changed) ───────────────────
 
-let _cache = null; // { originZip, destZip, miles, origin, dest, params }
+let _cache      = null; // { originZip, destZip, miles, origin, dest, params }
+let _calcParams = null; // params used in the last successful render
 
 // ── Main calculate ────────────────────────────────────────────────────────────
 
@@ -1044,6 +1050,7 @@ async function calculate() {
 
     hideMsg();
     _cache.params = params;
+    _calcParams = { ...params };
     renderResults(miles, origin, dest, params);
 
     // Hide stale hint after successful recalculate
