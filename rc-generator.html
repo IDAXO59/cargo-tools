@@ -395,6 +395,30 @@ body {
 }
 .btn-copy-es:hover { background: #f59e0b; color: #fff; }
 .btn-copy-es.copied { background: #f59e0b; color: #fff; }
+
+/* ── Field header row (label + map button) ── */
+.field-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.field-hd label { margin-bottom: 0; }
+.map-btn {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  height: 20px;
+  background: var(--card-elev);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.map-btn:hover { border-color: var(--primary); color: var(--primary); }
 </style>
 </head>
 <body>
@@ -422,7 +446,7 @@ body {
     </a>
 
     <h1 class="page-title">RC Generator</h1>
-    <p class="page-subtitle" data-i18n="subtitle">Rate Confirmation builder for Telegram</p>
+    <p class="page-subtitle" data-i18n="subtitle">Rate Confirmation builder</p>
 
     <div class="controls">
       <a href="index.html" class="icon-btn" data-i18n="backBtn">← Back</a>
@@ -471,7 +495,10 @@ body {
           <input type="text" id="shipperName" data-i18n-ph="phShipper" placeholder="Company name" oninput="renderPreview()">
         </div>
         <div class="field">
-          <label data-i18n="lblPuAddr">PU Address</label>
+          <div class="field-hd">
+            <label data-i18n="lblPuAddr">PU Address</label>
+            <button class="map-btn" onclick="openMaps('puAddress')" title="Open in Google Maps">📍 Maps</button>
+          </div>
           <textarea id="puAddress" data-i18n-ph="phAddr" placeholder="Street, City ST ZIP" oninput="renderPreview()"></textarea>
         </div>
       </div>
@@ -488,7 +515,10 @@ body {
           <input type="text" id="consigneeName" data-i18n-ph="phShipper" placeholder="Company name" oninput="renderPreview()">
         </div>
         <div class="field">
-          <label data-i18n="lblDelAddr">DEL Address</label>
+          <div class="field-hd">
+            <label data-i18n="lblDelAddr">DEL Address</label>
+            <button class="map-btn" onclick="openMaps('delAddress')" title="Open in Google Maps">📍 Maps</button>
+          </div>
           <textarea id="delAddress" data-i18n-ph="phAddr" placeholder="Street, City ST ZIP" oninput="renderPreview()"></textarea>
         </div>
       </div>
@@ -713,7 +743,7 @@ body {
 /* ── i18n ── */
 const I18N = {
   en: {
-    subtitle: 'Rate Confirmation builder for Telegram',
+    subtitle: 'Rate Confirmation builder',
     backBtn: '← Back',
     secUnit: 'Unit', secPickup: 'Pickup', secDelivery: 'Delivery',
     secLoad: 'Load Info', secOptions: 'Options', secNotes: 'Notes',
@@ -741,7 +771,7 @@ const I18N = {
     closeBtn: 'Close',
   },
   ru: {
-    subtitle: 'Генератор Rate Confirmation для Telegram',
+    subtitle: 'Генератор Rate Confirmation',
     backBtn: '← Назад',
     secUnit: 'Юнит', secPickup: 'Погрузка', secDelivery: 'Доставка',
     secLoad: 'Информация о грузе', secOptions: 'Опции', secNotes: 'Заметки',
@@ -829,6 +859,12 @@ const RC_STRINGS = {
 
 function v(id) {
   return (document.getElementById(id).value || '').trim();
+}
+
+function openMaps(fieldId) {
+  const addr = v(fieldId);
+  if (!addr) return;
+  window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(addr), '_blank');
 }
 
 function waUrl(phone) {
