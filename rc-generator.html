@@ -380,6 +380,21 @@ body {
 }
 .btn-copy:hover { background: var(--success); color: #fff; }
 .btn-copy.copied { background: var(--success); color: #fff; }
+
+.btn-copy-es {
+  padding: 11px 14px;
+  background: rgba(245,158,11,0.12);
+  color: #f59e0b;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-copy-es:hover { background: #f59e0b; color: #fff; }
+.btn-copy-es.copied { background: #f59e0b; color: #fff; }
 </style>
 </head>
 <body>
@@ -686,6 +701,7 @@ body {
 
       <div class="btn-row">
         <button class="btn-copy" id="copyBtn" onclick="doCopy()" data-i18n="btnCopy">Copy</button>
+        <button class="btn-copy-es" id="copyBtnES" onclick="doCopyES()">🇪🇸 ES</button>
         <button class="btn-secondary" onclick="doClear()" data-i18n="btnClear">Clear</button>
       </div>
     </div>
@@ -790,6 +806,27 @@ function toggleHelp() {
 const LS_CONTACTS = ['dispatcher','phone','telegram','whatsapp','email'];
 const TRACKING_LINE = "Ursa's tracking 24/7: (267) 768-7115 | tracking@ursaexpress.com";
 
+const RC_STRINGS = {
+  en: {
+    unit: '🚛 Unit#: ', driver: '👤 Driver: ', llc: '🏢 LLC: ',
+    pieces: '📦 Total Pieces: ', weightSuffix: ' lbs',
+    weight: '⚖️ Total Weight: ', miles: '🛣️ Loaded Miles: ', rate: '💵 Total Rate: $',
+    driverAssist: '✅ DRIVER ASSIST', partialLoad: '✅ PARTIAL LOAD',
+    disp: '🧑‍💼 Dispatcher: ',
+    tracking: '📡 ' + TRACKING_LINE,
+    disclaimer: 'By accepting this RC you agree to the terms stated in the contract. You agree that tardiness and poor communication with tracking and dispatcher may result in rate reduction. You also agree that an unauthorized partial load may result in a complete rate reduction.',
+  },
+  es: {
+    unit: '🚛 Unidad #: ', driver: '👤 Conductor: ', llc: '🏢 LLC: ',
+    pieces: '📦 Total de piezas: ', weightSuffix: ' lbs',
+    weight: '⚖️ Peso total: ', miles: '🛣️ Millas cargadas: ', rate: '💵 Tarifa total: $',
+    driverAssist: '✅ ASISTENCIA AL CONDUCTOR', partialLoad: '✅ CARGA PARCIAL',
+    disp: '🧑‍💼 Despachador: ',
+    tracking: '📡 Seguimiento Ursa 24/7: (267) 768-7115 | tracking@ursaexpress.com',
+    disclaimer: 'Al aceptar este RC, usted acepta los términos establecidos en el contrato. Acepta que la tardanza y la falta de comunicación con el seguimiento y el despachador puede resultar en una reducción de la tarifa. También acepta que una carga parcial no autorizada puede resultar en una reducción total de la tarifa.',
+  }
+};
+
 function v(id) {
   return (document.getElementById(id).value || '').trim();
 }
@@ -811,7 +848,8 @@ function setRo(id, val) {
   }
 }
 
-function buildText() {
+function buildText(lang = 'en') {
+  const S = RC_STRINGS[lang] || RC_STRINGS.en;
   const unit          = v('unit');
   const driver        = v('driver');
   const llc           = v('llc');
@@ -835,9 +873,9 @@ function buildText() {
   const email         = v('email');
 
   const lines = [];
-  if (unit)   lines.push('🚛 Unit#: ' + unit);
-  if (driver) lines.push('👤 Driver: ' + driver);
-  if (llc)    lines.push('🏢 LLC: ' + llc);
+  if (unit)   lines.push(S.unit + unit);
+  if (driver) lines.push(S.driver + driver);
+  if (llc)    lines.push(S.llc + llc);
   if (unit || driver || llc) lines.push('');
   lines.push(puDate);
   lines.push('');
@@ -851,28 +889,28 @@ function buildText() {
   lines.push(delAddress);
   lines.push('');
   lines.push('__');
-  if (pieces) lines.push('📦 Total Pieces: ' + pieces);
-  if (weight) lines.push('⚖️ Total Weight: ' + weight + ' lbs');
+  if (pieces) lines.push(S.pieces + pieces);
+  if (weight) lines.push(S.weight + weight + S.weightSuffix);
   lines.push('');
   lines.push('__');
-  if (miles)        lines.push('🛣️ Loaded Miles: ' + miles);
-  if (rate)         lines.push('💵 Total Rate: $' + rate);
-  if (driverAssist) lines.push('✅ DRIVER ASSIST');
-  if (partialLoad)  lines.push('✅ PARTIAL LOAD');
+  if (miles)        lines.push(S.miles + miles);
+  if (rate)         lines.push(S.rate + rate);
+  if (driverAssist) lines.push(S.driverAssist);
+  if (partialLoad)  lines.push(S.partialLoad);
   if (notes)        lines.push('');
   if (notes)        lines.push('📝 ' + notes);
   lines.push('');
   lines.push('__');
-  if (dispatcher) lines.push('🧑‍💼 Dispatcher: ' + dispatcher);
+  if (dispatcher) lines.push(S.disp + dispatcher);
   if (phone)      lines.push('📞 ' + phone);
   if (telegram)   lines.push('✈️ ' + telegram);
   if (whatsapp)   lines.push('💬 ' + waUrl(whatsapp));
   if (email)      lines.push('📧 ' + email);
   lines.push('');
   lines.push('__');
-  lines.push('📡 ' + TRACKING_LINE);
+  lines.push(S.tracking);
   lines.push('');
-  lines.push('By accepting this RC you agree to the terms stated in the contract. You agree that tardiness and poor communication with tracking and dispatcher may result in rate reduction. You also agree that an unauthorized partial load may result in a complete rate reduction.');
+  lines.push(S.disclaimer);
 
   return lines.join('\n');
 }
@@ -920,7 +958,7 @@ function flashCopy() {
 }
 
 function doCopy() {
-  const text = buildText().trim();
+  const text = buildText('en').trim();
   if (!text) return;
   navigator.clipboard.writeText(text).then(flashCopy).catch(() => {
     const ta = document.createElement('textarea');
@@ -931,6 +969,28 @@ function doCopy() {
     document.execCommand('copy');
     document.body.removeChild(ta);
     flashCopy();
+  });
+}
+
+function flashCopyES() {
+  const btn = document.getElementById('copyBtnES');
+  btn.textContent = 'Copiado ✓';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = '🇪🇸 ES'; btn.classList.remove('copied'); }, 2000);
+}
+
+function doCopyES() {
+  const text = buildText('es').trim();
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(flashCopyES).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    flashCopyES();
   });
 }
 
