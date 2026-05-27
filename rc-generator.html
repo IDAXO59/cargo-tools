@@ -307,6 +307,36 @@ body {
   user-select: text;
 }
 
+/* ── Collapsible "Always included" ── */
+.always-toggle {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.always-toggle:hover { color: var(--text); }
+.always-toggle svg {
+  transition: transform 0.25s ease;
+}
+.always-collapsed .always-toggle svg {
+  transform: rotate(-90deg);
+}
+.always-body {
+  overflow: hidden;
+  max-height: 200px;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+  opacity: 1;
+}
+.always-collapsed .always-body {
+  max-height: 0;
+  opacity: 0;
+}
+
 /* ── Checkboxes ── */
 .check-row {
   display: flex;
@@ -736,11 +766,20 @@ body {
         </div>
       </div>
 
-      <!-- TRACKING (static) -->
-      <div class="fields-group">
-        <div class="section-label" data-i18n="secAlways">Always included</div>
-        <div class="ro-field ro-tracking">📡 Ursa's tracking 24/7: (267) 768-7115 | tracking@ursaexpress.com</div>
-        <div class="ro-disclaimer">By accepting this RC you agree to the terms stated in the contract. You agree that tardiness and poor communication with tracking and dispatcher may result in rate reduction. You also agree that an unauthorized partial load may result in a complete rate reduction.</div>
+      <!-- TRACKING (static, collapsible) -->
+      <div class="fields-group" id="alwaysSection">
+        <div class="section-label">
+          <span data-i18n="secAlways">Always included</span>
+          <button class="always-toggle" onclick="toggleAlways()" title="Show/hide">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="2,4 7,10 12,4"/>
+            </svg>
+          </button>
+        </div>
+        <div class="always-body">
+          <div class="ro-field ro-tracking">📡 Ursa's tracking 24/7: (267) 768-7115 | tracking@ursaexpress.com</div>
+          <div class="ro-disclaimer">By accepting this RC you agree to the terms stated in the contract. You agree that tardiness and poor communication with tracking and dispatcher may result in rate reduction. You also agree that an unauthorized partial load may result in a complete rate reduction.</div>
+        </div>
       </div>
 
       <div class="btn-row">
@@ -844,6 +883,10 @@ function toggleTheme() {
 
 function toggleHelp() {
   document.getElementById('helpBackdrop').classList.toggle('show');
+}
+
+function toggleAlways() {
+  document.getElementById('alwaysSection').classList.toggle('always-collapsed');
 }
 
 /* ── Core ── */
