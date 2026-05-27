@@ -328,8 +328,8 @@ body {
 }
 .always-body {
   overflow: hidden;
-  max-height: 200px;
-  transition: max-height 0.3s ease, opacity 0.25s ease;
+  max-height: 600px;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
   opacity: 1;
 }
 .always-collapsed .always-body {
@@ -440,6 +440,34 @@ body {
 .btn-copy-es:hover { background: #f59e0b; color: #fff; }
 .btn-copy-es.copied { background: #f59e0b; color: #fff; }
 
+/* ── Stop management ── */
+.btn-add-stop {
+  width: 100%;
+  padding: 9px;
+  margin-bottom: 20px;
+  background: none;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  color: var(--dim);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-add-stop:hover { border-color: var(--primary); color: var(--primary); }
+.stop-remove-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--dim);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.15s;
+}
+.stop-remove-btn:hover { color: #ef4444; }
+
 /* ── Field header row (label + map button) ── */
 .field-hd {
   display: flex;
@@ -527,45 +555,9 @@ body {
         </div>
       </div>
 
-      <!-- PICKUP -->
-      <div class="fields-group">
-        <div class="section-label" data-i18n="secPickup">Pickup</div>
-        <div class="field">
-          <label data-i18n="lblPuDate">PU Date &amp; Time</label>
-          <input type="text" id="puDate" data-i18n-ph="phPuDate" placeholder="05/27/2026 9:00 AM" oninput="renderPreview()">
-        </div>
-        <div class="field">
-          <label data-i18n="lblShipper">Shipper Name</label>
-          <input type="text" id="shipperName" data-i18n-ph="phShipper" placeholder="Company name" oninput="renderPreview()">
-        </div>
-        <div class="field">
-          <div class="field-hd">
-            <label data-i18n="lblPuAddr">PU Address</label>
-            <button class="map-btn" onclick="openMaps('puAddress')" title="Open in Google Maps">📍 Maps</button>
-          </div>
-          <textarea id="puAddress" data-i18n-ph="phAddr" placeholder="Street, City ST ZIP" oninput="renderPreview()"></textarea>
-        </div>
-      </div>
-
-      <!-- DELIVERY -->
-      <div class="fields-group">
-        <div class="section-label" data-i18n="secDelivery">Delivery</div>
-        <div class="field">
-          <label data-i18n="lblDelDate">DEL Date &amp; Time</label>
-          <input type="text" id="delDate" data-i18n-ph="phDelDate" placeholder="05/27/2026 5:00 PM" oninput="renderPreview()">
-        </div>
-        <div class="field">
-          <label data-i18n="lblConsignee">Consignee Name</label>
-          <input type="text" id="consigneeName" data-i18n-ph="phShipper" placeholder="Company name" oninput="renderPreview()">
-        </div>
-        <div class="field">
-          <div class="field-hd">
-            <label data-i18n="lblDelAddr">DEL Address</label>
-            <button class="map-btn" onclick="openMaps('delAddress')" title="Open in Google Maps">📍 Maps</button>
-          </div>
-          <textarea id="delAddress" data-i18n-ph="phAddr" placeholder="Street, City ST ZIP" oninput="renderPreview()"></textarea>
-        </div>
-      </div>
+      <!-- STOPS (dynamic) -->
+      <div id="stopsContainer"></div>
+      <button class="btn-add-stop" id="addStopBtn" onclick="addStop()" data-i18n="btnAddStop">+ Add Stop</button>
 
       <!-- LOAD INFO -->
       <div class="fields-group">
@@ -594,14 +586,14 @@ body {
       <div class="fields-group">
         <div class="section-label" data-i18n="secOptions">Options</div>
         <div class="check-row">
-          <label class="check-item">
-            <input type="checkbox" id="chkDriverAssist" onchange="renderPreview()">
-            <span data-i18n="lblDriverAssist">Driver Assist</span>
-          </label>
-          <label class="check-item">
-            <input type="checkbox" id="chkPartialLoad" onchange="renderPreview()">
-            <span data-i18n="lblPartialLoad">Partial Load</span>
-          </label>
+          <label class="check-item"><input type="checkbox" id="chkPartialUrsa" onchange="renderPreview()"><span data-i18n="lblPartialUrsa">Partial (by URSA)</span></label>
+          <label class="check-item"><input type="checkbox" id="chkPartialOther" onchange="renderPreview()"><span data-i18n="lblPartialOther">Partial (another carrier)</span></label>
+          <label class="check-item"><input type="checkbox" id="chkTwic" onchange="renderPreview()"><span data-i18n="lblTwic">TWIC</span></label>
+          <label class="check-item"><input type="checkbox" id="chkCitizen" onchange="renderPreview()"><span data-i18n="lblCitizen">CITIZEN/GC</span></label>
+          <label class="check-item"><input type="checkbox" id="chkTransload" onchange="renderPreview()"><span data-i18n="lblTransload">Transload freight</span></label>
+          <label class="check-item"><input type="checkbox" id="chkEscort" onchange="renderPreview()"><span data-i18n="lblEscort">Escort option</span></label>
+          <label class="check-item"><input type="checkbox" id="chkBlind" onchange="renderPreview()"><span data-i18n="lblBlind">Blind shipment</span></label>
+          <label class="check-item"><input type="checkbox" id="chkReefer" onchange="renderPreview()"><span data-i18n="lblReefer">Reefer/heater</span></label>
         </div>
       </div>
 
@@ -665,39 +657,8 @@ body {
         </div>
       </div>
 
-      <!-- PICKUP -->
-      <div class="fields-group">
-        <div class="section-label" data-i18n="secPickup">Pickup</div>
-        <div class="field">
-          <label data-i18n="lblPuDate">PU Date &amp; Time</label>
-          <div class="ro-field empty" id="ro-puDate">&nbsp;</div>
-        </div>
-        <div class="field">
-          <label data-i18n="lblShipper">Shipper Name</label>
-          <div class="ro-field empty" id="ro-shipperName">&nbsp;</div>
-        </div>
-        <div class="field">
-          <label data-i18n="lblPuAddr">PU Address</label>
-          <div class="ro-field ro-textarea empty" id="ro-puAddress">&nbsp;</div>
-        </div>
-      </div>
-
-      <!-- DELIVERY -->
-      <div class="fields-group">
-        <div class="section-label" data-i18n="secDelivery">Delivery</div>
-        <div class="field">
-          <label data-i18n="lblDelDate">DEL Date &amp; Time</label>
-          <div class="ro-field empty" id="ro-delDate">&nbsp;</div>
-        </div>
-        <div class="field">
-          <label data-i18n="lblConsignee">Consignee Name</label>
-          <div class="ro-field empty" id="ro-consigneeName">&nbsp;</div>
-        </div>
-        <div class="field">
-          <label data-i18n="lblDelAddr">DEL Address</label>
-          <div class="ro-field ro-textarea empty" id="ro-delAddress">&nbsp;</div>
-        </div>
-      </div>
+      <!-- STOPS mirror (dynamic) -->
+      <div id="ro-stopsContainer"></div>
 
       <!-- LOAD INFO -->
       <div class="fields-group">
@@ -726,8 +687,14 @@ body {
       <div class="fields-group">
         <div class="section-label" data-i18n="secOptions">Options</div>
         <div class="check-row">
-          <div class="ro-chip" id="ro-chkDriverAssist" data-i18n="lblDriverAssist">Driver Assist</div>
-          <div class="ro-chip" id="ro-chkPartialLoad" data-i18n="lblPartialLoad">Partial Load</div>
+          <div class="ro-chip" id="ro-chkPartialUrsa"  data-i18n="lblPartialUrsa">Partial (by URSA)</div>
+          <div class="ro-chip" id="ro-chkPartialOther" data-i18n="lblPartialOther">Partial (another carrier)</div>
+          <div class="ro-chip" id="ro-chkTwic"         data-i18n="lblTwic">TWIC</div>
+          <div class="ro-chip" id="ro-chkCitizen"      data-i18n="lblCitizen">CITIZEN/GC</div>
+          <div class="ro-chip" id="ro-chkTransload"    data-i18n="lblTransload">Transload freight</div>
+          <div class="ro-chip" id="ro-chkEscort"       data-i18n="lblEscort">Escort option</div>
+          <div class="ro-chip" id="ro-chkBlind"        data-i18n="lblBlind">Blind shipment</div>
+          <div class="ro-chip" id="ro-chkReefer"       data-i18n="lblReefer">Reefer/heater</div>
         </div>
       </div>
 
@@ -739,29 +706,38 @@ body {
         </div>
       </div>
 
-      <!-- DISPATCHER -->
-      <div class="fields-group">
-        <div class="section-label" data-i18n="secDisp">Dispatcher</div>
-        <div class="field">
-          <label data-i18n="lblDispName">Dispatcher Name</label>
-          <div class="ro-field empty" id="ro-dispatcher">&nbsp;</div>
+      <!-- DISPATCHER (collapsible) -->
+      <div class="fields-group" id="dispSection">
+        <div class="section-label">
+          <span data-i18n="secDisp">Dispatcher</span>
+          <button class="always-toggle" onclick="toggleDisp()" title="Show/hide">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="2,4 7,10 12,4"/>
+            </svg>
+          </button>
         </div>
-        <div class="ro-field-row">
+        <div class="always-body">
           <div class="field">
-            <label data-i18n="lblPhone">Direct Phone</label>
-            <div class="ro-field empty" id="ro-phone">&nbsp;</div>
+            <label data-i18n="lblDispName">Dispatcher Name</label>
+            <div class="ro-field empty" id="ro-dispatcher">&nbsp;</div>
           </div>
-          <div class="field">
-            <label data-i18n="lblTelegram">Telegram @</label>
-            <div class="ro-field empty" id="ro-telegram">&nbsp;</div>
-          </div>
-          <div class="field">
-            <label data-i18n="lblWhatsapp">WhatsApp</label>
-            <div class="ro-field empty" id="ro-whatsapp">&nbsp;</div>
-          </div>
-          <div class="field">
-            <label data-i18n="lblEmail">Email</label>
-            <div class="ro-field empty" id="ro-email">&nbsp;</div>
+          <div class="ro-field-row">
+            <div class="field">
+              <label data-i18n="lblPhone">Direct Phone</label>
+              <div class="ro-field empty" id="ro-phone">&nbsp;</div>
+            </div>
+            <div class="field">
+              <label data-i18n="lblTelegram">Telegram @</label>
+              <div class="ro-field empty" id="ro-telegram">&nbsp;</div>
+            </div>
+            <div class="field">
+              <label data-i18n="lblWhatsapp">WhatsApp</label>
+              <div class="ro-field empty" id="ro-whatsapp">&nbsp;</div>
+            </div>
+            <div class="field">
+              <label data-i18n="lblEmail">Email</label>
+              <div class="ro-field empty" id="ro-email">&nbsp;</div>
+            </div>
           </div>
         </div>
       </div>
@@ -777,7 +753,7 @@ body {
           </button>
         </div>
         <div class="always-body">
-          <div class="ro-field ro-tracking">📡 Ursa's tracking 24/7: (267) 768-7115 | tracking@ursaexpress.com</div>
+          <div class="ro-field ro-tracking">📡 Ursa's tracking 24/7:<br>Phone: (267) 768-7115<br>Email: tracking@ursaexpress.com<br>Telegram: @tracking_ursa</div>
           <div class="ro-disclaimer">By accepting this RC you agree to the terms stated in the contract. You agree that tardiness and poor communication with tracking and dispatcher may result in rate reduction. You also agree that an unauthorized partial load may result in a complete rate reduction.</div>
         </div>
       </div>
@@ -805,14 +781,18 @@ const I18N = {
     lblPuDate: 'PU Date & Time', lblShipper: 'Shipper Name', lblPuAddr: 'PU Address',
     lblDelDate: 'DEL Date & Time', lblConsignee: 'Consignee Name', lblDelAddr: 'DEL Address',
     lblPieces: 'Total Pieces', lblWeight: 'Total Weight (lbs)', lblMiles: 'Loaded Miles', lblRate: 'Total Rate ($)',
-    lblDriverAssist: 'Driver Assist', lblPartialLoad: 'Partial Load',
+    lblPartialUrsa: 'Partial (by URSA)', lblPartialOther: 'Partial (another carrier)',
+    lblTwic: 'TWIC', lblCitizen: 'CITIZEN/GC', lblTransload: 'Transload freight',
+    lblEscort: 'Escort option', lblBlind: 'Blind shipment', lblReefer: 'Reefer/heater',
     lblDispName: 'Dispatcher Name', lblPhone: 'Direct Phone', lblTelegram: 'Telegram @', lblWhatsapp: 'WhatsApp', lblEmail: 'Email',
-    btnCopy: 'Copy', btnClear: 'Clear', copyOk: 'Copied ✓',
+    lblStopDate: 'Date & Time', lblStopCompany: 'Company Name', lblStopAddr: 'Address', lblStopRef: 'REF#', lblStopPoc: 'POC',
+    btnCopy: 'Copy', btnClear: 'Clear', copyOk: 'Copied ✓', btnAddStop: '+ Add Stop',
     phUnit: 'e.g. 101', phDriver: 'First Last', phLlc: 'Company LLC',
     phPuDate: '05/27/2026 9:00 AM', phShipper: 'Company name', phAddr: 'Street, City ST ZIP',
     phDelDate: '05/27/2026 5:00 PM',
     phPieces: 'e.g. 5', phWeight: 'e.g. 1200', phMiles: 'e.g. 320', phRate: 'e.g. 850',
     phNotes: 'Any additional info...', phDispName: 'Your name',
+    phStopDate: 'MM/DD/YYYY H:MM AM', phStopCompany: 'Company name', phStopRef: 'Reference #', phStopPoc: 'Point of contact',
     helpHead: '📋  RC Generator',
     helpDesc: 'Fill in the load details and click Copy to get a formatted Rate Confirmation ready to send via Telegram. Dispatcher contacts are saved automatically for the next load.',
     helpFields: '📝  Fields',
@@ -833,14 +813,18 @@ const I18N = {
     lblPuDate: 'Дата и время PU', lblShipper: 'Грузоотправитель', lblPuAddr: 'Адрес PU',
     lblDelDate: 'Дата и время DEL', lblConsignee: 'Получатель', lblDelAddr: 'Адрес DEL',
     lblPieces: 'Количество мест', lblWeight: 'Общий вес (lbs)', lblMiles: 'Loaded Miles', lblRate: 'Ставка ($)',
-    lblDriverAssist: 'Driver Assist', lblPartialLoad: 'Partial Load',
+    lblPartialUrsa: 'Partial (by URSA)', lblPartialOther: 'Partial (another carrier)',
+    lblTwic: 'TWIC', lblCitizen: 'CITIZEN/GC', lblTransload: 'Transload freight',
+    lblEscort: 'Escort option', lblBlind: 'Blind shipment', lblReefer: 'Reefer/heater',
     lblDispName: 'Имя диспетчера', lblPhone: 'Прямой телефон', lblTelegram: 'Telegram @', lblWhatsapp: 'WhatsApp', lblEmail: 'Email',
-    btnCopy: 'Копировать', btnClear: 'Очистить', copyOk: 'Скопировано ✓',
+    lblStopDate: 'Дата и время', lblStopCompany: 'Название компании', lblStopAddr: 'Адрес', lblStopRef: 'REF#', lblStopPoc: 'Контакт',
+    btnCopy: 'Копировать', btnClear: 'Очистить', copyOk: 'Скопировано ✓', btnAddStop: '+ Добавить стоп',
     phUnit: 'напр. 101', phDriver: 'Имя Фамилия', phLlc: 'Company LLC',
     phPuDate: '05/27/2026 9:00 AM', phShipper: 'Название компании', phAddr: 'Улица, Город ST ZIP',
     phDelDate: '05/27/2026 5:00 PM',
     phPieces: 'напр. 5', phWeight: 'напр. 1200', phMiles: 'напр. 320', phRate: 'напр. 850',
     phNotes: 'Дополнительная информация...', phDispName: 'Ваше имя',
+    phStopDate: 'MM/DD/YYYY H:MM AM', phStopCompany: 'Название компании', phStopRef: 'Номер референса', phStopPoc: 'Контактное лицо',
     helpHead: '📋  RC Generator',
     helpDesc: 'Заполни данные груза и нажми Копировать — получишь готовый Rate Confirmation для отправки водителю через Telegram. Контакты диспетчера сохраняются автоматически.',
     helpFields: '📝  Поля',
@@ -889,16 +873,22 @@ function toggleAlways() {
   document.getElementById('alwaysSection').classList.toggle('always-collapsed');
 }
 
+function toggleDisp() {
+  document.getElementById('dispSection').classList.toggle('always-collapsed');
+}
+
 /* ── Core ── */
 const LS_CONTACTS = ['dispatcher','phone','telegram','whatsapp','email'];
-const TRACKING_LINE = "Ursa's tracking 24/7: (267) 768-7115 | tracking@ursaexpress.com";
+const TRACKING_LINE = "Ursa's tracking 24/7:\nPhone: (267) 768-7115\nEmail: tracking@ursaexpress.com\nTelegram: @tracking_ursa";
 
 const RC_STRINGS = {
   en: {
     unit: '🚛 Unit#: ', driver: '👤 Driver: ', llc: '🏢 LLC: ',
     pieces: '📦 Total Pieces: ', weightSuffix: ' lbs',
     weight: '⚖️ Total Weight: ', miles: '🛣️ Loaded Miles: ', rate: '💵 Total Rate: $',
-    driverAssist: '✅ DRIVER ASSIST', partialLoad: '✅ PARTIAL LOAD',
+    partialUrsa: '✅ PARTIAL (by URSA)', partialOther: '✅ PARTIAL (another carrier)',
+    twic: '✅ TWIC', citizen: '✅ CITIZEN/GC', transload: '✅ TRANSLOAD FREIGHT',
+    escort: '✅ ESCORT OPTION', blind: '✅ BLIND SHIPMENT', reefer: '✅ REEFER/HEATER',
     disp: '🧑‍💼 Dispatcher: ',
     tracking: '📡 ' + TRACKING_LINE,
     disclaimer: 'By accepting this RC you agree to the terms stated in the contract. You agree that tardiness and poor communication with tracking and dispatcher may result in rate reduction. You also agree that an unauthorized partial load may result in a complete rate reduction.',
@@ -907,9 +897,11 @@ const RC_STRINGS = {
     unit: '🚛 Unidad #: ', driver: '👤 Conductor: ', llc: '🏢 LLC: ',
     pieces: '📦 Total de piezas: ', weightSuffix: ' lbs',
     weight: '⚖️ Peso total: ', miles: '🛣️ Millas cargadas: ', rate: '💵 Tarifa total: $',
-    driverAssist: '✅ ASISTENCIA AL CONDUCTOR', partialLoad: '✅ CARGA PARCIAL',
+    partialUrsa: '✅ PARTIAL (by URSA)', partialOther: '✅ PARTIAL (another carrier)',
+    twic: '✅ TWIC', citizen: '✅ CITIZEN/GC', transload: '✅ TRANSLOAD FREIGHT',
+    escort: '✅ ESCORT OPTION', blind: '✅ BLIND SHIPMENT', reefer: '✅ REEFER/HEATER',
     disp: '🧑‍💼 Despachador: ',
-    tracking: '📡 Seguimiento Ursa 24/7: (267) 768-7115 | tracking@ursaexpress.com',
+    tracking: '📡 Seguimiento Ursa 24/7:\nPhone: (267) 768-7115\nEmail: tracking@ursaexpress.com\nTelegram: @tracking_ursa',
     disclaimer: 'Al aceptar este RC, usted acepta los términos establecidos en el contrato. Acepta que la tardanza y la falta de comunicación con el seguimiento y el despachador puede resultar en una reducción de la tarifa. También acepta que una carga parcial no autorizada puede resultar en una reducción total de la tarifa.',
   }
 };
@@ -918,10 +910,139 @@ function v(id) {
   return (document.getElementById(id).value || '').trim();
 }
 
+function sv(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
 function openMaps(fieldId) {
-  const addr = v(fieldId);
+  const addr = sv(fieldId);
   if (!addr) return;
   window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(addr), '_blank');
+}
+
+/* ── Dynamic stops ── */
+let stopCount = 2;
+
+function buildStopFormEl(n, data, canRemove) {
+  const div = document.createElement('div');
+  div.className = 'fields-group stop-group';
+  div.id = 'stop-group-' + n;
+  const removeBtn = canRemove
+    ? `<button class="stop-remove-btn" onclick="removeStop(${n})" title="Remove">✕</button>`
+    : '';
+  div.innerHTML = `
+    <div class="section-label">
+      <span>Stop #${n}</span>
+      ${removeBtn}
+    </div>
+    <div class="field">
+      <label data-i18n="lblStopDate">${t('lblStopDate')}</label>
+      <input type="text" id="stop-${n}-date" data-i18n-ph="phStopDate" placeholder="${t('phStopDate')}" oninput="renderPreview()">
+    </div>
+    <div class="field">
+      <label data-i18n="lblStopCompany">${t('lblStopCompany')}</label>
+      <input type="text" id="stop-${n}-company" data-i18n-ph="phStopCompany" placeholder="${t('phStopCompany')}" oninput="renderPreview()">
+    </div>
+    <div class="field">
+      <div class="field-hd">
+        <label data-i18n="lblStopAddr">${t('lblStopAddr')}</label>
+        <button class="map-btn" onclick="openMaps('stop-${n}-address')" title="Open in Google Maps">📍 Maps</button>
+      </div>
+      <textarea id="stop-${n}-address" data-i18n-ph="phAddr" placeholder="${t('phAddr')}" oninput="renderPreview()"></textarea>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label data-i18n="lblStopRef">${t('lblStopRef')}</label>
+        <input type="text" id="stop-${n}-ref" data-i18n-ph="phStopRef" placeholder="${t('phStopRef')}" oninput="renderPreview()">
+      </div>
+      <div class="field">
+        <label data-i18n="lblStopPoc">${t('lblStopPoc')}</label>
+        <input type="text" id="stop-${n}-poc" data-i18n-ph="phStopPoc" placeholder="${t('phStopPoc')}" oninput="renderPreview()">
+      </div>
+    </div>
+  `;
+  if (data) {
+    ['date','company','address','ref','poc'].forEach(f => {
+      const el = div.querySelector('#stop-' + n + '-' + f);
+      if (el && data[f]) el.value = data[f];
+    });
+  }
+  return div;
+}
+
+function buildStopROEl(n) {
+  const div = document.createElement('div');
+  div.className = 'fields-group';
+  div.id = 'ro-stop-group-' + n;
+  div.innerHTML = `
+    <div class="section-label"><span>Stop #${n}</span></div>
+    <div class="field">
+      <label data-i18n="lblStopDate">${t('lblStopDate')}</label>
+      <div class="ro-field empty" id="ro-stop-${n}-date">&nbsp;</div>
+    </div>
+    <div class="field">
+      <label data-i18n="lblStopCompany">${t('lblStopCompany')}</label>
+      <div class="ro-field empty" id="ro-stop-${n}-company">&nbsp;</div>
+    </div>
+    <div class="field">
+      <label data-i18n="lblStopAddr">${t('lblStopAddr')}</label>
+      <div class="ro-field ro-textarea empty" id="ro-stop-${n}-address">&nbsp;</div>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label data-i18n="lblStopRef">${t('lblStopRef')}</label>
+        <div class="ro-field empty" id="ro-stop-${n}-ref">&nbsp;</div>
+      </div>
+      <div class="field">
+        <label data-i18n="lblStopPoc">${t('lblStopPoc')}</label>
+        <div class="ro-field empty" id="ro-stop-${n}-poc">&nbsp;</div>
+      </div>
+    </div>
+  `;
+  return div;
+}
+
+function collectStopData() {
+  const data = [];
+  for (let i = 1; i <= stopCount; i++) {
+    data.push({
+      date:    sv('stop-' + i + '-date'),
+      company: sv('stop-' + i + '-company'),
+      address: sv('stop-' + i + '-address'),
+      ref:     sv('stop-' + i + '-ref'),
+      poc:     sv('stop-' + i + '-poc'),
+    });
+  }
+  return data;
+}
+
+function renderStops(stopData) {
+  const leftC  = document.getElementById('stopsContainer');
+  const rightC = document.getElementById('ro-stopsContainer');
+  leftC.innerHTML  = '';
+  rightC.innerHTML = '';
+  const canRemove = stopData.length > 1;
+  stopData.forEach((data, i) => {
+    const n = i + 1;
+    leftC.appendChild(buildStopFormEl(n, data, canRemove));
+    rightC.appendChild(buildStopROEl(n));
+  });
+  stopCount = stopData.length;
+}
+
+function addStop() {
+  const data = collectStopData();
+  data.push({ date:'', company:'', address:'', ref:'', poc:'' });
+  renderStops(data);
+  renderPreview();
+}
+
+function removeStop(n) {
+  const data = collectStopData();
+  data.splice(n - 1, 1);
+  renderStops(data);
+  renderPreview();
 }
 
 function waUrl(phone) {
@@ -932,75 +1053,83 @@ function waUrl(phone) {
 function setRo(id, val) {
   const el = document.getElementById('ro-' + id);
   if (!el) return;
-  if (val) {
-    el.textContent = val;
-    el.classList.remove('empty');
-  } else {
-    el.innerHTML = '&nbsp;';
-    el.classList.add('empty');
-  }
+  if (val) { el.textContent = val; el.classList.remove('empty'); }
+  else { el.innerHTML = '&nbsp;'; el.classList.add('empty'); }
+}
+
+function setRoEl(fullId, val) {
+  const el = document.getElementById(fullId);
+  if (!el) return;
+  if (val) { el.textContent = val; el.classList.remove('empty'); }
+  else { el.innerHTML = '&nbsp;'; el.classList.add('empty'); }
 }
 
 function buildText(lang = 'en') {
   const S = RC_STRINGS[lang] || RC_STRINGS.en;
-  const unit          = v('unit');
-  const driver        = v('driver');
-  const llc           = v('llc');
-  const puDate        = v('puDate');
-  const shipperName   = v('shipperName');
-  const puAddress     = v('puAddress');
-  const delDate       = v('delDate');
-  const consigneeName = v('consigneeName');
-  const delAddress    = v('delAddress');
-  const pieces        = v('pieces');
-  const weight        = v('weight');
-  const miles         = v('miles');
-  const rate          = v('rate');
-  const driverAssist  = document.getElementById('chkDriverAssist').checked;
-  const partialLoad   = document.getElementById('chkPartialLoad').checked;
-  const notes         = v('notes');
-  const dispatcher    = v('dispatcher');
-  const phone         = v('phone');
-  const telegram      = v('telegram');
-  const whatsapp      = v('whatsapp');
-  const email         = v('email');
+  const unit         = v('unit');
+  const driver       = v('driver');
+  const llc          = v('llc');
+  const pieces       = v('pieces');
+  const weight       = v('weight');
+  const miles        = v('miles');
+  const rate         = v('rate');
+  const partialUrsa  = document.getElementById('chkPartialUrsa').checked;
+  const partialOther = document.getElementById('chkPartialOther').checked;
+  const twic         = document.getElementById('chkTwic').checked;
+  const citizen      = document.getElementById('chkCitizen').checked;
+  const transload    = document.getElementById('chkTransload').checked;
+  const escort       = document.getElementById('chkEscort').checked;
+  const blind        = document.getElementById('chkBlind').checked;
+  const reefer       = document.getElementById('chkReefer').checked;
+  const notes        = v('notes');
+  const dispatcher   = v('dispatcher');
+  const phone        = v('phone');
+  const telegram     = v('telegram');
+  const whatsapp     = v('whatsapp');
+  const email        = v('email');
 
   const lines = [];
   if (unit)   lines.push(S.unit + unit);
   if (driver) lines.push(S.driver + driver);
   if (llc)    lines.push(S.llc + llc);
   if (unit || driver || llc) lines.push('');
-  lines.push(puDate);
-  lines.push('');
-  lines.push(shipperName);
-  lines.push(puAddress);
-  lines.push('');
-  lines.push('__');
-  lines.push(delDate);
-  lines.push('');
-  lines.push(consigneeName);
-  lines.push(delAddress);
-  lines.push('');
-  lines.push('__');
-  if (pieces) lines.push(S.pieces + pieces);
-  if (weight) lines.push(S.weight + weight + S.weightSuffix);
-  lines.push('');
-  lines.push('__');
+
+  for (let i = 1; i <= stopCount; i++) {
+    const date    = sv('stop-' + i + '-date');
+    const company = sv('stop-' + i + '-company');
+    const address = sv('stop-' + i + '-address');
+    const ref     = sv('stop-' + i + '-ref');
+    const poc     = sv('stop-' + i + '-poc');
+    lines.push('📍 Stop #' + i);
+    if (date) { lines.push(date); lines.push(''); }
+    if (company) lines.push(company);
+    if (address) lines.push(address);
+    if (ref)     lines.push('REF# ' + ref);
+    if (poc)     lines.push('POC: ' + poc);
+    lines.push('');
+  }
+
+  if (pieces)       lines.push(S.pieces + pieces);
+  if (weight)       lines.push(S.weight + weight + S.weightSuffix);
   if (miles)        lines.push(S.miles + miles);
   if (rate)         lines.push(S.rate + rate);
-  if (driverAssist) lines.push(S.driverAssist);
-  if (partialLoad)  lines.push(S.partialLoad);
+  if (partialUrsa)  lines.push(S.partialUrsa);
+  if (partialOther) lines.push(S.partialOther);
+  if (twic)         lines.push(S.twic);
+  if (citizen)      lines.push(S.citizen);
+  if (transload)    lines.push(S.transload);
+  if (escort)       lines.push(S.escort);
+  if (blind)        lines.push(S.blind);
+  if (reefer)       lines.push(S.reefer);
   if (notes)        lines.push('');
   if (notes)        lines.push('📝 ' + notes);
   lines.push('');
-  lines.push('__');
   if (dispatcher) lines.push(S.disp + dispatcher);
-  if (phone)      lines.push('📞 ' + phone);
-  if (telegram)   lines.push('✈️ ' + telegram);
-  if (whatsapp)   lines.push('💬 ' + waUrl(whatsapp));
-  if (email)      lines.push('📧 ' + email);
+  if (phone)      lines.push('📞 Phone: ' + phone);
+  if (telegram)   lines.push('✈️ Telegram: ' + telegram);
+  if (whatsapp)   lines.push('💬 WhatsApp: ' + waUrl(whatsapp));
+  if (email)      lines.push('📧 Email: ' + email);
   lines.push('');
-  lines.push('__');
   lines.push(S.tracking);
   lines.push('');
   lines.push(S.disclaimer);
@@ -1009,29 +1138,32 @@ function buildText(lang = 'en') {
 }
 
 function renderPreview() {
-  setRo('unit',          v('unit'));
-  setRo('driver',        v('driver'));
-  setRo('llc',           v('llc'));
-  setRo('puDate',        v('puDate'));
-  setRo('shipperName',   v('shipperName'));
-  setRo('puAddress',     v('puAddress'));
-  setRo('delDate',       v('delDate'));
-  setRo('consigneeName', v('consigneeName'));
-  setRo('delAddress',    v('delAddress'));
-  setRo('pieces',        v('pieces'));
-  setRo('weight',        v('weight'));
-  setRo('miles',         v('miles'));
-  setRo('rate',          v('rate'));
-  setRo('notes',         v('notes'));
-  const da = document.getElementById('chkDriverAssist').checked;
-  const pl = document.getElementById('chkPartialLoad').checked;
-  document.getElementById('ro-chkDriverAssist').classList.toggle('active', da);
-  document.getElementById('ro-chkPartialLoad').classList.toggle('active', pl);
-  setRo('dispatcher',    v('dispatcher'));
-  setRo('phone',         v('phone'));
-  setRo('telegram',      v('telegram'));
-  setRo('whatsapp',      v('whatsapp') ? waUrl(v('whatsapp')) : '');
-  setRo('email',         v('email'));
+  setRo('unit',   v('unit'));
+  setRo('driver', v('driver'));
+  setRo('llc',    v('llc'));
+
+  for (let i = 1; i <= stopCount; i++) {
+    setRoEl('ro-stop-' + i + '-date',    sv('stop-' + i + '-date'));
+    setRoEl('ro-stop-' + i + '-company', sv('stop-' + i + '-company'));
+    setRoEl('ro-stop-' + i + '-address', sv('stop-' + i + '-address'));
+    setRoEl('ro-stop-' + i + '-ref',     sv('stop-' + i + '-ref'));
+    setRoEl('ro-stop-' + i + '-poc',     sv('stop-' + i + '-poc'));
+  }
+
+  setRo('pieces', v('pieces'));
+  setRo('weight', v('weight'));
+  setRo('miles',  v('miles'));
+  setRo('rate',   v('rate'));
+  setRo('notes',  v('notes'));
+  ['chkPartialUrsa','chkPartialOther','chkTwic','chkCitizen','chkTransload','chkEscort','chkBlind','chkReefer'].forEach(id => {
+    const checked = document.getElementById(id).checked;
+    document.getElementById('ro-' + id).classList.toggle('active', checked);
+  });
+  setRo('dispatcher', v('dispatcher'));
+  setRo('phone',      v('phone'));
+  setRo('telegram',   v('telegram'));
+  setRo('whatsapp',   v('whatsapp') ? waUrl(v('whatsapp')) : '');
+  setRo('email',      v('email'));
 }
 
 function onContactInput() {
@@ -1088,12 +1220,18 @@ function doCopyES() {
 }
 
 function doClear() {
-  ['unit','driver','llc','puDate','shipperName','puAddress','delDate','consigneeName',
-   'delAddress','pieces','weight','miles','rate','notes'].forEach(id => {
+  ['unit','driver','llc','pieces','weight','miles','rate','notes'].forEach(id => {
     document.getElementById(id).value = '';
   });
-  document.getElementById('chkDriverAssist').checked = false;
-  document.getElementById('chkPartialLoad').checked = false;
+  for (let i = 1; i <= stopCount; i++) {
+    ['date','company','address','ref','poc'].forEach(f => {
+      const el = document.getElementById('stop-' + i + '-' + f);
+      if (el) el.value = '';
+    });
+  }
+  ['chkPartialUrsa','chkPartialOther','chkTwic','chkCitizen','chkTransload','chkEscort','chkBlind','chkReefer'].forEach(id => {
+    document.getElementById(id).checked = false;
+  });
   renderPreview();
 }
 
@@ -1109,6 +1247,7 @@ function doClear() {
       if (saved) document.getElementById(id).value = saved;
     });
   } catch(e) {}
+  renderStops([{},{} ]);
   applyLang();
   renderPreview();
 })();
