@@ -1319,7 +1319,7 @@ function renderHistory() {
       <div class="history-route">${from} → ${to}</div>
       <div class="history-meta"><span>${fmtDate(e.ts)}</span><span>${rate}</span></div>
     </div>`;
-  }).join('') + '<button class="history-clear" onclick="clearHistory()">Clear history</button>';
+  }).join('') + '<button class="history-clear" id="historyClearBtn" onclick="clearHistory()">Clear history</button>';
 }
 
 function loadHistory(i) {
@@ -1340,10 +1340,26 @@ function loadHistory(i) {
 }
 
 function clearHistory() {
-  if (!confirm('Clear all history?')) return;
-  HISTORY = [];
-  try { localStorage.removeItem('rc_history'); } catch {}
-  renderHistory();
+  const btn = document.getElementById('historyClearBtn');
+  if (!btn) return;
+  if (btn.dataset.confirming) {
+    HISTORY = [];
+    try { localStorage.removeItem('rc_history'); } catch {}
+    renderHistory();
+  } else {
+    btn.dataset.confirming = '1';
+    btn.textContent = '⚠️ Tap again to confirm';
+    btn.style.color = 'var(--danger)';
+    btn.style.borderColor = 'var(--danger)';
+    setTimeout(() => {
+      if (btn && btn.dataset.confirming) {
+        delete btn.dataset.confirming;
+        btn.textContent = 'Clear history';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }
+    }, 3000);
+  }
 }
 
 document.addEventListener('click', e => {
