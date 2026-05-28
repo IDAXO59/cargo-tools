@@ -1165,7 +1165,7 @@ function buildStopFormEl(n, data, canRemove) {
     </div>
     <div class="field">
       <label class="required" data-i18n="lblStopDate">${t('lblStopDate')}</label>
-      <input type="text" id="stop-${n}-date" data-i18n-ph="phStopDate" placeholder="${t('phStopDate')}" oninput="maskStopDate(this);renderPreview()">
+      <input type="text" id="stop-${n}-date" data-i18n-ph="phStopDate" placeholder="${t('phStopDate')}" oninput="maskStopDate(this);renderPreview()" onkeydown="handleStopDateKey(this,event)">
       <div class="field-hint" data-i18n="hintStopDate">${t('hintStopDate')}</div>
     </div>
     <div class="field">
@@ -1263,6 +1263,31 @@ function maskStopDate(el) {
   if (ampm) out += ' ' + ampm;
 
   el.value = out;
+}
+
+function handleStopDateKey(el, e) {
+  if (e.key !== 'Backspace' && e.key !== 'Delete') return;
+  e.preventDefault();
+
+  let val = el.value;
+  if (!val) return;
+
+  // Strip AM/PM suffix as one unit
+  if (/ (AM|PM)$/.test(val)) {
+    el.value = val.replace(/ (AM|PM)$/, '');
+    renderPreview();
+    return;
+  }
+
+  // Skip trailing separators, then remove one digit
+  while (val.length > 0 && !/\d/.test(val[val.length - 1])) {
+    val = val.slice(0, -1);
+  }
+  val = val.slice(0, -1);
+
+  el.value = val;
+  maskStopDate(el);
+  renderPreview();
 }
 
 function renderStops(stopData) {
