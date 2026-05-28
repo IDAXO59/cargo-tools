@@ -469,6 +469,91 @@ body {
 .btn-copy-es:hover { background: #f59e0b; color: #fff; }
 .btn-copy-es.copied { background: #f59e0b; color: #fff; }
 
+.btn-tracking {
+  padding: 11px 18px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-tracking:hover { background: var(--primary); color: #fff; }
+
+/* ── Tracking Modal ── */
+.trk-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+.trk-backdrop.show { opacity: 1; pointer-events: auto; }
+.trk-modal {
+  background: var(--card); border: 1px solid var(--border-strong);
+  border-radius: 14px; padding: 24px 28px;
+  max-width: 540px; width: 90%; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.trk-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.trk-head h3 { font-size: 16px; font-weight: 700; color: var(--text); }
+.trk-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 20px; line-height: 1; padding: 2px 6px;
+  border-radius: 6px; transition: all 0.12s;
+}
+.trk-close:hover { color: var(--text); background: var(--hover); }
+.trk-field { margin-bottom: 14px; }
+.trk-field > label {
+  display: block; font-size: 11px; font-weight: 600;
+  color: var(--muted); letter-spacing: 0.04em;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.trk-field .req { color: #ef4444; margin-left: 2px; }
+.trk-input {
+  width: 100%; background: var(--hover); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 11px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  font-size: 13px; color: var(--text); outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.25);
+}
+.trk-input:focus { border-color: var(--primary); box-shadow: inset 0 1px 3px rgba(0,0,0,0.25), 0 0 0 3px var(--primary-soft); }
+.trk-input.error { border-color: #ef4444 !important; }
+.trk-input-row { display: flex; gap: 8px; }
+.trk-input-row .trk-input { flex: 1; min-width: 0; }
+.trk-lang-btn {
+  padding: 9px 12px; font-size: 12px; font-weight: 700; flex-shrink: 0;
+  background: var(--primary-soft); border: 1px solid var(--primary);
+  border-radius: 8px; color: var(--primary); cursor: pointer;
+  transition: all 0.12s;
+}
+.trk-lang-btn:hover { background: var(--primary); color: #fff; }
+.trk-toggle { display: flex; flex-wrap: wrap; gap: 6px; }
+.trk-toggle button {
+  padding: 7px 12px; font-size: 12px; font-weight: 600;
+  background: var(--hover); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--muted); cursor: pointer;
+  transition: all 0.12s; white-space: nowrap;
+}
+.trk-toggle button:hover { border-color: var(--border-strong); color: var(--text); }
+.trk-toggle button.sel { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+.trk-toggle.error button { border-color: #ef4444; color: var(--muted); }
+.trk-toggle.error button.sel { background: rgba(239,68,68,0.1); border-color: #ef4444; color: #ef4444; }
+.trk-send {
+  width: 100%; padding: 12px; margin-top: 8px;
+  background: var(--primary); color: #fff;
+  border: none; border-radius: 9px;
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.trk-send:hover { background: var(--primary-dark); }
+
 /* ── Stop management ── */
 .btn-add-stop {
   width: 100%;
@@ -525,6 +610,80 @@ body {
 <body>
 
 <!-- Help overlay -->
+<div class="trk-backdrop" id="trkBackdrop" onclick="if(event.target.id==='trkBackdrop')closeTracking()">
+  <div class="trk-modal">
+    <div class="trk-head">
+      <h3>📊 Send to Tracking</h3>
+      <button class="trk-close" onclick="closeTracking()">✕</button>
+    </div>
+
+    <div class="trk-field">
+      <label>Chain name <span class="req">*</span></label>
+      <input class="trk-input" id="trk-chain" type="text" placeholder="e.g. ARL">
+    </div>
+
+    <div class="trk-field">
+      <label>Driver name <span class="req">*</span></label>
+      <div class="trk-input-row">
+        <input class="trk-input" id="trk-driver" type="text" placeholder="First Last">
+        <button class="trk-lang-btn" id="trkLangBtn" onclick="cycleTrkLang()">ENG</button>
+      </div>
+    </div>
+
+    <div class="trk-field">
+      <label>Driver phone <span class="req">*</span></label>
+      <input class="trk-input" id="trk-dphone" type="text" placeholder="+1 (555) 000-0000">
+    </div>
+
+    <div class="trk-field">
+      <label>Owner name &amp; phone</label>
+      <input class="trk-input" id="trk-owner" type="text" placeholder="Name · +1 (555) 000-0000">
+    </div>
+
+    <div class="trk-field">
+      <label>Option <span class="req">*</span></label>
+      <div class="trk-toggle" id="trk-option">
+        <button onclick="trkSel('trk-option',this)">Solo</button>
+        <button onclick="trkSel('trk-option',this)">Team</button>
+        <button onclick="trkSel('trk-option',this)">Fake Team</button>
+      </div>
+    </div>
+
+    <div class="trk-field">
+      <label>Truck type <span class="req">*</span></label>
+      <div class="trk-toggle" id="trk-truck">
+        <button onclick="trkSel('trk-truck',this)">Sprinter</button>
+        <button onclick="trkSel('trk-truck',this)">Cargo Van</button>
+        <button onclick="trkSel('trk-truck',this)">Straight Truck</button>
+        <button onclick="trkSel('trk-truck',this)">Semi</button>
+      </div>
+    </div>
+
+    <div class="trk-field">
+      <label>Brokerage <span class="req">*</span></label>
+      <input class="trk-input" id="trk-brokerage" type="text" placeholder="e.g. Coyote, Echo, CH Robinson">
+    </div>
+
+    <div class="trk-field">
+      <label>Send photos <span class="req">*</span></label>
+      <div class="trk-toggle" id="trk-photos">
+        <button onclick="trkSel('trk-photos',this)">At PU and DEL</button>
+        <button onclick="trkSel('trk-photos',this)">PU only</button>
+        <button onclick="trkSel('trk-photos',this)">DEL only</button>
+        <button onclick="trkSel('trk-photos',this)">No photos</button>
+        <button onclick="trkSel('trk-photos',this)">By Request</button>
+      </div>
+    </div>
+
+    <div class="trk-field">
+      <label>Update Period <span class="req">*</span></label>
+      <input class="trk-input" id="trk-period" type="text" placeholder="e.g. Every 2 hours">
+    </div>
+
+    <button class="trk-send" onclick="sendTracking()">📊 Send to Tracking</button>
+  </div>
+</div>
+
 <div class="help-backdrop" id="helpBackdrop" onclick="if(event.target.id==='helpBackdrop')toggleHelp()">
   <div class="help-modal">
     <h3 data-i18n="helpHead">📋  RC Generator</h3>
@@ -794,6 +953,7 @@ body {
       <div class="btn-row">
         <button class="btn-copy" id="copyBtn" onclick="doCopy()" data-i18n="btnCopy">Copy</button>
         <button class="btn-copy-es" id="copyBtnES" onclick="doCopyES()">🇪🇸 ES</button>
+        <button class="btn-tracking" onclick="openTracking()">📊 Send to Tracking</button>
         <button class="btn-secondary" onclick="doClear()" data-i18n="btnClear">Clear</button>
       </div>
     </div>
@@ -1399,10 +1559,85 @@ function doClear() {
   renderPreview();
 })();
 
+/* ── Tracking Modal ── */
+const TRK_LANGS = ['ENG', 'ESP', 'RUS', 'FR'];
+let trkLangIdx = 0;
+
+function openTracking() {
+  document.getElementById('trk-driver').value = v('driver');
+  document.getElementById('trk-dphone').value = v('phone');
+  document.querySelectorAll('#trkBackdrop .trk-input').forEach(el => el.classList.remove('error'));
+  document.querySelectorAll('#trkBackdrop .trk-toggle').forEach(el => el.classList.remove('error'));
+  document.getElementById('trkBackdrop').classList.add('show');
+}
+
+function closeTracking() {
+  document.getElementById('trkBackdrop').classList.remove('show');
+}
+
+function cycleTrkLang() {
+  trkLangIdx = (trkLangIdx + 1) % TRK_LANGS.length;
+  document.getElementById('trkLangBtn').textContent = TRK_LANGS[trkLangIdx];
+}
+
+function trkSel(groupId, btn) {
+  const group = document.getElementById(groupId);
+  group.querySelectorAll('button').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  group.classList.remove('error');
+}
+
+function sendTracking() {
+  let valid = true;
+
+  ['trk-chain','trk-driver','trk-dphone','trk-brokerage','trk-period'].forEach(id => {
+    const el = document.getElementById(id);
+    const ok = el.value.trim().length > 0;
+    el.classList.toggle('error', !ok);
+    if (!ok) valid = false;
+  });
+
+  ['trk-option','trk-truck','trk-photos'].forEach(id => {
+    const group = document.getElementById(id);
+    const ok = !!group.querySelector('button.sel');
+    group.classList.toggle('error', !ok);
+    if (!ok) valid = false;
+  });
+
+  if (!valid) return;
+
+  const getToggle = id => document.getElementById(id).querySelector('button.sel').textContent;
+  const payload = {
+    chain:        document.getElementById('trk-chain').value.trim(),
+    driverName:   document.getElementById('trk-driver').value.trim(),
+    driverLang:   TRK_LANGS[trkLangIdx],
+    driverPhone:  document.getElementById('trk-dphone').value.trim(),
+    ownerInfo:    document.getElementById('trk-owner').value.trim(),
+    option:       getToggle('trk-option'),
+    truckType:    getToggle('trk-truck'),
+    brokerage:    document.getElementById('trk-brokerage').value.trim(),
+    sendPhotos:   getToggle('trk-photos'),
+    updatePeriod: document.getElementById('trk-period').value.trim(),
+    unit:  v('unit'),
+    miles: v('miles'),
+    rate:  v('rate'),
+    stops: Array.from({ length: stopCount }, (_, i) => ({
+      date:    sv('stop-' + (i+1) + '-date'),
+      company: sv('stop-' + (i+1) + '-company'),
+      address: sv('stop-' + (i+1) + '-address'),
+    })),
+  };
+
+  console.log('[Tracking payload]', payload);
+  alert('✓ Data collected! (test mode — not sent)');
+  closeTracking();
+}
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     const bd = document.getElementById('helpBackdrop');
     if (bd.classList.contains('show')) toggleHelp();
+    closeTracking();
   }
   if (e.key === '?' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
     toggleHelp();
