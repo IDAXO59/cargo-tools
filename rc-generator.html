@@ -1247,6 +1247,7 @@ function collectStopData() {
 
 function maskStopDate(el) {
   const raw = el.value;
+  if (!raw || !/^\d/.test(raw)) return; // free text if doesn't start with digit
   const digits = raw.replace(/\D/g, '').slice(0, 12);
   const letters = raw.replace(/[\d\/: ]/g, '').toUpperCase();
   let ampm = '';
@@ -1267,6 +1268,7 @@ function maskStopDate(el) {
 
 function handleStopDateKey(el, e) {
   if (e.key !== 'Backspace' && e.key !== 'Delete') return;
+  if (!el.value || !/^\d/.test(el.value)) return; // free text — let browser handle
   e.preventDefault();
 
   let val = el.value;
@@ -1367,7 +1369,7 @@ function buildText(lang = 'en') {
   if (unit)   lines.push(S.unit + unit);
   if (driver) lines.push(S.driver + driver);
   if (llc)    lines.push(S.llc + llc);
-  if (unit || driver || llc) lines.push('');
+  if (unit || driver || llc) { lines.push('__'); lines.push(''); }
 
   // ── Stops: __ between each stop, blank line after each stop ──
   for (let i = 1; i <= stopCount; i++) {
