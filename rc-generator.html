@@ -638,6 +638,9 @@ body {
     <div class="trk-field">
       <label>Owner name &amp; phone</label>
       <input class="trk-input" id="trk-owner" type="text" placeholder="Name · +1 (555) 000-0000">
+      <label class="check-item" style="margin-top:8px;display:inline-flex;">
+        <input type="checkbox" id="trk-priority"><span data-i18n="trkPriority">Priority communication</span>
+      </label>
     </div>
 
     <div class="trk-field">
@@ -655,7 +658,6 @@ body {
         <button onclick="trkSel('trk-truck',this)">Sprinter</button>
         <button onclick="trkSel('trk-truck',this)">Cargo Van</button>
         <button onclick="trkSel('trk-truck',this)">Straight Truck</button>
-        <button onclick="trkSel('trk-truck',this)">Semi</button>
       </div>
     </div>
 
@@ -690,9 +692,9 @@ body {
     <p data-i18n="helpDesc">Fill in the load details and click Copy to get a formatted Rate Confirmation ready to send via Telegram. Dispatcher contacts are saved automatically for the next load.</p>
     <h3 style="margin-top:0" data-i18n="helpFields">📝  Fields</h3>
     <div class="help-row"><span class="help-key" data-i18n="helpUnitKey">Unit / Driver / LLC</span><span class="help-val" data-i18n="helpUnitVal">Identify the load assignment</span></div>
-    <div class="help-row"><span class="help-key" data-i18n="helpPuKey">PU / DEL</span><span class="help-val" data-i18n="helpPuVal">Pickup and delivery with dates and addresses</span></div>
+    <div class="help-row"><span class="help-key" data-i18n="helpPuKey">Stops</span><span class="help-val" data-i18n="helpPuVal">Add stops with date, company, address, REF# and POC</span></div>
     <div class="help-row"><span class="help-key" data-i18n="helpLoadKey">Load Info</span><span class="help-val" data-i18n="helpLoadVal">Pieces, weight, miles and rate</span></div>
-    <div class="help-row"><span class="help-key" data-i18n="helpOptKey">Options</span><span class="help-val" data-i18n="helpOptVal">Check Driver Assist or Partial Load if applicable</span></div>
+    <div class="help-row"><span class="help-key" data-i18n="helpOptKey">Options</span><span class="help-val" data-i18n="helpOptVal">Mark applicable: Partial, TWIC, Transload, Blind, Reefer, etc.</span></div>
     <div class="help-row"><span class="help-key" data-i18n="helpDispKey">Dispatcher</span><span class="help-val" data-i18n="helpDispVal">Saved to browser and reused on next load</span></div>
     <button class="help-close" onclick="toggleHelp()" data-i18n="closeBtn">Close</button>
   </div>
@@ -967,12 +969,10 @@ const I18N = {
   en: {
     subtitle: 'Rate Confirmation builder',
     backBtn: '← Back',
-    secUnit: 'Unit', secPickup: 'Pickup', secDelivery: 'Delivery',
+    secUnit: 'Unit',
     secLoad: 'Load Info', secOptions: 'Options', secNotes: 'Notes',
     secDisp: 'Dispatcher', secAlways: 'Always included', secPreview: 'RC Preview',
     lblUnit: 'Unit #', lblDriver: "Driver's Name", lblLlc: 'LLC',
-    lblPuDate: 'PU Date & Time', lblShipper: 'Shipper Name', lblPuAddr: 'PU Address',
-    lblDelDate: 'DEL Date & Time', lblConsignee: 'Consignee Name', lblDelAddr: 'DEL Address',
     lblPieces: 'Total Pieces', lblWeight: 'Total Weight (lbs)', lblMiles: 'Loaded Miles', lblRate: 'Total Rate ($)',
     lblPartialUrsa: 'Partial (by URSA)', lblPartialOther: 'Partial (another carrier)',
     lblTwic: 'TWIC', lblCitizen: 'CITIZEN/GC', lblTransload: 'Transload freight',
@@ -981,9 +981,9 @@ const I18N = {
     lblStopDate: 'Date & Time', lblStopCompany: 'Company Name', lblStopAddr: 'Address', lblStopRef: 'REF#', lblStopPoc: 'POC',
     btnCopy: 'Copy', btnClear: 'Clear', copyOk: 'Copied ✓', btnAddStop: '+ Add Stop',
     historyEmpty: 'No history yet. Copy an RC to save it.', historyClear: 'Clear history',
+    trkPriority: 'Priority communication',
     phUnit: 'e.g. 101', phDriver: 'First Last', phLlc: 'Company LLC',
-    phPuDate: '05/27/2026 9:00 AM', phShipper: 'Company name', phAddr: 'Street, City ST ZIP',
-    phDelDate: '05/27/2026 5:00 PM',
+    phAddr: 'Street, City ST ZIP',
     phPieces: 'e.g. 5', phWeight: 'e.g. 1200', phMiles: 'e.g. 320', phRate: 'e.g. 850',
     phNotes: 'Any additional info...', phDispName: 'Your name',
     phStopDate: 'MM/DD/YYYY H:MM AM', phStopCompany: 'Company name', phStopRef: 'Reference #', phStopPoc: 'Point of contact',
@@ -991,21 +991,19 @@ const I18N = {
     helpDesc: 'Fill in the load details and click Copy to get a formatted Rate Confirmation ready to send via Telegram. Dispatcher contacts are saved automatically for the next load.',
     helpFields: '📝  Fields',
     helpUnitKey: 'Unit / Driver / LLC', helpUnitVal: 'Identify the load assignment',
-    helpPuKey: 'PU / DEL', helpPuVal: 'Pickup and delivery with dates and addresses',
+    helpPuKey: 'Stops', helpPuVal: 'Add stops with date, company, address, REF# and POC',
     helpLoadKey: 'Load Info', helpLoadVal: 'Pieces, weight, miles and rate',
-    helpOptKey: 'Options', helpOptVal: 'Check Driver Assist or Partial Load if applicable',
+    helpOptKey: 'Options', helpOptVal: 'Mark applicable: Partial, TWIC, Transload, Blind, Reefer, etc.',
     helpDispKey: 'Dispatcher', helpDispVal: 'Saved to browser and reused on next load',
     closeBtn: 'Close',
   },
   ru: {
     subtitle: 'Генератор Rate Confirmation',
     backBtn: '← Назад',
-    secUnit: 'Юнит', secPickup: 'Погрузка', secDelivery: 'Доставка',
+    secUnit: 'Юнит',
     secLoad: 'Информация о грузе', secOptions: 'Опции', secNotes: 'Заметки',
     secDisp: 'Диспетчер', secAlways: 'Всегда включено', secPreview: 'Превью RC',
     lblUnit: 'Юнит #', lblDriver: 'Имя водителя', lblLlc: 'LLC',
-    lblPuDate: 'Дата и время PU', lblShipper: 'Грузоотправитель', lblPuAddr: 'Адрес PU',
-    lblDelDate: 'Дата и время DEL', lblConsignee: 'Получатель', lblDelAddr: 'Адрес DEL',
     lblPieces: 'Количество мест', lblWeight: 'Общий вес (lbs)', lblMiles: 'Loaded Miles', lblRate: 'Ставка ($)',
     lblPartialUrsa: 'Partial (by URSA)', lblPartialOther: 'Partial (another carrier)',
     lblTwic: 'TWIC', lblCitizen: 'CITIZEN/GC', lblTransload: 'Transload freight',
@@ -1014,9 +1012,9 @@ const I18N = {
     lblStopDate: 'Дата и время', lblStopCompany: 'Название компании', lblStopAddr: 'Адрес', lblStopRef: 'REF#', lblStopPoc: 'Контакт',
     btnCopy: 'Копировать', btnClear: 'Очистить', copyOk: 'Скопировано ✓', btnAddStop: '+ Добавить стоп',
     historyEmpty: 'История пуста. Нажми Copy чтобы сохранить RC.', historyClear: 'Очистить историю',
+    trkPriority: 'Приоритетная связь',
     phUnit: 'напр. 101', phDriver: 'Имя Фамилия', phLlc: 'Company LLC',
-    phPuDate: '05/27/2026 9:00 AM', phShipper: 'Название компании', phAddr: 'Улица, Город ST ZIP',
-    phDelDate: '05/27/2026 5:00 PM',
+    phAddr: 'Улица, Город ST ZIP',
     phPieces: 'напр. 5', phWeight: 'напр. 1200', phMiles: 'напр. 320', phRate: 'напр. 850',
     phNotes: 'Дополнительная информация...', phDispName: 'Ваше имя',
     phStopDate: 'MM/DD/YYYY H:MM AM', phStopCompany: 'Название компании', phStopRef: 'Номер референса', phStopPoc: 'Контактное лицо',
@@ -1024,9 +1022,9 @@ const I18N = {
     helpDesc: 'Заполни данные груза и нажми Копировать — получишь готовый Rate Confirmation для отправки водителю через Telegram. Контакты диспетчера сохраняются автоматически.',
     helpFields: '📝  Поля',
     helpUnitKey: 'Юнит / Водитель / LLC', helpUnitVal: 'Информация о назначении',
-    helpPuKey: 'PU / DEL', helpPuVal: 'Погрузка и доставка с датами и адресами',
+    helpPuKey: 'Стопы', helpPuVal: 'Добавь стопы с датой, компанией, адресом, REF# и контактом',
     helpLoadKey: 'Информация о грузе', helpLoadVal: 'Места, вес, мили и ставка',
-    helpOptKey: 'Опции', helpOptVal: 'Отметь Driver Assist или Partial Load если нужно',
+    helpOptKey: 'Опции', helpOptVal: 'Отметь нужные опции: Partial, TWIC, Transload, Blind, Reefer и др.',
     helpDispKey: 'Диспетчер', helpDispVal: 'Сохраняется в браузере и используется для следующего груза',
     closeBtn: 'Закрыть',
   }
@@ -1517,7 +1515,7 @@ function clearHistory() {
     setTimeout(() => {
       if (btn && btn.dataset.confirming) {
         delete btn.dataset.confirming;
-        btn.textContent = 'Clear history';
+        btn.textContent = t('historyClear');
         btn.style.color = '';
         btn.style.borderColor = '';
       }
@@ -1566,6 +1564,7 @@ let trkLangIdx = 0;
 function openTracking() {
   document.getElementById('trk-driver').value = v('driver');
   document.getElementById('trk-dphone').value = v('phone');
+  document.getElementById('trk-priority').checked = false;
   document.querySelectorAll('#trkBackdrop .trk-input').forEach(el => el.classList.remove('error'));
   document.querySelectorAll('#trkBackdrop .trk-toggle').forEach(el => el.classList.remove('error'));
   document.getElementById('trkBackdrop').classList.add('show');
@@ -1613,6 +1612,7 @@ function sendTracking() {
     driverLang:   TRK_LANGS[trkLangIdx],
     driverPhone:  document.getElementById('trk-dphone').value.trim(),
     ownerInfo:    document.getElementById('trk-owner').value.trim(),
+    priorityComm: document.getElementById('trk-priority').checked,
     option:       getToggle('trk-option'),
     truckType:    getToggle('trk-truck'),
     brokerage:    document.getElementById('trk-brokerage').value.trim(),
