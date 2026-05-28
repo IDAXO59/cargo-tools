@@ -1159,7 +1159,7 @@ function buildStopFormEl(n, data, canRemove) {
     </div>
     <div class="field">
       <label class="required" data-i18n="lblStopDate">${t('lblStopDate')}</label>
-      <input type="text" id="stop-${n}-date" data-i18n-ph="phStopDate" placeholder="${t('phStopDate')}" oninput="renderPreview()">
+      <input type="text" id="stop-${n}-date" data-i18n-ph="phStopDate" placeholder="${t('phStopDate')}" oninput="maskStopDate(this);renderPreview()">
     </div>
     <div class="field">
       <label data-i18n="lblStopCompany">${t('lblStopCompany')}</label>
@@ -1236,6 +1236,26 @@ function collectStopData() {
     });
   }
   return data;
+}
+
+function maskStopDate(el) {
+  const raw = el.value;
+  const digits = raw.replace(/\D/g, '').slice(0, 12);
+  const letters = raw.replace(/[\d\/: ]/g, '').toUpperCase();
+  let ampm = '';
+  if (letters.includes('A')) ampm = 'AM';
+  else if (letters.includes('P')) ampm = 'PM';
+
+  if (!digits.length) { el.value = ''; return; }
+
+  let out = digits.slice(0, 2);
+  if (digits.length > 2) out += '/' + digits.slice(2, 4);
+  if (digits.length > 4) out += '/' + digits.slice(4, 8);
+  if (digits.length > 8) out += ' ' + digits.slice(8, 10);
+  if (digits.length > 10) out += ':' + digits.slice(10, 12);
+  if (ampm) out += ' ' + ampm;
+
+  el.value = out;
 }
 
 function renderStops(stopData) {
