@@ -820,6 +820,7 @@ const I18N = {
     lblDispName: 'Dispatcher Name', lblPhone: 'Direct Phone', lblTelegram: 'Telegram @', lblWhatsapp: 'WhatsApp', lblEmail: 'Email',
     lblStopDate: 'Date & Time', lblStopCompany: 'Company Name', lblStopAddr: 'Address', lblStopRef: 'REF#', lblStopPoc: 'POC',
     btnCopy: 'Copy', btnClear: 'Clear', copyOk: 'Copied ✓', btnAddStop: '+ Add Stop',
+    historyEmpty: 'No history yet. Copy an RC to save it.', historyClear: 'Clear history',
     phUnit: 'e.g. 101', phDriver: 'First Last', phLlc: 'Company LLC',
     phPuDate: '05/27/2026 9:00 AM', phShipper: 'Company name', phAddr: 'Street, City ST ZIP',
     phDelDate: '05/27/2026 5:00 PM',
@@ -852,6 +853,7 @@ const I18N = {
     lblDispName: 'Имя диспетчера', lblPhone: 'Прямой телефон', lblTelegram: 'Telegram @', lblWhatsapp: 'WhatsApp', lblEmail: 'Email',
     lblStopDate: 'Дата и время', lblStopCompany: 'Название компании', lblStopAddr: 'Адрес', lblStopRef: 'REF#', lblStopPoc: 'Контакт',
     btnCopy: 'Копировать', btnClear: 'Очистить', copyOk: 'Скопировано ✓', btnAddStop: '+ Добавить стоп',
+    historyEmpty: 'История пуста. Нажми Copy чтобы сохранить RC.', historyClear: 'Очистить историю',
     phUnit: 'напр. 101', phDriver: 'Имя Фамилия', phLlc: 'Company LLC',
     phPuDate: '05/27/2026 9:00 AM', phShipper: 'Название компании', phAddr: 'Улица, Город ST ZIP',
     phDelDate: '05/27/2026 5:00 PM',
@@ -1300,7 +1302,7 @@ function toggleHistory() {
 function renderHistory() {
   const p = document.getElementById('historyPanel');
   if (!HISTORY.length) {
-    p.innerHTML = '<div class="history-empty">No history yet. Copy an RC to save it.</div>';
+    p.innerHTML = `<div class="history-empty">${t('historyEmpty')}</div>`;
     return;
   }
   const fmtDate = ts => new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -1319,7 +1321,7 @@ function renderHistory() {
       <div class="history-route">${from} → ${to}</div>
       <div class="history-meta"><span>${fmtDate(e.ts)}</span><span>${rate}</span></div>
     </div>`;
-  }).join('') + '<button class="history-clear" id="historyClearBtn" onclick="clearHistory()">Clear history</button>';
+  }).join('') + `<button class="history-clear" id="historyClearBtn" onclick="clearHistory()">${t('historyClear')}</button>`;
 }
 
 function loadHistory(i) {
@@ -1348,7 +1350,7 @@ function clearHistory() {
     renderHistory();
   } else {
     btn.dataset.confirming = '1';
-    btn.textContent = '⚠️ Tap again to confirm';
+    btn.textContent = LANG === 'ru' ? '⚠️ Нажми ещё раз' : '⚠️ Tap again to confirm';
     btn.style.color = 'var(--danger)';
     btn.style.borderColor = 'var(--danger)';
     setTimeout(() => {
