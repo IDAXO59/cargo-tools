@@ -1251,6 +1251,7 @@ function flashCopyES() {
 function doCopyES() {
   const text = buildText('es').trim();
   if (!text) return;
+  pushHistory();
   navigator.clipboard.writeText(text).then(flashCopyES).catch(() => {
     const ta = document.createElement('textarea');
     ta.value = text;
