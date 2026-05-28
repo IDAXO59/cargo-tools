@@ -1090,19 +1090,22 @@ function buildText(lang = 'en') {
   const email        = v('email');
 
   const lines = [];
+
+  // ── Unit block ──
   if (unit)   lines.push(S.unit + unit);
   if (driver) lines.push(S.driver + driver);
   if (llc)    lines.push(S.llc + llc);
   if (unit || driver || llc) lines.push('');
 
+  // ── Stops: __ between each stop, blank line after each stop ──
   for (let i = 1; i <= stopCount; i++) {
+    if (i > 1) lines.push('__');
     const date    = sv('stop-' + i + '-date');
     const company = sv('stop-' + i + '-company');
     const address = sv('stop-' + i + '-address');
     const ref     = sv('stop-' + i + '-ref');
     const poc     = sv('stop-' + i + '-poc');
-    lines.push('📍 Stop #' + i);
-    if (date) { lines.push(date); lines.push(''); }
+    if (date)    { lines.push(date); lines.push(''); }
     if (company) lines.push(company);
     if (address) lines.push(address);
     if (ref)     lines.push('REF# ' + ref);
@@ -1110,8 +1113,14 @@ function buildText(lang = 'en') {
     lines.push('');
   }
 
-  if (pieces)       lines.push(S.pieces + pieces);
-  if (weight)       lines.push(S.weight + weight + S.weightSuffix);
+  // ── Pieces / Weight ──
+  lines.push('__');
+  if (pieces) lines.push(S.pieces + pieces);
+  if (weight) lines.push(S.weight + weight + S.weightSuffix);
+  lines.push('');
+
+  // ── Miles / Rate / Options / Notes / Contacts / Tracking / Disclaimer ──
+  lines.push('__');
   if (miles)        lines.push(S.miles + miles);
   if (rate)         lines.push(S.rate + rate);
   if (partialUrsa)  lines.push(S.partialUrsa);
@@ -1122,8 +1131,7 @@ function buildText(lang = 'en') {
   if (escort)       lines.push(S.escort);
   if (blind)        lines.push(S.blind);
   if (reefer)       lines.push(S.reefer);
-  if (notes)        lines.push('');
-  if (notes)        lines.push('📝 ' + notes);
+  if (notes)        { lines.push(''); lines.push('📝 ' + notes); }
   lines.push('');
   if (dispatcher) lines.push(S.disp + dispatcher);
   if (phone)      lines.push('📞 Phone: ' + phone);
