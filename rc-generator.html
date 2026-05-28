@@ -1224,15 +1224,10 @@ function doClear() {
   ['unit','driver','llc','pieces','weight','miles','rate','notes'].forEach(id => {
     document.getElementById(id).value = '';
   });
-  for (let i = 1; i <= stopCount; i++) {
-    ['date','company','address','ref','poc'].forEach(f => {
-      const el = document.getElementById('stop-' + i + '-' + f);
-      if (el) el.value = '';
-    });
-  }
   ['chkPartialUrsa','chkPartialOther','chkTwic','chkCitizen','chkTransload','chkEscort','chkBlind','chkReefer'].forEach(id => {
     document.getElementById(id).checked = false;
   });
+  renderStops([{}, {}]);
   renderPreview();
 }
 
