@@ -514,7 +514,12 @@ body {
   color: var(--muted); letter-spacing: 0.04em;
   text-transform: uppercase; margin-bottom: 6px;
 }
-.trk-field .req { color: #ef4444; margin-left: 2px; }
+.req { color: #ef4444; margin-left: 2px; }
+label.required::after { content: ' *'; color: #ef4444; }
+.required-note {
+  font-size: 11px; color: var(--muted);
+  margin-top: 16px; padding: 0 2px;
+}
 .trk-input {
   width: 100%; background: var(--hover); border: 1px solid var(--border);
   border-radius: 8px; padding: 9px 11px;
@@ -708,7 +713,7 @@ body {
 <div class="help-backdrop" id="helpBackdrop" onclick="if(event.target.id==='helpBackdrop')toggleHelp()">
   <div class="help-modal">
     <h3 data-i18n="helpHead">📋  RC Generator</h3>
-    <p data-i18n="helpDesc">Fill in the load details and click Copy to get a formatted Rate Confirmation ready to send via Telegram. Dispatcher contacts are saved automatically for the next load.</p>
+    <p data-i18n="helpDesc">Fill in the load details and click Copy to get a formatted Rate Confirmation. Dispatcher contacts are saved automatically for the next load.</p>
     <h3 style="margin-top:0" data-i18n="helpFields">📝  Fields</h3>
     <div class="help-row"><span class="help-key" data-i18n="helpUnitKey">Unit / Driver / LLC</span><span class="help-val" data-i18n="helpUnitVal">Identify the load assignment</span></div>
     <div class="help-row"><span class="help-key" data-i18n="helpPuKey">Stops</span><span class="help-val" data-i18n="helpPuVal">Add stops with date, company, address, REF# and POC</span></div>
@@ -763,7 +768,7 @@ body {
           </div>
         </div>
         <div class="field">
-          <label data-i18n="lblLlc">LLC</label>
+          <label data-i18n="lblLlc">Driver's LLC</label>
           <input type="text" id="llc" data-i18n-ph="phLlc" placeholder="Company LLC" oninput="renderPreview()">
         </div>
       </div>
@@ -777,19 +782,19 @@ body {
         <div class="section-label" data-i18n="secLoad">Load Info</div>
         <div class="row-2">
           <div class="field">
-            <label data-i18n="lblPieces">Total Pieces</label>
+            <label class="required" data-i18n="lblPieces">Total Pieces</label>
             <input type="text" id="pieces" data-i18n-ph="phPieces" placeholder="e.g. 5" oninput="renderPreview()">
           </div>
           <div class="field">
-            <label data-i18n="lblWeight">Total Weight (lbs)</label>
+            <label class="required" data-i18n="lblWeight">Total Weight (lbs)</label>
             <input type="text" id="weight" data-i18n-ph="phWeight" placeholder="e.g. 1200" oninput="renderPreview()">
           </div>
           <div class="field">
-            <label data-i18n="lblMiles">Loaded Miles</label>
+            <label class="required" data-i18n="lblMiles">Loaded Miles</label>
             <input type="text" id="miles" data-i18n-ph="phMiles" placeholder="e.g. 320" oninput="renderPreview()">
           </div>
           <div class="field">
-            <label data-i18n="lblRate">Total Rate ($)</label>
+            <label class="required" data-i18n="lblRate">Total Rate ($)</label>
             <input type="text" id="rate" data-i18n-ph="phRate" placeholder="e.g. 850" oninput="renderPreview()">
           </div>
         </div>
@@ -845,6 +850,8 @@ body {
         </div>
       </div>
 
+      <p class="required-note"><span class="req">*</span> <span data-i18n="requiredNote">required field</span></p>
+
     </div>
 
     <!-- RIGHT: Read-only mirror -->
@@ -865,7 +872,7 @@ body {
           </div>
         </div>
         <div class="field">
-          <label data-i18n="lblLlc">LLC</label>
+          <label data-i18n="lblLlc">Driver's LLC</label>
           <div class="ro-field empty" id="ro-llc">&nbsp;</div>
         </div>
       </div>
@@ -991,7 +998,7 @@ const I18N = {
     secUnit: 'Unit',
     secLoad: 'Load Info', secOptions: 'Options', secNotes: 'Notes',
     secDisp: 'Dispatcher', secAlways: 'Always included', secPreview: 'RC Preview',
-    lblUnit: 'Unit #', lblDriver: "Driver's Name", lblLlc: 'LLC',
+    lblUnit: 'Unit #', lblDriver: "Driver's Name", lblLlc: "Driver's LLC",
     lblPieces: 'Total Pieces', lblWeight: 'Total Weight (lbs)', lblMiles: 'Loaded Miles', lblRate: 'Total Rate ($)',
     lblPartialUrsa: 'Partial (by URSA)', lblPartialOther: 'Partial (another carrier)',
     lblTwic: 'TWIC', lblCitizen: 'CITIZEN/GC', lblTransload: 'Transload freight',
@@ -1001,13 +1008,14 @@ const I18N = {
     btnCopy: 'Copy', btnClear: 'Clear', copyOk: 'Copied ✓', btnAddStop: '+ Add Stop',
     historyEmpty: 'No history yet. Copy an RC to save it.', historyClear: 'Clear history',
     trkPriority: 'Priority communication',
+    requiredNote: 'required field',
     phUnit: 'e.g. 101', phDriver: 'First Last', phLlc: 'Company LLC',
     phAddr: 'Street, City ST ZIP',
     phPieces: 'e.g. 5', phWeight: 'e.g. 1200', phMiles: 'e.g. 320', phRate: 'e.g. 850',
     phNotes: 'Any additional info...', phDispName: 'Your name',
     phStopDate: 'MM/DD/YYYY H:MM AM', phStopCompany: 'Company name', phStopRef: 'Reference #', phStopPoc: 'Point of contact',
     helpHead: '📋  RC Generator',
-    helpDesc: 'Fill in the load details and click Copy to get a formatted Rate Confirmation ready to send via Telegram. Dispatcher contacts are saved automatically for the next load.',
+    helpDesc: 'Fill in the load details and click Copy to get a formatted Rate Confirmation. Dispatcher contacts are saved automatically for the next load.',
     helpFields: '📝  Fields',
     helpUnitKey: 'Unit / Driver / LLC', helpUnitVal: 'Identify the load assignment',
     helpPuKey: 'Stops', helpPuVal: 'Add stops with date, company, address, REF# and POC',
@@ -1022,7 +1030,7 @@ const I18N = {
     secUnit: 'Юнит',
     secLoad: 'Информация о грузе', secOptions: 'Опции', secNotes: 'Заметки',
     secDisp: 'Диспетчер', secAlways: 'Всегда включено', secPreview: 'Превью RC',
-    lblUnit: 'Юнит #', lblDriver: 'Имя водителя', lblLlc: 'LLC',
+    lblUnit: 'Юнит #', lblDriver: 'Имя водителя', lblLlc: "Driver's LLC",
     lblPieces: 'Количество мест', lblWeight: 'Общий вес (lbs)', lblMiles: 'Loaded Miles', lblRate: 'Ставка ($)',
     lblPartialUrsa: 'Partial (by URSA)', lblPartialOther: 'Partial (another carrier)',
     lblTwic: 'TWIC', lblCitizen: 'CITIZEN/GC', lblTransload: 'Transload freight',
@@ -1032,13 +1040,14 @@ const I18N = {
     btnCopy: 'Копировать', btnClear: 'Очистить', copyOk: 'Скопировано ✓', btnAddStop: '+ Добавить стоп',
     historyEmpty: 'История пуста. Нажми Copy чтобы сохранить RC.', historyClear: 'Очистить историю',
     trkPriority: 'Приоритетная связь',
+    requiredNote: 'обязательное поле',
     phUnit: 'напр. 101', phDriver: 'Имя Фамилия', phLlc: 'Company LLC',
     phAddr: 'Улица, Город ST ZIP',
     phPieces: 'напр. 5', phWeight: 'напр. 1200', phMiles: 'напр. 320', phRate: 'напр. 850',
     phNotes: 'Дополнительная информация...', phDispName: 'Ваше имя',
     phStopDate: 'MM/DD/YYYY H:MM AM', phStopCompany: 'Название компании', phStopRef: 'Номер референса', phStopPoc: 'Контактное лицо',
     helpHead: '📋  RC Generator',
-    helpDesc: 'Заполни данные груза и нажми Копировать — получишь готовый Rate Confirmation для отправки водителю через Telegram. Контакты диспетчера сохраняются автоматически.',
+    helpDesc: 'Заполни данные груза и нажми Копировать — получишь готовый Rate Confirmation для отправки водителю. Контакты диспетчера сохраняются автоматически.',
     helpFields: '📝  Поля',
     helpUnitKey: 'Юнит / Водитель / LLC', helpUnitVal: 'Информация о назначении',
     helpPuKey: 'Стопы', helpPuVal: 'Добавь стопы с датой, компанией, адресом, REF# и контактом',
@@ -1149,7 +1158,7 @@ function buildStopFormEl(n, data, canRemove) {
       ${removeBtn}
     </div>
     <div class="field">
-      <label data-i18n="lblStopDate">${t('lblStopDate')}</label>
+      <label class="required" data-i18n="lblStopDate">${t('lblStopDate')}</label>
       <input type="text" id="stop-${n}-date" data-i18n-ph="phStopDate" placeholder="${t('phStopDate')}" oninput="renderPreview()">
     </div>
     <div class="field">
@@ -1158,7 +1167,7 @@ function buildStopFormEl(n, data, canRemove) {
     </div>
     <div class="field">
       <div class="field-hd">
-        <label data-i18n="lblStopAddr">${t('lblStopAddr')}</label>
+        <label class="required" data-i18n="lblStopAddr">${t('lblStopAddr')}</label>
         <button class="map-btn" onclick="openMaps('stop-${n}-address')" title="Open in Google Maps">📍 Maps</button>
       </div>
       <textarea id="stop-${n}-address" data-i18n-ph="phAddr" placeholder="${t('phAddr')}" oninput="renderPreview()"></textarea>
