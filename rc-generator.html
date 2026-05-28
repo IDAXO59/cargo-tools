@@ -1648,7 +1648,7 @@ function sendTracking() {
   document.querySelectorAll('.field input.field-error, .field textarea.field-error').forEach(el => el.classList.remove('field-error'));
   let mainValid = true;
   for (let i = 1; i <= stopCount; i++) {
-    ['date','address','ref','poc'].forEach(f => {
+    ['date','address'].forEach(f => {
       const el = document.getElementById('stop-' + i + '-' + f);
       if (el && !el.value.trim()) { el.classList.add('field-error'); mainValid = false; }
     });
