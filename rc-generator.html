@@ -635,6 +635,11 @@ body {
       <input class="trk-input" id="trk-dphone" type="text" placeholder="+1 (555) 000-0000">
     </div>
 
+    <div class="trk-field" id="trk-dphone2-wrap" style="display:none;">
+      <label>2nd driver phone <span class="req">*</span></label>
+      <input class="trk-input" id="trk-dphone2" type="text" placeholder="+1 (555) 000-0000">
+    </div>
+
     <div class="trk-field">
       <label>Owner name &amp; phone</label>
       <input class="trk-input" id="trk-owner" type="text" placeholder="Name · +1 (555) 000-0000">
@@ -1565,6 +1570,8 @@ function openTracking() {
   document.getElementById('trk-driver').value = v('driver');
   document.getElementById('trk-dphone').value = v('phone');
   document.getElementById('trk-priority').checked = false;
+  document.getElementById('trk-dphone2-wrap').style.display = 'none';
+  document.getElementById('trk-dphone2').value = '';
   document.querySelectorAll('#trkBackdrop .trk-input').forEach(el => el.classList.remove('error'));
   document.querySelectorAll('#trkBackdrop .trk-toggle').forEach(el => el.classList.remove('error'));
   document.getElementById('trkBackdrop').classList.add('show');
@@ -1584,6 +1591,15 @@ function trkSel(groupId, btn) {
   group.querySelectorAll('button').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
   group.classList.remove('error');
+  if (groupId === 'trk-option') {
+    const isFakeTeam = btn.textContent === 'Fake Team';
+    const wrap = document.getElementById('trk-dphone2-wrap');
+    wrap.style.display = isFakeTeam ? '' : 'none';
+    if (!isFakeTeam) {
+      document.getElementById('trk-dphone2').value = '';
+      document.getElementById('trk-dphone2').classList.remove('error');
+    }
+  }
 }
 
 function sendTracking() {
@@ -1595,6 +1611,13 @@ function sendTracking() {
     el.classList.toggle('error', !ok);
     if (!ok) valid = false;
   });
+  const isFakeTeam = document.getElementById('trk-dphone2-wrap').style.display !== 'none';
+  if (isFakeTeam) {
+    const el = document.getElementById('trk-dphone2');
+    const ok = el.value.trim().length > 0;
+    el.classList.toggle('error', !ok);
+    if (!ok) valid = false;
+  }
 
   ['trk-option','trk-truck','trk-photos'].forEach(id => {
     const group = document.getElementById(id);
@@ -1611,6 +1634,7 @@ function sendTracking() {
     driverName:   document.getElementById('trk-driver').value.trim(),
     driverLang:   TRK_LANGS[trkLangIdx],
     driverPhone:  document.getElementById('trk-dphone').value.trim(),
+    driverPhone2: isFakeTeam ? document.getElementById('trk-dphone2').value.trim() : '',
     ownerInfo:    document.getElementById('trk-owner').value.trim(),
     priorityComm: document.getElementById('trk-priority').checked,
     option:       getToggle('trk-option'),
