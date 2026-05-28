@@ -520,6 +520,10 @@ label.required::after { content: ' *'; color: #ef4444; }
   font-size: 11px; color: var(--muted);
   margin-top: 16px; padding: 0 2px;
 }
+.field-hint {
+  font-size: 11px; color: var(--dim);
+  margin-top: 4px; line-height: 1.4;
+}
 .trk-input {
   width: 100%; background: var(--hover); border: 1px solid var(--border);
   border-radius: 8px; padding: 9px 11px;
@@ -1009,6 +1013,7 @@ const I18N = {
     historyEmpty: 'No history yet. Copy an RC to save it.', historyClear: 'Clear history',
     trkPriority: 'Priority communication',
     requiredNote: 'required field',
+    hintStopDate: 'Digits only — separators auto-insert. End with a or p for AM/PM',
     phUnit: 'e.g. 101', phDriver: 'First Last', phLlc: 'Company LLC',
     phAddr: 'Street, City ST ZIP',
     phPieces: 'e.g. 5', phWeight: 'e.g. 1200', phMiles: 'e.g. 320', phRate: 'e.g. 850',
@@ -1041,6 +1046,7 @@ const I18N = {
     historyEmpty: 'История пуста. Нажми Copy чтобы сохранить RC.', historyClear: 'Очистить историю',
     trkPriority: 'Приоритетная связь',
     requiredNote: 'обязательное поле',
+    hintStopDate: 'Только цифры — разделители ставятся сами. В конце a или p для AM/PM',
     phUnit: 'напр. 101', phDriver: 'Имя Фамилия', phLlc: 'Company LLC',
     phAddr: 'Улица, Город ST ZIP',
     phPieces: 'напр. 5', phWeight: 'напр. 1200', phMiles: 'напр. 320', phRate: 'напр. 850',
@@ -1160,6 +1166,7 @@ function buildStopFormEl(n, data, canRemove) {
     <div class="field">
       <label class="required" data-i18n="lblStopDate">${t('lblStopDate')}</label>
       <input type="text" id="stop-${n}-date" data-i18n-ph="phStopDate" placeholder="${t('phStopDate')}" oninput="maskStopDate(this);renderPreview()">
+      <div class="field-hint" data-i18n="hintStopDate">${t('hintStopDate')}</div>
     </div>
     <div class="field">
       <label data-i18n="lblStopCompany">${t('lblStopCompany')}</label>
