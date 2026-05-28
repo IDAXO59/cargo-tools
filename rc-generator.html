@@ -21,6 +21,7 @@
   --success: #22c55e;
   --success-soft: rgba(34,197,94,0.12);
   --hover: #272b36;
+  --danger: #ef4444;
 }
 :root[data-theme="light"] {
   --bg: #ffffff;
@@ -38,6 +39,7 @@
   --success: #16a34a;
   --success-soft: rgba(22,163,74,0.10);
   --hover: #f3f4f6;
+  --danger: #dc2626;
 }
 
 /* sun/moon icon swap */
@@ -128,6 +130,32 @@ body {
 .icon-btn:hover { border-color: var(--border-strong); color: var(--text); }
 .icon-btn.active { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); color: var(--text); }
 .icon-btn svg { width: 16px; height: 16px; }
+
+/* ── History dropdown ── */
+.history-wrap { position: relative; }
+.history-panel {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  width: 340px; max-height: 420px; overflow-y: auto;
+  background: var(--card); border: 1px solid var(--border-strong);
+  border-radius: 12px; padding: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 50;
+}
+.history-empty { padding: 16px; color: var(--muted); text-align: center; font-size: 13px; }
+.history-item {
+  padding: 10px 12px; border-radius: 8px; cursor: pointer;
+  display: flex; flex-direction: column; gap: 3px;
+  transition: background 0.1s;
+}
+.history-item:hover { background: var(--hover); }
+.history-route { font-size: 13px; font-weight: 600; color: var(--text); }
+.history-meta { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+.history-clear {
+  width: 100%; padding: 8px; margin-top: 6px;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); border-radius: 7px; cursor: pointer; font-size: 12px;
+}
+.history-clear:hover { color: var(--danger); border-color: var(--danger); }
 
 @media (max-width: 600px) {
   .topbar { padding-top: 60px; }
@@ -523,6 +551,10 @@ body {
 
     <div class="controls">
       <a href="index.html" class="icon-btn" data-i18n="backBtn">← Back</a>
+      <div class="history-wrap">
+        <button class="icon-btn" id="historyBtn" onclick="toggleHistory()" title="Copy history">🕐 History</button>
+        <div class="history-panel" id="historyPanel" hidden></div>
+      </div>
       <button class="icon-btn" onclick="toggleHelp()" style="font-size:13px;font-weight:700;" title="Help">?</button>
       <button class="icon-btn" id="langBtn" onclick="toggleLang()" title="Switch language">RU</button>
       <button class="icon-btn active" id="themeBtn" onclick="toggleTheme()" title="Theme">
@@ -1194,6 +1226,7 @@ function flashCopy() {
 function doCopy() {
   const text = buildText('en').trim();
   if (!text) return;
+  pushHistory();
   navigator.clipboard.writeText(text).then(flashCopy).catch(() => {
     const ta = document.createElement('textarea');
     ta.value = text;
@@ -1227,6 +1260,97 @@ function doCopyES() {
     flashCopyES();
   });
 }
+
+/* ── History ── */
+const HISTORY_MAX = 20;
+let HISTORY = [];
+try { HISTORY = JSON.parse(localStorage.getItem('rc_history') || '[]'); } catch {}
+
+function pushHistory() {
+  const stops = [];
+  for (let i = 1; i <= stopCount; i++) {
+    stops.push({
+      date:    sv('stop-' + i + '-date'),
+      company: sv('stop-' + i + '-company'),
+      address: sv('stop-' + i + '-address'),
+      ref:     sv('stop-' + i + '-ref'),
+      poc:     sv('stop-' + i + '-poc'),
+    });
+  }
+  const entry = {
+    ts: Date.now(), stops,
+    unit: v('unit'), driver: v('driver'),
+    pieces: v('pieces'), weight: v('weight'),
+    miles: v('miles'), rate: v('rate'),
+    notes: v('notes'), dispatcher: v('dispatcher'),
+  };
+  const hasContent = stops.some(s => s.date || s.company || s.address) || entry.miles || entry.rate;
+  if (!hasContent) return;
+  HISTORY.unshift(entry);
+  if (HISTORY.length > HISTORY_MAX) HISTORY.length = HISTORY_MAX;
+  try { localStorage.setItem('rc_history', JSON.stringify(HISTORY)); } catch {}
+}
+
+function toggleHistory() {
+  const p = document.getElementById('historyPanel');
+  if (p.hidden) renderHistory();
+  p.hidden = !p.hidden;
+}
+
+function renderHistory() {
+  const p = document.getElementById('historyPanel');
+  if (!HISTORY.length) {
+    p.innerHTML = '<div class="history-empty">No history yet. Copy an RC to save it.</div>';
+    return;
+  }
+  const fmtDate = ts => new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const city = addr => {
+    if (!addr) return '';
+    const parts = addr.split(',');
+    return parts.length > 1 ? (parts[1].trim().split(' ')[0] || '') : '';
+  };
+  p.innerHTML = HISTORY.map((e, i) => {
+    const s0    = e.stops && e.stops[0];
+    const s1    = e.stops && e.stops.find((s, idx) => idx > 0 && (s.address || s.company));
+    const from  = (s0 && (city(s0.address) || s0.company)) || '?';
+    const to    = (s1 && (city(s1.address) || s1.company)) || '?';
+    const rate  = e.rate ? '$' + e.rate : '';
+    return `<div class="history-item" onclick="loadHistory(${i})">
+      <div class="history-route">${from} → ${to}</div>
+      <div class="history-meta"><span>${fmtDate(e.ts)}</span><span>${rate}</span></div>
+    </div>`;
+  }).join('') + '<button class="history-clear" onclick="clearHistory()">Clear history</button>';
+}
+
+function loadHistory(i) {
+  const e = HISTORY[i];
+  if (!e) return;
+  ['unit','driver','pieces','weight','miles','rate','notes','dispatcher'].forEach(k => {
+    const el = document.getElementById(k);
+    if (el) el.value = e[k] || '';
+  });
+  const stopData = (e.stops || []).map(s => ({
+    date: s.date || '', company: s.company || '',
+    address: s.address || '', ref: s.ref || '', poc: s.poc || '',
+  }));
+  while (stopData.length < 2) stopData.push({ date:'', company:'', address:'', ref:'', poc:'' });
+  renderStops(stopData);
+  renderPreview();
+  document.getElementById('historyPanel').hidden = true;
+}
+
+function clearHistory() {
+  if (!confirm('Clear all history?')) return;
+  HISTORY = [];
+  try { localStorage.removeItem('rc_history'); } catch {}
+  renderHistory();
+}
+
+document.addEventListener('click', e => {
+  const wrap = document.querySelector('.history-wrap');
+  if (wrap && !wrap.contains(e.target))
+    document.getElementById('historyPanel').hidden = true;
+});
 
 function doClear() {
   ['unit','driver','llc','pieces','weight','miles','rate','notes'].forEach(id => {
