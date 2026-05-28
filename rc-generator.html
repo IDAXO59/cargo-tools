@@ -1164,7 +1164,13 @@ function buildStopFormEl(n, data, canRemove) {
       ${removeBtn}
     </div>
     <div class="field">
-      <label class="required" data-i18n="lblStopDate">${t('lblStopDate')}</label>
+      <div class="field-hd">
+        <label class="required" data-i18n="lblStopDate">${t('lblStopDate')}</label>
+        ${n === 1
+          ? `<button class="map-btn" type="button" onclick="setStopDate(${n},'ASAP Pick up')">ASAP PU</button>`
+          : `<button class="map-btn" type="button" onclick="setStopDate(${n},'DIRECT')">DIRECT</button>`
+        }
+      </div>
       <input type="text" id="stop-${n}-date" data-i18n-ph="phStopDate" placeholder="${t('phStopDate')}" oninput="maskStopDate(this);renderPreview()" onkeydown="handleStopDateKey(this,event)">
       <div class="field-hint" data-i18n="hintStopDate">${t('hintStopDate')}</div>
     </div>
@@ -1247,7 +1253,6 @@ function collectStopData() {
 
 function maskStopDate(el) {
   const raw = el.value;
-  if (!raw || !/^\d/.test(raw)) return; // free text if doesn't start with digit
   const digits = raw.replace(/\D/g, '').slice(0, 12);
   const letters = raw.replace(/[\d\/: ]/g, '').toUpperCase();
   let ampm = '';
@@ -1264,6 +1269,13 @@ function maskStopDate(el) {
   if (ampm) out += ' ' + ampm;
 
   el.value = out;
+}
+
+function setStopDate(n, val) {
+  const el = document.getElementById('stop-' + n + '-date');
+  if (!el) return;
+  el.value = val;
+  renderPreview();
 }
 
 function handleStopDateKey(el, e) {
