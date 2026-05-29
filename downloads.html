@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Downloads · URSA Express</title>
 <style>
@@ -20,6 +21,22 @@
   --hover: #1f2128;
   --green: #22c55e;
   --green-soft: #14532d40;
+}
+:root[data-theme="light"] {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --card-elev: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --muted: #64748b;
+  --divider: #e2e8f0;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-soft: rgba(37,99,235,0.08);
+  --hover: #f1f5f9;
+  --green: #16a34a;
+  --green-soft: rgba(22,163,74,0.10);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--bg); color: var(--text); }
@@ -64,6 +81,11 @@ body {
   font-family: inherit;
 }
 .nav-btn:hover { border-color: var(--border-strong); }
+#themeBtn svg { width: 18px; height: 18px; }
+:root[data-theme="dark"] .icon-sun { display: block; }
+:root[data-theme="dark"] .icon-moon { display: none; }
+:root[data-theme="light"] .icon-sun { display: none; }
+:root[data-theme="light"] .icon-moon { display: block; }
 @media (max-width: 600px) {
   .topbar { padding-top: 60px; }
   .brand-logo-link { left: 50%; transform: translateX(-50%); }
@@ -197,7 +219,10 @@ body {
     <div class="controls">
       <a href="index.html" class="nav-btn" style="font-weight:600;">← Main</a>
       <button class="nav-btn" id="langBtn" onclick="toggleLang()">RU</button>
-      <button class="nav-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
+      <button class="nav-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
     </div>
   </header>
 
@@ -250,7 +275,6 @@ const LS_THEME = 'ursa-theme';
 const LS_LANG = 'ursa-lang';
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
   localStorage.setItem(LS_THEME, theme);
 }
 function toggleTheme() {

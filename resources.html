@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resources · URSA Express</title>
 <style>
@@ -279,10 +280,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Theme button icons */
-.nav-btn svg { width: 16px; height: 16px; display: block; }
-[data-theme="dark"]  .icon-moon { display: none; }
-[data-theme="light"] .icon-sun  { display: none; }
+/* Theme button icons — visibility handled by :root[data-theme] rules above */
 
 @media (max-width: 540px) {
   .doc-meta { display: none; }

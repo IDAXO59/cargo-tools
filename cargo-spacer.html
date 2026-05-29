@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cargo Spacer · URSA EXPRESS</title>
 <style>
@@ -146,22 +147,6 @@
     width: auto;
     display: block;
   }
-  @media (max-width: 600px) {
-    .app-header { padding-top: 56px; }
-    .brand-logo-link { top: 0; left: 50%; transform: translateX(-50%); }
-    .header-controls {
-      position: static;
-      transform: none;
-      justify-content: center;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-  }
-  @media (max-width: 480px) {
-    .brand-logo { height: 30px; }
-    .app-header h1 { font-size: 1.35rem; }
-  }
-
   .app-header p {
     color: var(--muted);
     margin-top: 8px;
@@ -198,6 +183,28 @@
   .back-nav { padding: 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; }
   .lang-toggle { padding: 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
   .theme-toggle { width: 36px; font-size: 1rem; }
+  #theme-toggle svg { width: 18px; height: 18px; }
+  :root[data-theme="dark"] .icon-sun { display: block; }
+  :root[data-theme="dark"] .icon-moon { display: none; }
+  :root[data-theme="light"] .icon-sun { display: none; }
+  :root[data-theme="light"] .icon-moon { display: block; }
+
+  @media (max-width: 600px) {
+    .app-header { padding-top: 56px; }
+    .brand-logo-link { top: 0; left: 50%; transform: translateX(-50%); }
+    .header-controls {
+      position: static;
+      transform: none;
+      width: 100%;
+      justify-content: center;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+  }
+  @media (max-width: 480px) {
+    .brand-logo { height: 30px; }
+    .app-header h1 { font-size: 1.35rem; }
+  }
 
   /* Section label */
   .section-label {
@@ -942,7 +949,10 @@
       <a href="index.html" class="header-btn back-nav" style="font-weight:600;">← Main</a>
       <button class="header-btn lang-toggle" id="help-toggle" onclick="openHelp()" aria-label="Help" title="Help">?</button>
       <button class="header-btn lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">RU</button>
-      <button class="header-btn theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+      <button class="header-btn theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
     </div>
   </div>
 
@@ -1178,6 +1188,7 @@ const I18N = {
     warnVolumeExceeds: 'Total cargo volume exceeds truck capacity ({0}%).',
     warnWeightExceeds: 'Total weight {0} {2} exceeds payload {1} {2}.',
     warnNonStackable: '"{0}" marked non-stackable – packed as single layer.',
+    warnWheelWellOverlap: '{0} unit(s) overlap with wheel wells – highlighted in orange.',
 
     dim_length: 'length',
     dim_width: 'width',
@@ -1278,6 +1289,7 @@ const I18N = {
     warnVolumeExceeds: 'Объём груза превышает объём кузова ({0}%).',
     warnWeightExceeds: 'Общий вес {0} {2} превышает грузоподъёмность {1} {2}.',
     warnNonStackable: '«{0}» отмечен как не штабелируемый – укладывается в один слой.',
+    warnWheelWellOverlap: '{0} ед. пересекаются с колёсными арками – выделены оранжевым.',
 
     dim_length: 'длине',
     dim_width: 'ширине',
@@ -1340,7 +1352,7 @@ const LB_TO_KG = 0.453592;
 
 const COLOR_PALETTE = [
   '#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899',
-  '#06b6d4','#84cc16','#ef4444','#f97316','#14b8a6'
+  '#06b6d4','#84cc16','#ef4444','#e11d48','#14b8a6'
 ];
 
 const TRUCK_PRESETS = {
@@ -1494,7 +1506,6 @@ function scheduleRecheck() {
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   const btn = document.getElementById('theme-toggle');
-  btn.textContent = theme === 'dark' ? '☀' : '🌙';
   const label = theme === 'dark' ? t('switchToLight') : t('switchToDark');
   btn.title = label;
   btn.setAttribute('aria-label', label);
@@ -1989,7 +2000,6 @@ function packCargo(truck, cargos) {
     // Rotated orientation (swap L ↔ W) – only if allowed and dimensions differ
     if (c.rotatable && Math.abs(c.l - c.w) > 1e-9) {
       const rot = packOneOrient(truck, c, c.w, c.l, c.h, xOffset);
-      // Pick the orientation that places more units; tie-break by shorter length used
       if (rot.placed > chosen.placed ||
           (rot.placed === chosen.placed && rot.xOffset < chosen.xOffset)) {
         chosen = rot;
@@ -2003,6 +2013,27 @@ function packCargo(truck, cargos) {
     if (chosen.placed < c.qty) allFit = false;
   }
   return { fits: allFit, lengthUsed: xOffset, placements, perItemPlaced };
+}
+
+// Mark placements that physically overlap with wheel wells.
+// A placement overlaps a well if its x/z range intersects the well block AND
+// its bottom is below the well top (y < wellH).
+function markWellOverlaps(truck, placements, style) {
+  if (!style?.hasWheelWells) return;
+  const wwDepth = (style.wheelWellWidthIn || 3) * toM.in;
+  const wwH     = (style.wheelWellHeightIn || 22) * toM.in;
+  const wwL     = (style.wheelWellLengthIn || 28) * toM.in;
+  const wwCx    = truck.l * (style.rearWheelRatio || 0.72);
+  const wwXS    = wwCx - wwL / 2;
+  const wwXE    = wwCx + wwL / 2;
+
+  placements.forEach(p => {
+    const xOver = p.x < wwXE && p.x + p.l > wwXS;
+    const yOver = p.y < wwH;
+    const leftWell  = p.z < wwDepth;
+    const rightWell = p.z + p.w > truck.w - wwDepth;
+    p.wellOverlap = xOver && yOver && (leftWell || rightWell);
+  });
 }
 
 // =========================
@@ -2053,6 +2084,8 @@ function buildWarnings(truck, cargos, packResult, payload, totalCargoWeight, wei
   });
   if (volPct > 100) warnings.push(t('warnVolumeExceeds', fmt(volPct, 1)));
   if (!weightFit) warnings.push(t('warnWeightExceeds', fmt(totalCargoWeight), fmt(payload), weightUnit));
+  const wellOverlapCount = packResult.placements.filter(p => p.wellOverlap).length;
+  if (wellOverlapCount > 0) warnings.push(t('warnWheelWellOverlap', wellOverlapCount));
   return warnings;
 }
 
@@ -2186,8 +2219,10 @@ function checkCargo() {
     weightFit = totalCargoWeight <= payload;
   }
 
-  // 3. Pack and apply load-direction shift
+  // 3. Pack, mark wheel-well overlaps, apply load-direction shift
+  const truckStyle = TRUCK_PRESETS[selectedTruckType]?.style || null;
   const packResult = packCargo(truck, cargos);
+  markWellOverlaps(truck, packResult.placements, truckStyle);
   applyLoadDirectionShift(truck, packResult);
 
   // Volume based on actually placed items only
@@ -2473,6 +2508,8 @@ function drawScene(ctx, s) {
   const placementsTruncated = totalPlacements > VIZ_MAX_PLACEMENTS;
   renderedPlacements.forEach(p => {
     const c = cargos[p.cargoIdx];
+    const boxColor = p.wellOverlap ? '#f97316' : c.color;
+    const boxStroke = p.wellOverlap ? '#c2410c' : shadeColor(c.color, 0.55);
     pushBoxFaces(allFaces, {
       ox: tox + p.x / maxDim,
       oy: toy + p.y / maxDim,
@@ -2480,8 +2517,8 @@ function drawScene(ctx, s) {
       l: p.l / maxDim,
       w: p.w / maxDim,
       h: p.h / maxDim,
-      color: c.color, alpha: 1.0,
-      stroke: shadeColor(c.color, 0.55),
+      color: boxColor, alpha: 1.0,
+      stroke: boxStroke,
       isShell: false, noShade: true
     }, project);
   });

@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Broker Directory · URSA Express</title>
 <style>
@@ -135,6 +136,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
 }
 .nav-btn:hover { border-color: var(--border-strong); }
 .nav-btn-icon { font-size: 15px; letter-spacing: 0; }
+#theme-toggle svg { width: 18px; height: 18px; }
+:root[data-theme="dark"] .icon-sun { display: block; }
+:root[data-theme="dark"] .icon-moon { display: none; }
+:root[data-theme="light"] .icon-sun { display: none; }
+:root[data-theme="light"] .icon-moon { display: block; }
 
 .search-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
 .search-box { flex: 1; position: relative; }
@@ -301,7 +307,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
       <a href="index.html" class="nav-btn" style="font-weight:600;">← Main</a>
       <button class="nav-btn nav-btn-icon" id="help-toggle" onclick="openHelp()" aria-label="Help" title="Help">?</button>
       <button class="nav-btn" id="lang-toggle" onclick="toggleLang()">RU</button>
-      <button class="nav-btn" id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <button class="nav-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
     </div>
   </header>
 
@@ -709,7 +718,6 @@ function toggleLang() {
 
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  document.getElementById('theme-toggle').textContent = (theme === 'dark') ? '☀️' : '🌙';
   try { localStorage.setItem(LS_THEME, theme); } catch(e) {}
 }
 
@@ -727,7 +735,7 @@ function toggleTheme() {
 // Функция, которая проверяет пароль
 function checkPass() {
   const pass = document.getElementById('pass-input').value;
-  const secret = "URSAEXPRESS"; // Твой пароль
+  const secret = "JIMMY"; // Твой пароль
 
   if (pass === secret) {
     // Если пароль верный: скрываем заставку и показываем сайт
