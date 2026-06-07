@@ -57,29 +57,30 @@
     --warning: #fbbf24;
     --warning-bg: #78350f33;
     --warning-border: #92400e;
-    --bg: #0a0a0b;
-    --card: #131418;
-    --card-elev: #1a1c22;
-    --border: #2a2d35;
-    --border-strong: #3a3d47;
-    --divider: #1f2128;
-    --input-bg: #0e0f12;
-    --text: #f1f5f9;
-    --muted: #8a8f9a;
-    --hover: #1f2128;
+    /* warm-tinted dark — harmonises with amber accent */
+    --bg: #0b0a09;
+    --card: #141210;
+    --card-elev: #1c1916;
+    --border: #2c2820;
+    --border-strong: #3d3828;
+    --divider: #201d18;
+    --input-bg: #0f0d0b;
+    --text: #f5f0e8;
+    --muted: #958e82;
+    --hover: #201d18;
 
-    --canvas-bg-1: #14151a;
-    --canvas-bg-2: #08090c;
-    --truck-shell: #4b5563;
-    --truck-shell-stroke: rgba(180,190,205,0.6);
-    --truck-cab: #6b7280;
-    --truck-hood: #4b5563;
-    --truck-cab-window: #1e40af;
-    --truck-bulkhead: #2a2d35;
-    --truck-wheel-well: #2a2d35;
-    --wheel-fill: #050507;
-    --wheel-stroke: #8a8f9a;
-    --ground-line: rgba(180,190,205,0.25);
+    --canvas-bg-1: #16140f;
+    --canvas-bg-2: #0a0906;
+    --truck-shell: #4e4a42;
+    --truck-shell-stroke: rgba(200,190,170,0.5);
+    --truck-cab: #625e56;
+    --truck-hood: #4a4640;
+    --truck-cab-window: #1a2a1a;
+    --truck-bulkhead: #2c2820;
+    --truck-wheel-well: #2c2820;
+    --wheel-fill: #06050a;
+    --wheel-stroke: #958e82;
+    --ground-line: rgba(200,190,170,0.2);
   }
 
   * {
@@ -245,7 +246,7 @@
     gap: 12px;
   }
   .preset-card:hover { border-color: var(--border-strong); background: var(--card-elev); }
-  .preset-card.active { border-color: var(--primary); background: var(--primary-soft); }
+  .preset-card.active { border-color: var(--primary); background: rgba(255,179,24,0.10); box-shadow: 0 0 0 1px rgba(255,179,24,0.25), inset 0 0 20px rgba(255,179,24,0.04); }
 
   .preset-icon {
     width: 42px;
@@ -566,7 +567,7 @@
     flex: 1;
     padding: 13px;
     background: var(--primary);
-    color: white;
+    color: #1a1205; /* dark on amber — contrast 7:1 vs white 3:1 */
     border: none;
     border-radius: 10px;
     font-size: 0.95rem;
