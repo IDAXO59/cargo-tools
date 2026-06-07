@@ -21,6 +21,7 @@
   --primary-soft: rgba(255,179,24,0.12);
   --hover: #201d18;
   --input-bg: #0f0d0b;
+  --on-primary: var(--on-primary);
   --success: #4ade80;
   --shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
@@ -38,6 +39,7 @@
   --primary-soft: rgba(255,179,24,0.10);
   --hover: #f1f5f9;
   --input-bg: #f8fafc;
+  --on-primary: var(--on-primary);
   --success: #16a34a;
   --shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
@@ -84,7 +86,7 @@ body {
   font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
   transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s ease, color 0.16s ease; white-space: nowrap;
 }
-.back-btn:hover { background-position: 100% 0; border-color: var(--primary); color: #1a1205; }
+.back-btn:hover { background-position: 100% 0; border-color: var(--primary); color: var(--on-primary); }
 
 .page-title {
   font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em;
@@ -116,7 +118,7 @@ body {
   letter-spacing: 0.04em; display: inline-flex; align-items: center;
   justify-content: center; transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s ease, color 0.16s ease;
 }
-.hdr-btn:hover { background-position: 0% 0; border-color: var(--primary); color: #1a1205; }
+.hdr-btn:hover { background-position: 0% 0; border-color: var(--primary); color: var(--on-primary); }
 .hdr-btn svg { width: 16px; height: 16px; }
 
 @media (max-width: 600px) {
@@ -250,7 +252,7 @@ body {
 
 .calc-btn {
   width: 100%; padding: 12px 24px; background: var(--primary);
-  color: #1a1205; border: none; border-radius: 10px;
+  color: var(--on-primary); border: none; border-radius: 10px;
   font-size: 0.95rem; font-weight: 700; letter-spacing: 0.01em;
   cursor: pointer; transition: background 0.15s, transform 0.1s, opacity 0.15s;
   font-family: inherit;
@@ -326,7 +328,7 @@ body {
   letter-spacing: 0.09em; color: var(--muted); margin-bottom: 5px;
 }
 .stat-value { font-size: 1.25rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
-.stat-value.blue { color: var(--primary); }
+.stat-value.accent { color: var(--primary); }
 
 .delivery-card {
   background: linear-gradient(135deg, rgba(255,179,24,0.10), rgba(255,140,0,0.04));
@@ -552,7 +554,7 @@ body {
       </div>
       <div class="stat-card">
         <div class="stat-label" data-i18n="statElapsed">⏱️ Total Elapsed</div>
-        <div class="stat-value blue" id="statElapsed"></div>
+        <div class="stat-value accent" id="statElapsed"></div>
       </div>
       <div class="stat-card">
         <div class="stat-label" data-i18n="statRests">🛏️ HOS Rests</div>
