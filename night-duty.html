@@ -15,9 +15,9 @@
   --text: #ffffff;
   --text-muted: #71717a;
   --text-dim: #52525b;
-  --accent: #5b6ef5;
-  --accent-hover: #6f80ff;
-  --accent-soft: rgba(91,110,245,0.12);
+  --accent: #FFB318;
+  --accent-hover: #e09e10;
+  --accent-soft: rgba(255,179,24,0.12);
   --success: #22c55e;
   --success-soft: rgba(34,197,94,0.12);
   --shadow: 0 0 0 1px rgba(255,255,255,0.04);
@@ -31,9 +31,9 @@
   --text: #0a0a0a;
   --text-muted: #6b7280;
   --text-dim: #a1a1aa;
-  --accent: #5b6ef5;
-  --accent-hover: #4f5ee0;
-  --accent-soft: rgba(91,110,245,0.10);
+  --accent: #FFB318;
+  --accent-hover: #c87f00;
+  --accent-soft: rgba(255,179,24,0.10);
   --success: #16a34a;
   --success-soft: rgba(22,163,74,0.10);
   --shadow: 0 1px 2px rgba(0,0,0,0.04);
@@ -77,7 +77,7 @@ body {
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.03em;
-  background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
+  background: linear-gradient(90deg, #FFB318, #FF8C00);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   margin-top: 4px;
 }
@@ -92,10 +92,10 @@ body {
   height: 36px; padding: 0 12px; min-width: 36px;
   background: var(--card); border: 1px solid var(--border); border-radius: 8px;
   color: var(--text); font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
-  text-decoration: none; cursor: pointer; transition: border-color 0.15s, background 0.2s;
+  text-decoration: none; cursor: pointer; transition: border-color 0.15s, background 0.15s, color 0.15s;
   font-family: inherit;
 }
-.nav-btn:hover { border-color: var(--border-strong); }
+.nav-btn:hover { border-color: #FFB318; background: rgba(255,179,24,0.10); color: #FFB318; }
 #themeBtn svg { width: 18px; height: 18px; }
 :root[data-theme="dark"] .icon-sun { display: block; }
 :root[data-theme="dark"] .icon-moon { display: none; }
@@ -119,7 +119,7 @@ body {
 }
 .result-box.winner {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(91,110,245,0.15);
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(255,179,24,0.15);
 }
 .result-label {
   font-size: 0.75rem;

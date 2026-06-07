@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Button Animation Demo · URSA Express</title>
+<style>
+:root {
+  --bg: #000000;
+  --text: #f1f5f9;
+  --muted: #8a8f9a;
+  --pill-border: rgba(255,255,255,0.18);
+  --amber: #FFB318;
+  --amber-text: #1a1205;
+  --amber-glow: rgba(255,179,24,0.45);
+  --fill-speed: 0.16s;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px;
+}
+.card { width: 100%; max-width: 720px; }
+
+.eyebrow { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+.label { font-size: 0.95rem; color: var(--text); margin-bottom: 14px; }
+
+/* ── Directional-fill pill buttons ── */
+.size-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 40px; }
+.size-pill {
+  position: relative;
+  overflow: hidden;            /* clip the running fill */
+  flex: 1;
+  min-width: 96px;
+  height: 76px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: 1.5px solid var(--pill-border);
+  border-radius: 16px;
+  color: var(--text);
+  font-size: 1.05rem; font-weight: 600; letter-spacing: 0.02em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color var(--fill-speed) ease, box-shadow var(--fill-speed) ease;
+}
+/* the amber layer that "runs" across the button */
+.size-pill .fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--amber);
+  transform: scaleX(0);
+  transform-origin: left center;   /* default; overridden per-click via JS */
+  transition: transform var(--fill-speed) cubic-bezier(.4,0,1,1);
+  z-index: 0;
+}
+.size-pill .txt {
+  position: relative;
+  z-index: 1;
+  transition: color var(--fill-speed) ease;
+}
+.size-pill.selected .fill { transform: scaleX(1); }
+.size-pill.selected {
+  border-color: transparent;
+  box-shadow: 0 0 0 1px var(--amber), 0 0 22px 2px var(--amber-glow);
+}
+.size-pill.selected .txt { color: var(--amber-text); }
+.size-pill:active { transform: scale(0.97); }
+
+/* ── Context elements (mirror the reference) ── */
+.action-row { display: flex; gap: 16px; margin-bottom: 16px; }
+.stepper {
+  display: flex; align-items: center; gap: 18px;
+  background: #1c1c1c; border-radius: 14px; padding: 0 18px; height: 64px; color: var(--text);
+}
+.stepper button { background: none; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; font-family: inherit; width: 24px; transition: color 0.15s; }
+.stepper button:hover { color: var(--amber); }
+.stepper .qty { min-width: 24px; text-align: center; font-size: 1.05rem; }
+.add-cart {
+  flex: 1; height: 64px; border-radius: 14px; border: none;
+  background: #fff; color: #111; font-size: 1.05rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  transition: transform 0.12s ease, box-shadow 0.2s ease;
+}
+.add-cart:hover { box-shadow: 0 6px 24px rgba(255,255,255,0.12); }
+.add-cart:active { transform: scale(0.99); }
+.buy-shop {
+  width: 100%; height: 64px; border-radius: 14px; border: none;
+  background: #5a31ff; color: #fff; font-size: 1.05rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+.buy-shop:hover { filter: brightness(1.1); }
+.buy-shop:active { transform: scale(0.99); }
+
+.hint { margin-top: 36px; font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+.hint b { color: var(--amber); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="eyebrow">URSA Express · Демо анимации кнопок</div>
+
+  <div class="label">Size</div>
+  <div class="size-row" id="sizeRow">
+    <button class="size-pill selected" data-i="0"><span class="fill"></span><span class="txt">S</span></button>
+    <button class="size-pill" data-i="1"><span class="fill"></span><span class="txt">M</span></button>
+    <button class="size-pill" data-i="2"><span class="fill"></span><span class="txt">L</span></button>
+    <button class="size-pill" data-i="3"><span class="fill"></span><span class="txt">XL</span></button>
+    <button class="size-pill" data-i="4"><span class="fill"></span><span class="txt">2XL</span></button>
+  </div>
+
+  <div class="action-row">
+    <div class="stepper">
+      <button onclick="step(-1)">−</button>
+      <span class="qty" id="qty">1</span>
+      <button onclick="step(1)">+</button>
+    </div>
+    <button class="add-cart">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Add to cart
+    </button>
+  </div>
+  <button class="buy-shop">Buy with shop</button>
+
+  <div class="hint">
+    Выберите размер. Новая кнопка заливается <b>мгновенно</b>, а янтарь с предыдущей
+    кнопки <b>стекает</b> в сторону выбранной: вправо — если новая кнопка правее,
+    влево — если левее.
+  </div>
+</div>
+
+<script>
+const row = document.getElementById('sizeRow');
+const pills = [...row.querySelectorAll('.size-pill')];
+let current = 0; // index of currently selected pill
+
+row.addEventListener('click', (e) => {
+  const pill = e.target.closest('.size-pill');
+  if (!pill) return;
+  const next = +pill.dataset.i;
+  if (next === current) return;
+
+  const dir = next > current ? 1 : -1; // +1 = moving right, -1 = moving left
+  const oldPill = pills[current];
+  const newPill = pill;
+
+  // Old pill: amber drains toward the travel direction (toward the new pill).
+  //  moving right -> collapse to the right edge (exits right)
+  //  moving left  -> collapse to the left edge (exits left)
+  oldPill.querySelector('.fill').style.transformOrigin = dir > 0 ? 'right center' : 'left center';
+  oldPill.classList.remove('selected'); // animated drain
+
+  // New pill: fill + glow appear INSTANTLY (transitions disabled for one frame).
+  const nf = newPill.querySelector('.fill');
+  newPill.style.transition = 'none';
+  nf.style.transition = 'none';
+  newPill.classList.add('selected');
+  void newPill.offsetWidth;             // force reflow so the snap is applied
+  newPill.style.transition = '';
+  nf.style.transition = '';
+
+  current = next;
+});
+
+let qty = 1;
+function step(d) { qty = Math.max(1, qty + d); document.getElementById('qty').textContent = qty; }
+</script>
+</body>
+</html>

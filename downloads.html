@@ -15,9 +15,9 @@
   --text: #f1f5f9;
   --muted: #8a8f9a;
   --divider: #1f2128;
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-soft: #1e3a8a40;
+  --primary: #FFB318;
+  --primary-dark: #e09e10;
+  --primary-soft: rgba(255,179,24,0.12);
   --hover: #1f2128;
   --green: #22c55e;
   --green-soft: #14532d40;
@@ -31,9 +31,9 @@
   --text: #0f172a;
   --muted: #64748b;
   --divider: #e2e8f0;
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --primary-soft: rgba(37,99,235,0.08);
+  --primary: #c87f00;
+  --primary-dark: #a36800;
+  --primary-soft: rgba(255,179,24,0.10);
   --hover: #f1f5f9;
   --green: #16a34a;
   --green-soft: rgba(22,163,74,0.10);
@@ -77,10 +77,10 @@ body {
   height: 36px; padding: 0 12px; min-width: 36px;
   background: var(--card); border: 1px solid var(--border); border-radius: 8px;
   color: var(--text); font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
-  text-decoration: none; cursor: pointer; transition: border-color 0.15s, background 0.2s;
+  text-decoration: none; cursor: pointer; transition: border-color 0.15s, background 0.15s, color 0.15s;
   font-family: inherit;
 }
-.nav-btn:hover { border-color: var(--border-strong); }
+.nav-btn:hover { border-color: #FFB318; background: rgba(255,179,24,0.10); color: #FFB318; }
 #themeBtn svg { width: 18px; height: 18px; }
 :root[data-theme="dark"] .icon-sun { display: block; }
 :root[data-theme="dark"] .icon-moon { display: none; }
@@ -148,7 +148,7 @@ body {
 }
 .download-row:hover {
   border-color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary), 0 4px 16px rgba(59,130,246,0.10);
+  box-shadow: 0 0 0 1px var(--primary), 0 4px 16px rgba(255,179,24,0.12);
   background: var(--card-elev);
 }
 .file-icon {

@@ -7,9 +7,9 @@
 <title>Cargo Spacer · URSA EXPRESS</title>
 <style>
   :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --primary-soft: #eff6ff;
+    --primary: #c87f00;
+    --primary-dark: #a36800;
+    --primary-soft: rgba(200,127,0,0.10);
     --success: #16a34a;
     --success-bg: #dcfce7;
     --success-border: #bbf7d0;
@@ -36,7 +36,7 @@
     --truck-shell-stroke: rgba(80,100,120,0.5);
     --truck-cab: #475569;
     --truck-hood: #334155;
-    --truck-cab-window: #93c5fd;
+    --truck-cab-window: #ffe082;
     --truck-bulkhead: #1f2937;
     --truck-wheel-well: #1f2937;
     --wheel-fill: #0f172a;
@@ -45,9 +45,9 @@
   }
 
   :root[data-theme="dark"] {
-    --primary: #3b82f6;
-    --primary-dark: #2563eb;
-    --primary-soft: #1e3a8a40;
+    --primary: #FFB318;
+    --primary-dark: #e09e10;
+    --primary-soft: rgba(255,179,24,0.12);
     --success: #4ade80;
     --success-bg: #14532d33;
     --success-border: #166534;
@@ -127,7 +127,7 @@
     line-height: 1.1;
   }
   .app-header h1 .accent {
-    background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
+    background: linear-gradient(90deg, #FFB318, #FF8C00);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
 
@@ -174,11 +174,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
     font-family: inherit;
     padding: 0;
   }
-  .header-btn:hover { background: var(--hover); border-color: var(--border-strong); }
+  .header-btn:hover { background: rgba(255,179,24,0.10); border-color: #FFB318; color: #FFB318; }
 
   .back-nav { padding: 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; }
   .lang-toggle { padding: 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
@@ -236,7 +236,7 @@
     border-radius: 10px;
     padding: 12px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -361,7 +361,7 @@
     font-weight: 500;
     color: var(--muted);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
     border-right: 1px solid var(--border);
     font-family: inherit;
   }
@@ -486,7 +486,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
     flex-shrink: 0;
   }
   .remove-btn:hover:not(:disabled) { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); }
@@ -505,7 +505,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
     flex-shrink: 0;
     font-family: inherit;
   }
@@ -525,7 +525,7 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -570,7 +570,7 @@
     font-size: 0.92rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
     font-family: inherit;
     display: flex;
     align-items: center;
