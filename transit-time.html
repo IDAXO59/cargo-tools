@@ -64,19 +64,23 @@ body {
 
 /* ── Header ── */
 .topbar {
-  position: relative;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 36px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--divider);
-  min-height: 52px;
 }
 
-/* back-btn is now inside header-controls as .hdr-btn.back-btn */
+.topbar-center {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
 
 .page-title {
   font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em;
-  line-height: 1.15; margin-top: 4px;
+  line-height: 1.15;
   color: var(--text);
 }
 .page-title .title-text {
@@ -87,17 +91,14 @@ body {
 .page-subtitle { margin-top: 6px; color: var(--muted); font-size: 0.875rem; }
 
 .header-controls {
-  position: absolute; top: 50%; left: 0;
-  transform: translateY(-50%);
   display: flex; gap: 6px; align-items: center;
+  flex-shrink: 0;
 }
-/* Back button inside the group: RTL fill */
+
+/* Back button: LTR fill (fills from left on hover) */
 .hdr-btn.back-btn {
-  background-image: linear-gradient(to left, var(--primary) 50%, transparent 50%);
-  background-position: 0% 0;
   padding: 0 12px; text-decoration: none; white-space: nowrap;
 }
-.hdr-btn.back-btn:hover { background-position: 100% 0; }
 
 .hdr-btn {
   height: 36px; min-width: 36px; padding: 0 10px;
@@ -115,8 +116,8 @@ body {
 .hdr-btn svg { width: 16px; height: 16px; }
 
 @media (max-width: 600px) {
-  .topbar { padding-top: 60px; }
-  .header-controls { top: 0; transform: none; flex-wrap: wrap; }
+  .topbar { flex-wrap: wrap; justify-content: space-between; }
+  .topbar-center { order: -1; flex: 0 0 100%; margin-bottom: 4px; }
 }
 
 /* ── Input card ── */
@@ -409,10 +410,12 @@ body {
 <div class="wrap">
 
   <header class="topbar">
-    <h1 class="page-title">⏱️ <span class="title-text" data-i18n="pageTitle">Transit Time</span></h1>
-    <p class="page-subtitle" data-i18n="pageSubtitle">Drive time with HOS logbook rules</p>
+    <a href="index.html" class="hdr-btn back-btn">← <span data-i18n="backLabel">Cargo Tools</span></a>
+    <div class="topbar-center">
+      <h1 class="page-title">⏱️ <span class="title-text" data-i18n="pageTitle">Transit Time</span></h1>
+      <p class="page-subtitle" data-i18n="pageSubtitle">Drive time with HOS logbook rules</p>
+    </div>
     <div class="header-controls">
-      <a href="index.html" class="hdr-btn back-btn">← <span data-i18n="backLabel">Cargo Tools</span></a>
       <button class="hdr-btn" id="helpBtn">?</button>
       <button class="hdr-btn" id="langBtn">RU</button>
       <button class="hdr-btn" id="themeBtn" aria-label="Toggle theme">
