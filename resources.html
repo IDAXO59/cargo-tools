@@ -89,12 +89,12 @@ body {
 .nav-btn {
   display: inline-flex; align-items: center; justify-content: center;
   height: 36px; padding: 0 12px; min-width: 36px;
-  background: var(--card); background-image: linear-gradient(to right, #FFB318 50%, transparent 50%); background-size: 200% 100%; background-position: 100% 0; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--card); background-image: linear-gradient(to right, var(--primary) 50%, transparent 50%); background-size: 200% 100%; background-position: 100% 0; border: 1px solid var(--border); border-radius: 8px;
   color: var(--text); font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
   text-decoration: none; cursor: pointer; transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s ease, color 0.16s ease;
   font-family: inherit;
 }
-.nav-btn:hover { background-position: 0% 0; border-color: #FFB318; color: #1a1205; }
+.nav-btn:hover { background-position: 0% 0; border-color: var(--primary); color: #1a1205; }
 #themeBtn svg { width: 18px; height: 18px; }
 :root[data-theme="dark"] .icon-sun { display: block; }
 :root[data-theme="dark"] .icon-moon { display: none; }
