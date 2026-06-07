@@ -16,9 +16,7 @@
   --muted: #958e82;
   --divider: #201d18;
   --primary: #FFB318;
-  --primary-dark: #e09e10;
   --primary-soft: rgba(255,179,24,0.12);
-  --hover: #201d18;
   --pdf-color: #ef4444;
   --pdf-soft: rgba(239,68,68,0.12);
   --word-color: #3b82f6;
@@ -37,9 +35,7 @@
   --muted: #64748b;
   --divider: #d8dde8;
   --primary: #FFB318;
-  --primary-dark: #e09e10;
   --primary-soft: rgba(255,179,24,0.10);
-  --hover: #e0e3ec;
   --pdf-color: #dc2626;
   --pdf-soft: rgba(239,68,68,0.08);
   --word-color: #2563eb;
@@ -74,16 +70,6 @@ body {
   min-height: 48px;
 }
 
-.brand-logo-link {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: inline-flex;
-  transition: opacity 0.15s;
-  text-decoration: none;
-}
-.brand-logo-link:hover { opacity: 0.8; }
-.brand-logo { height: 38px; width: auto; display: block; }
 
 .controls { position: absolute; top: 0; left: 0; display: flex; gap: 8px; }
 .nav-btn {
@@ -282,8 +268,6 @@ body {
   flex-shrink: 0;
 }
 
-/* Theme button icons — visibility handled by :root[data-theme] rules above */
-
 @media (max-width: 540px) {
   .doc-meta { display: none; }
   .btn span { display: none; }
@@ -371,7 +355,7 @@ body {
             <div class="doc-badge pdf">PDF</div>
             <div class="doc-info">
               <div class="doc-name">MC/DOT Print</div>
-              <div class="doc-meta" data-i18n="meta-mcdot">MC/DOT на трак · PDF</div>
+              <div class="doc-meta" data-i18n="meta-mcdot">MC/DOT for Truck · PDF</div>
             </div>
             <div class="doc-actions">
               <a href="https://drive.google.com/file/d/1hu5aHQO7mCwDLu3fFvCdGAfCj2qYCkfy/view" target="_blank" rel="noopener noreferrer" class="btn btn-view">
