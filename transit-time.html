@@ -10,7 +10,6 @@
 :root[data-theme="dark"] {
   --bg: #0b0a09;
   --card: #141210;
-  --card-elev: #1c1916;
   --border: #2c2820;
   --border-strong: #3d3828;
   --text: #f5f0e8;
@@ -28,7 +27,6 @@
 :root[data-theme="light"] {
   --bg: #eef0f5;
   --card: #f5f6f9;
-  --card-elev: #f5f6f9;
   --border: #d8dde8;
   --border-strong: #c1c8d6;
   --text: #0f172a;
@@ -652,7 +650,6 @@ function updateModifiedState() {
   const resultsVisible = document.getElementById('results').classList.contains('show');
   let stale = false;
   if (resultsVisible && _calcParams) {
-    const p = getParams();
     stale = Object.keys(DEFAULTS).some(k => Math.abs((p[k] ?? 0) - (_calcParams[k] ?? 0)) > 0.001);
   }
   document.getElementById('staleHint').classList.toggle('show', stale);
@@ -875,7 +872,7 @@ function simulateTrip(totalMiles, params) {
   const EPS        = 1e-4;
 
   let remaining = totalMiles, shiftH = 0, contH = 0, milesFuel = 0;
-  let totalDrive = 0, totalElapsed = 0, hosRests = 0, fuelStops = 0, shortBreaks = 0;
+  let totalDrive = 0, totalElapsed = 0, hosRests = 0, fuelStops = 0;
   const steps = [];
 
   for (let i = 0; i < 5000 && remaining > EPS; i++) {
@@ -908,7 +905,6 @@ function simulateTrip(totalMiles, params) {
       milesFuel = 0; contH = 0;
       steps.push({ type: 'fuel', hours: FUEL_DUR });
     } else {
-      shortBreaks++;
       totalElapsed += BREAK_DUR;
       contH = 0;
       steps.push({ type: 'brk', hours: BREAK_DUR });
@@ -916,7 +912,7 @@ function simulateTrip(totalMiles, params) {
   }
 
   steps.push({ type: 'done' });
-  return { totalDrive, totalElapsed, hosRests, fuelStops, shortBreaks, steps };
+  return { totalDrive, totalElapsed, hosRests, fuelStops, steps };
 }
 
 // ── API ───────────────────────────────────────────────────────────────────────
@@ -957,8 +953,8 @@ async function fetchRoadMiles(o, d) {
 
 function showMsg(text, type = 'error') {
   const box = document.getElementById('msgBox');
-  box.innerHTML = type === 'loading' ? `<div class="spinner"></div>${text}` : '';
-  if (type !== 'loading') box.textContent = text;
+  if (type === 'loading') box.innerHTML = `<div class="spinner"></div>${text}`;
+  else box.textContent = text;
   box.className = `msg ${type} show`;
   document.getElementById('results').classList.remove('show');
   document.getElementById('staleHint').classList.remove('show');
@@ -969,7 +965,6 @@ function hideMsg() { document.getElementById('msgBox').className = 'msg'; }
 function renderTimeline(steps) {
   const list = document.getElementById('tlList');
   list.innerHTML = '';
-  const meta = { drive:'drive', rest:'rest', fuel:'fuel', brk:'brk', done:'done' };
   const dots = { drive:'▶', rest:'Z', fuel:'F', brk:'B', done:'✓' };
 
   steps.forEach((step, idx) => {
@@ -986,7 +981,7 @@ function renderTimeline(steps) {
     item.className = 'tl-item';
     item.innerHTML = `
       <div class="tl-track">
-        <div class="tl-dot ${meta[step.type]}">${dots[step.type]}</div>
+        <div class="tl-dot ${step.type}">${dots[step.type]}</div>
         ${!last ? '<div class="tl-line"></div>' : ''}
       </div>
       <div class="tl-body">
