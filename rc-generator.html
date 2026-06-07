@@ -7,21 +7,21 @@
 <title>RC Generator – URSA Express</title>
 <style>
 :root[data-theme="dark"] {
-  --bg: #0a0a0b;
-  --card: #16181f;
-  --card-elev: #1e2029;
-  --border: #393e4d;
-  --border-strong: #4d5366;
-  --text: #f1f5f9;
-  --muted: #8a909e;
+  --bg: #0b0a09;
+  --card: #141210;
+  --card-elev: #1c1916;
+  --border: #2c2820;
+  --border-strong: #3d3828;
+  --text: #f5f0e8;
+  --muted: #958e82;
   --dim: #656c7e;
-  --divider: #1e2029;
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-soft: #1e3a8a40;
+  --divider: #201d18;
+  --primary: #FFB318;
+  --primary-dark: #e09e10;
+  --primary-soft: rgba(255,179,24,0.12);
   --success: #22c55e;
   --success-soft: rgba(34,197,94,0.12);
-  --hover: #272b36;
+  --hover: #201d18;
   --danger: #ef4444;
 }
 :root[data-theme="light"] {
@@ -34,9 +34,9 @@
   --muted: #6b7280;
   --dim: #9ca3af;
   --divider: #f0f0f0;
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-soft: rgba(59,130,246,0.10);
+  --primary: #FFB318;
+  --primary-dark: #e09e10;
+  --primary-soft: rgba(255,179,24,0.10);
   --success: #16a34a;
   --success-soft: rgba(22,163,74,0.10);
   --hover: #f3f4f6;
@@ -90,7 +90,7 @@ body {
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.03em;
-  background: linear-gradient(90deg, #5b6ef5, #4ea1ff);
+  background: linear-gradient(90deg, var(--primary), #FF8C00);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   margin-top: 4px;
 }
@@ -125,12 +125,22 @@ body {
   text-decoration: none;
   padding: 0 12px;
   cursor: pointer;
-  transition: all 0.15s;
+  background-image: linear-gradient(to right, var(--primary) 50%, transparent 50%);
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  overflow: hidden;
+  transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s ease, color 0.16s ease;
   white-space: nowrap;
 }
-.icon-btn:hover { border-color: var(--border-strong); color: var(--text); }
+.icon-btn:hover { background-position: 0% 0; border-color: var(--primary); color: #1a1205; }
 .icon-btn.active { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); color: var(--text); }
 .icon-btn svg { width: 16px; height: 16px; }
+/* Back button: fill goes right→left to follow the arrow */
+.icon-btn[href="index.html"] {
+  background-image: linear-gradient(to left, var(--primary) 50%, transparent 50%);
+  background-position: 0% 0;
+}
+.icon-btn[href="index.html"]:hover { background-position: 100% 0; }
 
 /* ── History dropdown ── */
 .history-wrap { position: relative; }
@@ -482,7 +492,7 @@ body {
   transition: all 0.15s;
   white-space: nowrap;
 }
-.btn-tracking:hover { background: var(--primary); color: #fff; }
+.btn-tracking:hover { background: var(--primary); color: #1a1205; }
 
 /* ── Tracking Modal ── */
 .trk-backdrop {
@@ -543,7 +553,7 @@ label.required::after { content: ' *'; color: #ef4444; }
   border-radius: 8px; color: var(--primary); cursor: pointer;
   transition: all 0.12s;
 }
-.trk-lang-btn:hover { background: var(--primary); color: #fff; }
+.trk-lang-btn:hover { background: var(--primary); color: #1a1205; }
 .trk-toggle { display: flex; flex-wrap: wrap; gap: 6px; }
 .trk-toggle button {
   padding: 7px 12px; font-size: 12px; font-weight: 600;
@@ -557,7 +567,7 @@ label.required::after { content: ' *'; color: #ef4444; }
 .trk-toggle.error button.sel { background: rgba(239,68,68,0.1); border-color: #ef4444; color: #ef4444; }
 .trk-send {
   width: 100%; padding: 12px; margin-top: 8px;
-  background: var(--primary); color: #fff;
+  background: var(--primary); color: #1a1205;
   border: none; border-radius: 9px;
   font-family: inherit; font-size: 13px; font-weight: 700;
   cursor: pointer; transition: background 0.15s;
