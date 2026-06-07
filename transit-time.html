@@ -72,21 +72,7 @@ body {
   min-height: 52px;
 }
 
-.back-btn {
-  position: absolute; overflow: hidden;
-  top: 50%; left: 0;
-  transform: translateY(-50%);
-  display: inline-flex; align-items: center;
-  height: 36px; padding: 0 12px;
-  background: var(--card);
-  background-image: linear-gradient(to left, var(--primary) 50%, transparent 50%);
-  background-size: 200% 100%; background-position: 0% 0;
-  border: 1px solid var(--border);
-  border-radius: 8px; color: var(--text); text-decoration: none;
-  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
-  transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s ease, color 0.16s ease; white-space: nowrap;
-}
-.back-btn:hover { background-position: 100% 0; border-color: var(--primary); color: var(--on-primary); }
+/* back-btn is now inside header-controls as .hdr-btn.back-btn */
 
 .page-title {
   font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em;
@@ -101,10 +87,17 @@ body {
 .page-subtitle { margin-top: 6px; color: var(--muted); font-size: 0.875rem; }
 
 .header-controls {
-  position: absolute; top: 50%; right: 0;
+  position: absolute; top: 50%; left: 0;
   transform: translateY(-50%);
   display: flex; gap: 6px; align-items: center;
 }
+/* Back button inside the group: RTL fill */
+.hdr-btn.back-btn {
+  background-image: linear-gradient(to left, var(--primary) 50%, transparent 50%);
+  background-position: 0% 0;
+  padding: 0 12px; text-decoration: none; white-space: nowrap;
+}
+.hdr-btn.back-btn:hover { background-position: 100% 0; }
 
 .hdr-btn {
   height: 36px; min-width: 36px; padding: 0 10px;
@@ -122,9 +115,8 @@ body {
 .hdr-btn svg { width: 16px; height: 16px; }
 
 @media (max-width: 600px) {
-  .topbar { padding-top: 56px; }
-  .back-btn { top: 0; transform: none; }
-  .header-controls { top: 0; transform: none; }
+  .topbar { padding-top: 60px; }
+  .header-controls { top: 0; transform: none; flex-wrap: wrap; }
 }
 
 /* ── Input card ── */
@@ -417,10 +409,10 @@ body {
 <div class="wrap">
 
   <header class="topbar">
-    <a href="index.html" class="back-btn">← <span data-i18n="backLabel">Cargo Tools</span></a>
     <h1 class="page-title">⏱️ <span class="title-text" data-i18n="pageTitle">Transit Time</span></h1>
     <p class="page-subtitle" data-i18n="pageSubtitle">Drive time with HOS logbook rules</p>
     <div class="header-controls">
+      <a href="index.html" class="hdr-btn back-btn">← <span data-i18n="backLabel">Cargo Tools</span></a>
       <button class="hdr-btn" id="helpBtn">?</button>
       <button class="hdr-btn" id="langBtn">RU</button>
       <button class="hdr-btn" id="themeBtn" aria-label="Toggle theme">
