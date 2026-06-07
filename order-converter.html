@@ -206,12 +206,24 @@ body {
 .loads-tabs { display: flex; gap: 6px; margin: 0 0 12px 0; flex-wrap: wrap; }
 .loads-tabs:empty { display: none; }
 .loads-tab {
+  position: relative;
+  overflow: hidden;
   padding: 6px 14px; background: var(--card-2); border: 1px solid var(--border);
   border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600;
-  color: var(--text-muted); transition: all 0.15s;
+  color: var(--text-muted); transition: border-color 0.16s ease;
 }
-.loads-tab:hover { color: var(--text); border-color: var(--border-strong); }
-.loads-tab.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.loads-tab .u-fill {
+  position: absolute; inset: 0; border-radius: inherit;
+  background: var(--accent);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 0.16s cubic-bezier(.4,0,1,1);
+  z-index: 0; pointer-events: none;
+}
+.loads-tab .u-txt { position: relative; z-index: 1; transition: color 0.16s ease; }
+.loads-tab:hover .u-txt { color: var(--text); }
+.loads-tab.active { border-color: var(--accent); }
+.loads-tab.active .u-fill { transform: scaleX(1); }
+.loads-tab.active .u-txt { color: #1a1205; }
 kbd {
   display: inline-block;
   padding: 1px 5px; font-size: 10px; font-family: 'SF Mono',monospace;
@@ -1610,17 +1622,37 @@ function splitLoads(text) {
 function renderLoadsTabs() {
   const tabsEl = document.getElementById('loadsTabs');
   if (LOADS.length <= 1) { tabsEl.innerHTML = ''; return; }
-  tabsEl.innerHTML = LOADS.map((c, i) => {
-    // Try to extract a short label: first non-empty City line
-    const firstCity = (c.split(/\r?\n/).find(l => /[A-Z][a-z]+,\s*[A-Z]{2}/.test(l.trim())) || '').trim();
-    const short = firstCity.length > 22 ? firstCity.slice(0, 20) + '…' : firstCity;
-    return `<button class="loads-tab ${i === activeLoad ? 'active' : ''}" onclick="selectLoad(${i})">Load ${i+1}${short ? ' · ' + short : ''}</button>`;
-  }).join('');
+  const existing = [...tabsEl.querySelectorAll('.loads-tab')];
+  if (existing.length !== LOADS.length) {
+    // Full re-render when tab count changes (loads added/removed)
+    tabsEl.innerHTML = LOADS.map((c, i) => {
+      const firstCity = (c.split(/\r?\n/).find(l => /[A-Z][a-z]+,\s*[A-Z]{2}/.test(l.trim())) || '').trim();
+      const short = firstCity.length > 22 ? firstCity.slice(0, 20) + '…' : firstCity;
+      return `<button class="loads-tab ${i === activeLoad ? 'active' : ''}" onclick="selectLoad(${i})"><span class="u-fill"></span><span class="u-txt">Load ${i+1}${short ? ' · ' + short : ''}</span></button>`;
+    }).join('');
+  } else {
+    // Just sync active class — animation handled by selectLoad
+    existing.forEach((tab, i) => tab.classList.toggle('active', i === activeLoad));
+  }
 }
 
 function selectLoad(i) {
+  if (i === activeLoad) { parseChunk(LOADS[i]); return; }
+  const tabs = [...document.querySelectorAll('.loads-tab')];
+  const oldTab = tabs[activeLoad];
+  const newTab = tabs[i];
+  if (oldTab && newTab) {
+    const dir = i > activeLoad ? 1 : -1;
+    // Old tab: fill drains toward travel direction
+    const of = oldTab.querySelector('.u-fill');
+    if (of) of.style.transformOrigin = dir > 0 ? 'right center' : 'left center';
+    oldTab.classList.remove('active');
+    // New tab: fill appears instantly
+    const nf = newTab.querySelector('.u-fill');
+    if (nf) { nf.style.transition = 'none'; newTab.classList.add('active'); void newTab.offsetWidth; nf.style.transition = ''; }
+    else { newTab.classList.add('active'); }
+  }
   activeLoad = i;
-  renderLoadsTabs();
   parseChunk(LOADS[i]);
 }
 

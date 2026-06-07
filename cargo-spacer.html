@@ -354,6 +354,8 @@
     flex-shrink: 0;
   }
   .unit-selector button {
+    position: relative;
+    overflow: hidden;
     padding: 5px 10px;
     border: none;
     background: transparent;
@@ -361,13 +363,30 @@
     font-weight: 500;
     color: var(--muted);
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    transition: none;
     border-right: 1px solid var(--border);
     font-family: inherit;
   }
   .unit-selector button:last-child { border-right: none; }
-  .unit-selector button.active { background: var(--primary); color: white; }
-  .unit-selector button:hover:not(.active) { background: var(--hover); color: var(--text); }
+  /* Directional fill layer */
+  .unit-selector .u-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--primary);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.16s cubic-bezier(.4,0,1,1);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .unit-selector .u-txt {
+    position: relative;
+    z-index: 1;
+    transition: color 0.16s ease;
+  }
+  .unit-selector button.active .u-fill { transform: scaleX(1); }
+  .unit-selector button.active .u-txt { color: #1a1205; }
+  .unit-selector button:hover:not(.active) .u-txt { color: var(--text); }
 
   /* Toggle (checkbox) */
   .toggle-row {
@@ -1925,6 +1944,43 @@ document.querySelectorAll('#weight-units button').forEach(btn => {
     scheduleRecheck();
   });
 });
+
+// ── Directional fill animation for all .unit-selector groups ─────────────
+(function initDirectionalSelectors() {
+  document.querySelectorAll('.unit-selector').forEach(sel => {
+    const btns = [...sel.querySelectorAll('button')];
+
+    // Inject fill + txt spans, preserving existing innerHTML (e.g. data-i18n content)
+    btns.forEach(btn => {
+      const inner = btn.innerHTML;
+      btn.innerHTML = `<span class="u-fill"></span><span class="u-txt">${inner}</span>`;
+    });
+
+    // Capture-phase: fires BEFORE the existing click handlers that toggle .active
+    sel.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn || btn.classList.contains('active')) return;
+      const newIdx = btns.indexOf(btn);
+      const oldBtn = btns.find(b => b.classList.contains('active'));
+      if (!oldBtn) return;
+      const oldIdx = btns.indexOf(oldBtn);
+      const dir = newIdx > oldIdx ? 1 : -1;
+
+      // Old button: fill drains toward the travel direction
+      oldBtn.querySelector('.u-fill').style.transformOrigin =
+        dir > 0 ? 'right center' : 'left center';
+
+      // New button: fill appears instantly (no transition this frame)
+      const nf = btn.querySelector('.u-fill');
+      nf.style.transition = 'none';
+      btn.classList.add('active');
+      void btn.offsetWidth; // force reflow
+      nf.style.transition = '';
+      // Existing handlers will call classList.toggle('active', true) on new btn
+      // (idempotent) and classList.toggle('active', false) on old btn (triggers drain)
+    }, true);
+  });
+})();
 
 // Load-direction selector (loaded via loadState; just attach listeners)
 document.querySelectorAll('#load-direction button').forEach(btn => {
