@@ -22,6 +22,7 @@
     --bg: #eef0f5;
     --card: #f5f6f9;
     --card-elev: #f5f6f9;
+    --card-active: #f5eddc;
     --border: #d8dde8;
     --border-strong: #c1c8d6;
     --divider: #d8dde8;
@@ -61,6 +62,7 @@
     --bg: #0b0a09;
     --card: #141210;
     --card-elev: #1c1916;
+    --card-active: #2c2211;
     --border: #2c2820;
     --border-strong: #3d3828;
     --divider: #201d18;
@@ -230,7 +232,7 @@
     border-bottom: 1px solid var(--divider);
   }
 
-  .preset-section { margin-bottom: 24px; }
+  .preset-section { margin-bottom: 24px; background: var(--bg); border-radius: 12px; padding: 12px; margin-left: -12px; margin-right: -12px; }
 
   .preset-grid {
     display: grid;
@@ -253,7 +255,7 @@
     gap: 12px;
   }
   .preset-card:hover { border-color: var(--border-strong); background: var(--card-elev); }
-  .preset-card.active { border-color: var(--primary); background: rgba(255,179,24,0.10); box-shadow: 0 0 0 1px rgba(255,179,24,0.25), inset 0 0 20px rgba(255,179,24,0.04); }
+  .preset-card.active { border-color: var(--primary); background: var(--card-active); box-shadow: 0 0 0 1px rgba(255,179,24,0.25), inset 0 0 20px rgba(255,179,24,0.06); }
 
   .preset-icon {
     width: 42px;
