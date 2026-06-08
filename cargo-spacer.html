@@ -112,7 +112,7 @@
   .app-header {
     position: relative;
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 36px;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--divider);
     min-height: 48px;
@@ -121,14 +121,15 @@
   .app-title-block { width: 100%; }
 
   .app-header h1 {
-    font-size: 1.65rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: var(--text);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     line-height: 1.1;
+    margin-top: 4px;
   }
   .app-header h1 .accent {
-    background: linear-gradient(90deg, #FFB318, #FF8C00);
+    background: linear-gradient(90deg, var(--primary), #FF8C00);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
 
@@ -150,8 +151,8 @@
   }
   .app-header p {
     color: var(--muted);
-    margin-top: 8px;
-    font-size: 0.9rem;
+    margin-top: 6px;
+    font-size: 0.875rem;
     line-height: 1.4;
   }
 
@@ -161,7 +162,7 @@
     left: 0;
     transform: translateY(-50%);
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-shrink: 0;
   }
 
@@ -1409,10 +1410,10 @@ const STATE_KEY = 'cargo-spacer-state';
 
 function readTruckInputs() {
   return {
-    l: document.getElementById('truck-l')?.value ?? '',
-    w: document.getElementById('truck-w')?.value ?? '',
-    h: document.getElementById('truck-h')?.value ?? '',
-    payload: document.getElementById('truck-payload')?.value ?? ''
+    l: els.truckL?.value ?? '',
+    w: els.truckW?.value ?? '',
+    h: els.truckH?.value ?? '',
+    payload: els.truckPayload?.value ?? ''
   };
 }
 
@@ -1467,7 +1468,7 @@ function scheduleRecheck() {
 // =========================
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
-  const btn = document.getElementById('theme-toggle');
+  const btn = els.themeToggle;
   const label = theme === 'dark' ? t('switchToLight') : t('switchToDark');
   btn.title = label;
   btn.setAttribute('aria-label', label);
@@ -1847,7 +1848,10 @@ setupUnitSelector('truck-units',
   (factor) => {
     ['truck-l','truck-w','truck-h'].forEach(id => {
       const el = document.getElementById(id);
-      if (el.value !== '') el.value = +(parseFloat(el.value) * factor).toFixed(3);
+      if (el.value !== '') {
+        const clean = el.value.replace(/,/g, '.');
+        el.value = +(parseFloat(clean) * factor).toFixed(3);
+      }
     });
     scheduleRecheck();
   });
@@ -2009,7 +2013,12 @@ function packCargo(truck, cargos) {
   }
 
   // Second pass: try to fit remaining items on top of already-placed cargo
-  // (exploits vertical space above shorter items)
+  // (exploits vertical space above shorter items).
+  // Snapshot first-pass state once — keeps the loop O(n log n) and prevents
+  // second-pass items from inflating topH for later cargo types.
+  const firstPassPlacements = placements.slice();
+  const firstPassXStarts = [...new Set(firstPassPlacements.map(p => p.x))].sort((a, b) => a - b);
+
   for (let ci = 0; ci < cargos.length; ci++) {
     const c = cargos[ci];
     let remaining = c.qty - perItemPlaced[ci];
@@ -2022,20 +2031,21 @@ function packCargo(truck, cargos) {
       if (remaining <= 0) break;
       if (oh > truck.h + 1e-9) continue;
 
-      // Collect unique x-starts from existing placements
-      const xStarts = [...new Set(placements.map(p => p.x))].sort((a, b) => a - b);
-
-      for (const xPos of xStarts) {
+      for (const xPos of firstPassXStarts) {
         if (remaining <= 0) break;
         if (xPos + ol > truck.l + 1e-9) continue;
 
-        // Find the max height of any item overlapping the range [xPos, xPos+ol]
+        // Max height + stackable check: all items overlapping [xPos, xPos+ol]
+        // must be stackable (i.e. allow other cargo on top).
         let topH = 0;
-        for (const p of placements) {
+        let canStack = true;
+        for (const p of firstPassPlacements) {
           if (p.x < xPos + ol - 1e-9 && p.x + p.l > xPos + 1e-9) {
             if (p.y + p.h > topH) topH = p.y + p.h;
+            if (!cargos[p.cargoIdx].stackable) canStack = false;
           }
         }
+        if (!canStack) continue;
 
         if (topH + oh > truck.h + 1e-9) continue;
 
@@ -2064,7 +2074,7 @@ function markWellOverlaps(truck, placements, style) {
   const wwDepth = (style.wheelWellWidthIn || 3) * toM.in;
   const wwH     = (style.wheelWellHeightIn || 22) * toM.in;
   const wwL     = (style.wheelWellLengthIn || 28) * toM.in;
-  const wwCx    = truck.l * (style.rearWheelRatio || 0.72);
+  const wwCx    = truck.l * (style.rearWheelRatio ?? 0.90);
   const wwXS    = wwCx - wwL / 2;
   const wwXE    = wwCx + wwL / 2;
 
@@ -2260,17 +2270,20 @@ function checkCargo() {
     weightFit = totalCargoWeight <= payload;
   }
 
-  // 3. Pack, mark wheel-well overlaps, apply load-direction shift
+  // 3. Pack, apply load-direction shift, then mark wheel-well overlaps
+  // (shift must come first so overlap detection uses final positions)
   const truckStyle = TRUCK_PRESETS[selectedTruckType]?.style || null;
   const packResult = packCargo(truck, cargos);
-  markWellOverlaps(truck, packResult.placements, truckStyle);
   applyLoadDirectionShift(truck, packResult);
+  markWellOverlaps(truck, packResult.placements, truckStyle);
 
   // Volume based on actually placed items only
   const totalCargoVol = packResult.placements.reduce((s, p) => s + p.l * p.w * p.h, 0);
   const volPct = (totalCargoVol / truckVol) * 100;
 
-  const fits = packResult.fits && volPct <= 100 && weightFit;
+  // volPct is derived from actually-placed items (≤ truck volume by construction),
+  // so we don't gate fits on volPct — that would false-fail on floating-point rounding.
+  const fits = packResult.fits && weightFit;
   const totalQty = cargos.reduce((s, c) => s + c.qty, 0);
   const totalPlaced = packResult.perItemPlaced.reduce((s, n) => s + n, 0);
   const warnings = buildWarnings(truck, cargos, packResult, payload, totalCargoWeight, weightFit, volPct);

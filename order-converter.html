@@ -54,74 +54,34 @@ body {
 .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 40px 60px; }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
-.topbar { position: relative; text-align: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); min-height: 48px; }
-.brand { display: inline-flex; flex-direction: column; gap: 4px; align-items: center; }
-.brand-row { display: flex; align-items: center; gap: 10px; justify-content: center; }
-.brand-logo-link { position: absolute; top: 50%; left: 0; transform: translateY(-50%); display: inline-flex; transition: opacity 0.15s; }
-.brand-logo-link:hover { opacity: 0.8; }
-.controls { position: absolute; top: 50%; left: 0; transform: translateY(-50%); display: flex; gap: 8px; }
+.topbar { position: relative; text-align: center; margin-bottom: 36px; padding-bottom: 20px; border-bottom: 1px solid var(--divider); min-height: 48px; }
+.page-title {
+  font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em;
+  background: linear-gradient(90deg, var(--accent), #FF8C00);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  line-height: 1.1; margin-top: 4px;
+}
+.page-subtitle { margin-top: 6px; color: var(--muted); font-size: 0.875rem; }
+.controls { position: absolute; top: 50%; left: 0; transform: translateY(-50%); display: flex; gap: 6px; align-items: center; }
 @media (max-width: 600px) {
   .topbar { padding-top: 56px; }
-  .brand-logo-link { top: 0; left: 50%; transform: translateX(-50%); }
-  .controls {
-    position: static;
-    transform: none;
-    justify-content: center;
-    margin-top: 14px;
-    flex-wrap: wrap;
-  }
+  .controls { position: static; transform: none; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
 }
-.brand-emoji { font-size: 28px; line-height: 1; }
-.brand-logo { height: 38px; width: auto; display: block; }
-.brand-title {
-  font-size: 28px; font-weight: 700; letter-spacing: -0.5px;
-  background: linear-gradient(90deg, #FFB318, #FF8C00);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.brand-sub { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; color: var(--text-muted); text-align: center; }
-.brand-sub a { color: #ef4444; text-decoration: none; transition: opacity 0.15s; }
-.brand-sub a:hover { opacity: 0.8; text-decoration: underline; }
-.tagline { color: var(--text-muted); font-size: 14px; margin-top: 14px; }
-.divider-line { height: 1px; background: var(--border); margin-top: 18px; }
-
 .icon-btn {
-  width: 44px; height: 44px;
+  height: 36px; min-width: 36px;
   display: inline-flex; align-items: center; justify-content: center;
-  background: var(--card); background-image: linear-gradient(to right, var(--accent) 50%, transparent 50%); background-size: 200% 100%; background-position: 101% 0; background-repeat: no-repeat; border: 1px solid var(--border); border-radius: 10px;
-  color: var(--text); cursor: pointer; transition: all 0.15s;
-  font-size: 13px; font-weight: 600;
+  background: var(--card); background-image: linear-gradient(to right, var(--accent) 50%, transparent 50%); background-size: 200% 100%; background-position: 101% 0; background-repeat: no-repeat; border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); cursor: pointer; font-family: inherit;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 0 12px;
+  text-decoration: none; white-space: nowrap;
+  transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s ease, color 0.16s ease;
 }
 .icon-btn:hover { background-position: 0% 0; border-color: var(--accent); color: #1a1205; }
 .icon-btn[href="index.html"] { background-image: linear-gradient(to left, var(--accent) 50%, transparent 50%); background-position: -1% 0; }
 .icon-btn[href="index.html"]:hover { background-position: 101% 0; }
 .icon-btn.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.icon-btn svg { width: 18px; height: 18px; }
+.icon-btn svg { width: 16px; height: 16px; }
 
-/* History dropdown (#8) */
-.history-wrap { position: relative; }
-.history-panel {
-  position: absolute; top: 52px; right: 0;
-  width: 360px; max-height: 420px; overflow-y: auto;
-  background: var(--card); border: 1px solid var(--border-strong);
-  border-radius: 12px; padding: 8px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-  z-index: 50;
-}
-.history-empty { padding: 16px; color: var(--text-muted); text-align: center; font-size: 13px; }
-.history-item {
-  padding: 10px 12px; border-radius: 8px; cursor: pointer;
-  display: flex; flex-direction: column; gap: 3px;
-  transition: background 0.1s;
-}
-.history-item:hover { background: var(--card-2); }
-.history-route { font-size: 13px; font-weight: 600; color: var(--text); }
-.history-meta { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; }
-.history-clear {
-  width: 100%; padding: 8px; margin-top: 6px;
-  background: transparent; border: 1px solid var(--border);
-  color: var(--text-muted); border-radius: 7px; cursor: pointer; font-size: 12px;
-}
-.history-clear:hover { color: var(--danger); border-color: var(--danger); }
 
 /* ── Section ─────────────────────────────────────────────────────────────── */
 .section-title {
@@ -367,24 +327,18 @@ kbd {
 
   <!-- Top bar -->
   <div class="topbar">
-    <div class="brand">
-      <div class="brand-row">
-        <span class="brand-title">Order Converter</span>
-      </div>
-      <div class="tagline" data-i18n="tagline">Paste raw load text – get a clean, ready-to-send summary.</div>
-    </div>
     <div class="controls">
-      <a href="index.html" class="icon-btn" style="text-decoration:none; font-size:11px; font-weight:700; letter-spacing:0.04em; width:auto; padding:0 12px;" title="Main">← Main</a>
-      <button class="icon-btn" id="helpBtn" onclick="toggleHelp()" style="font-size:13px; font-weight:700; width:auto; padding:0 12px;" title="Help (?)">?</button>
-      <button class="icon-btn" id="langBtn" onclick="toggleLang()" style="font-size:11px; font-weight:700; letter-spacing:0.04em; width:auto; padding:0 10px;" title="Switch language">RU</button>
+      <a href="index.html" class="icon-btn" title="Main">← Main</a>
+      <button class="icon-btn" id="helpBtn" onclick="toggleHelp()" title="Help (?)">?</button>
+      <button class="icon-btn" id="langBtn" onclick="toggleLang()" title="Switch language">RU</button>
       <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Theme">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
     </div>
+    <h1 class="page-title">Order Converter</h1>
+    <p class="page-subtitle" data-i18n="tagline">Paste raw load text – get a clean, ready-to-send summary.</p>
   </div>
-
-  <div class="divider-line"></div>
 
   <!-- Section: Parser -->
   <div class="section-title" id="sec1">1. <span data-i18n="sec1">Paste & Parse</span></div>
@@ -1410,9 +1364,10 @@ function parseChunk(raw) {
     let out = date.replace(/\b(EST|EDT|ET|CST|CDT|CT|MST|MDT|MT|PST|PDT|PT|AKST|AKDT|AKT|AST|ADT|AT|HST|HAST|HT|EASTERN|CENTRAL|MOUNTAIN|PACIFIC)\b/gi,
                             (m) => normalizeTz(m));
     // If TZ is still placeholder, infer from city's state
-    if (/___\s*$/.test(out)) {
+    const tzPhRe = new RegExp(TZ_PH + '\\s*$');
+    if (tzPhRe.test(out)) {
       const tz = tzFromCity(city);
-      if (tz) out = out.replace(/___\s*$/, tz);
+      if (tz) out = out.replace(tzPhRe, tz);
     }
     return out;
   };
@@ -1669,31 +1624,6 @@ function pushHistory(R, raw, format) {
   try { localStorage.setItem(SK.history, JSON.stringify(HISTORY)); } catch {}
 }
 
-function toggleHistory() {
-  const p = document.getElementById('historyPanel');
-  if (p.hidden) renderHistory();
-  p.hidden = !p.hidden;
-}
-
-function renderHistory() {
-  const p = document.getElementById('historyPanel');
-  if (!HISTORY.length) {
-    p.innerHTML = `<div class="history-empty">${t('historyEmpty')}</div>`;
-    return;
-  }
-  const fmt = (ts) => {
-    const d = new Date(ts);
-    return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-  };
-  p.innerHTML = HISTORY.map((e, i) => `
-    <div class="history-item" onclick="loadHistory(${i})">
-      <div class="history-route">${e.pu || '?'} → ${e.del || '?'}</div>
-      <div class="history-meta"><span>${fmt(e.ts)} · ${e.format || ''}</span><span>${e.weight ? e.weight+' lbs' : ''}</span></div>
-    </div>
-  `).join('')
-    + '<button class="history-clear" onclick="exportHistoryCsv()" style="margin-top:6px;color:var(--text-muted)">📥 Export CSV</button>'
-    + '<button class="history-clear" onclick="clearHistory()">Clear history</button>';
-}
 
 // CSV export (#15)
 function exportHistoryCsv() {
@@ -1730,23 +1660,14 @@ function loadHistory(i) {
   RESULT_KEYS.forEach(k => { document.getElementById('f_' + k).value = e[k] || ''; });
   document.getElementById('formatBadge').textContent = e.format || '';
   renderPreview();
-  document.getElementById('historyPanel').hidden = true;
 }
 
 function clearHistory() {
   if (!confirm('Clear all history?')) return;
   HISTORY = [];
   try { localStorage.removeItem(SK.history); } catch {}
-  renderHistory();
 }
 
-// Close history panel on outside click
-document.addEventListener('click', (e) => {
-  const wrap = document.querySelector('.history-wrap');
-  if (wrap && !wrap.contains(e.target)) {
-    document.getElementById('historyPanel').hidden = true;
-  }
-});
 
 /* ── Help overlay (#7) ─────────────────────────────────────────────────── */
 function toggleHelp() {
