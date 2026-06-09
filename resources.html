@@ -68,6 +68,8 @@ body {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--divider);
   min-height: 48px;
+  opacity: 0;
+  animation: rsIn 0.4s ease-out 0.1s forwards;
 }
 
 .controls { position: absolute; top: 50%; left: 0; transform: translateY(-50%); display: flex; gap: 6px; align-items: center; }
@@ -131,6 +133,9 @@ body {
   flex: 1;
   height: 1px;
   background: var(--divider);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: lineGrow 0.5s cubic-bezier(0.4,0,0.2,1) 0.3s forwards;
 }
 
 /* ── Document rows ── */
@@ -149,6 +154,8 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   transition: border-color 0.15s, background 0.15s;
+  opacity: 0;
+  animation: rsIn 0.35s ease-out forwards;
 }
 
 .doc-row:hover {
@@ -263,6 +270,7 @@ body {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @media (max-width: 540px) {
@@ -300,6 +308,47 @@ body {
   }
   /* Lift all page content above the fixed map */
   body > div:not(.map-bg):not(.map-vignette) { position: relative; z-index: 1; }
+
+/* ── Auth screen interactions ── */
+#login-btn {
+  transition: opacity 0.15s, transform 0.15s;
+}
+#login-btn:hover { opacity: 0.88; }
+#login-btn:active { transform: scale(0.97); }
+
+#pass-input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* ── Main content reveal ── */
+#main-content.revealed {
+  animation: rsIn 0.5s ease-out forwards;
+}
+
+/* ── Staggered section entrance ── */
+.section:nth-child(1) { animation: rsIn 0.4s ease-out 0.2s both; }
+.section:nth-child(2) { animation: rsIn 0.4s ease-out 0.35s both; }
+.section:nth-child(3) { animation: rsIn 0.4s ease-out 0.5s both; }
+
+/* ── Doc row stagger ── */
+.doc-list .doc-row:nth-child(1) { animation-delay: 0.05s; }
+.doc-list .doc-row:nth-child(2) { animation-delay: 0.12s; }
+.doc-list .doc-row:nth-child(3) { animation-delay: 0.19s; }
+
+/* ── Button SVG hover ── */
+.btn:hover svg { transform: translateX(2px); }
+.btn-view:hover svg { transform: scale(1.15); }
+
+/* ── Keyframes ── */
+@keyframes rsIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes lineGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
 
 </style>
 </head>
@@ -608,7 +657,9 @@ function checkPass() {
   const secret = "JIMMY";
   if (pass === secret) {
     document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
+    const mc = document.getElementById('main-content');
+    mc.style.display = 'block';
+    mc.classList.add('revealed');
     localStorage.setItem('isAuthorized', 'true');
   } else {
     document.getElementById('error-msg').style.display = 'block';
@@ -626,7 +677,9 @@ document.getElementById('pass-input').addEventListener('keypress', function(e) {
   applyLang(localStorage.getItem(LS_LANG)   || 'en');
   if (localStorage.getItem('isAuthorized') === 'true') {
     document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
+    const mc = document.getElementById('main-content');
+    mc.style.display = 'block';
+    mc.classList.add('revealed');
   }
 })();
 </script>
