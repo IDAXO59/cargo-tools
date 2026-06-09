@@ -139,12 +139,6 @@ body {
 .icon-btn:hover { background-position: 0% 0; border-color: var(--primary); color: #1a1205; }
 .icon-btn.active { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); color: var(--text); }
 .icon-btn svg { width: 16px; height: 16px; }
-/* Back button: fill goes right→left to follow the arrow */
-.icon-btn[href="index.html"] {
-  background-image: linear-gradient(to left, var(--primary) 50%, transparent 50%);
-  background-position: -1% 0;
-}
-.icon-btn[href="index.html"]:hover { background-position: 101% 0; }
 
 /* ── History dropdown ── */
 .history-wrap { position: relative; }
