@@ -224,6 +224,15 @@ body {
   transform: translateY(-50%);
   display: flex; gap: 6px; align-items: center;
 }
+.header-right-controls {
+  position: absolute; top: 50%; right: 0;
+  transform: translateY(-50%);
+  display: flex; gap: 6px; align-items: center;
+}
+.hdr-btn-train {
+  border-color: rgba(255,179,24,0.35); color: var(--primary);
+}
+.hdr-btn-train:hover { border-color: var(--primary); }
 .hdr-btn {
   height: 36px; min-width: 36px; padding: 0 12px;
   background: var(--card);
@@ -249,6 +258,7 @@ body {
 @media (max-width: 600px) {
   .topbar { padding-top: 60px; }
   .header-controls { position: static; transform: none; margin-bottom: 12px; }
+  .header-right-controls { display: none; }
 }
 
 /* ── Drop Zone ── */
@@ -402,6 +412,38 @@ body {
 .output-box::-webkit-scrollbar { width: 6px; }
 .output-box::-webkit-scrollbar-track { background: transparent; }
 .output-box::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+
+/* ── Training panel — file upload zone ── */
+.train-file-zone {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 8px;
+  border: 2px dashed var(--border-strong); border-radius: 10px;
+  margin: 12px; padding: 24px 16px; text-align: center;
+  cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  min-height: 160px; user-select: none;
+}
+.train-file-zone:hover, .train-file-zone.drag-over {
+  border-color: var(--primary); background: rgba(255,179,24,0.04);
+}
+.train-file-zone.loading {
+  cursor: wait; opacity: 0.7; pointer-events: none;
+}
+.train-file-zone input[type=file] { display: none; }
+.train-drop-icon { font-size: 2.2rem; line-height: 1; }
+.train-drop-text { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.train-drop-hint { font-size: 0.72rem; color: var(--muted); }
+.train-file-status {
+  font-size: 0.75rem; color: var(--primary); margin-top: 4px;
+  min-height: 1.2em; text-align: center;
+}
+.train-change-doc {
+  background: none; border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); font-size: 0.72rem; cursor: pointer;
+  padding: 5px 10px; margin: 8px 12px 4px; font-family: inherit;
+  transition: color 0.15s, border-color 0.15s; text-align: center; width: calc(100% - 24px);
+}
+.train-change-doc:hover { color: var(--primary); border-color: var(--primary); }
 
 /* ── Training Panel (full-screen overlay) ── */
 .train-overlay {
@@ -826,6 +868,9 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
     </div>
+    <div class="header-right-controls">
+      <button class="hdr-btn hdr-btn-train" id="btnTrain" data-i18n="btn-train" title="Open training mode">&#9881; Train</button>
+    </div>
   </header>
 
   <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload PDF or image file" data-i18n-aria="aria-drop">
@@ -870,7 +915,6 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
     <div class="parsed-card-header">
       <span class="parsed-card-title" data-i18n="parsed-title">&#9889; Parsed Fields</span>
       <span class="parsed-broker-badge" id="parsedBrokerBadge" style="display:none"></span>
-      <button class="btn-train" id="btnTrain" data-i18n="btn-train" data-i18n-title="ttl-train" title="Open training mode">&#9881; Train</button>
     </div>
     <div class="parsed-fields" id="parsedFields"></div>
   </div>
@@ -904,7 +948,15 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
     <!-- Left: document lines -->
     <div class="train-lines-pane">
       <div class="train-pane-label" data-i18n="pane-label">Document Lines</div>
+      <div class="train-file-zone" id="trainFileZone">
+        <input type="file" id="trainFileInput" accept=".pdf,image/png,image/jpeg,image/jpg,image/webp">
+        <div class="train-drop-icon">&#128196;</div>
+        <div class="train-drop-text" data-i18n="train-drop-text">Drop file or click to upload</div>
+        <div class="train-drop-hint">PDF &#xB7; PNG &#xB7; JPG &#xB7; WEBP</div>
+        <div class="train-file-status" id="trainFileStatus"></div>
+      </div>
       <div class="train-lines-list" id="trainLinesList"></div>
+      <button class="train-change-doc" id="trainChangeDoc" style="display:none">&#8635; Change document</button>
     </div>
     <!-- Right: tagger + templates -->
     <div class="train-right-pane">
@@ -1018,9 +1070,10 @@ const btnLoadDefaults   = document.getElementById('btnLoadDefaults');
 /* ══════════════════════════════════════════════
    State
 ══════════════════════════════════════════════ */
-let lastExtractedText = '';
-let tesseractLoaded   = false;
-let lastMatchedBroker = null;
+let lastExtractedText  = '';
+let tesseractLoaded    = false;
+let lastMatchedBroker  = null;
+let trainCurrentText   = '';  /* text loaded into training panel */
 
 /* ══════════════════════════════════════════════
    Upload & file handling
@@ -1469,14 +1522,9 @@ function closeTrainPanel() {
 /* Populate lines */
 function populateTrainLines() {
   trainLinesList.innerHTML = '';
-  if (!lastExtractedText) {
-    const p = document.createElement('div');
-    p.style.cssText = 'padding:16px;color:var(--muted);font-size:0.82rem;';
-    p.textContent = 'No document loaded.';
-    trainLinesList.appendChild(p);
-    return;
-  }
-  const lines = lastExtractedText.split('\n').filter(l => l.trim().length > 0);
+  const src = trainCurrentText || lastExtractedText;
+  if (!src) return;
+  const lines = src.split('\n').filter(l => l.trim().length > 0);
   lines.forEach((line, idx) => {
     const btn = document.createElement('button');
     btn.className = 'train-line-item';
@@ -1802,6 +1850,106 @@ btnLoadDefaults.addEventListener('click', async () => {
 (async function init() {
   await loadDefaultTemplates();
   populateBrokerSelect();
+})();
+
+
+/* ══════════════════════════════════════════════
+   Training panel — file upload & extraction
+══════════════════════════════════════════════ */
+(function () {
+  const zone        = document.getElementById('trainFileZone');
+  const fileInput   = document.getElementById('trainFileInput');
+  const statusEl    = document.getElementById('trainFileStatus');
+  const changeDoc   = document.getElementById('trainChangeDoc');
+
+  function setStatus(msg) { statusEl.textContent = msg; }
+
+  zone.addEventListener('click',  () => fileInput.click());
+  zone.addEventListener('dragover',  e  => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0]; if (f) extractForTraining(f);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) extractForTraining(fileInput.files[0]);
+    fileInput.value = '';
+  });
+  changeDoc.addEventListener('click', () => {
+    trainCurrentText = '';
+    document.getElementById('trainLinesList').innerHTML = '';
+    zone.style.display    = '';
+    changeDoc.style.display = 'none';
+    setStatus('');
+  });
+
+  async function extractForTraining(file) {
+    zone.classList.add('loading');
+    setStatus('Reading…');
+    try {
+      let text = '';
+      const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+      if (isPdf) {
+        const buf = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        const total = pdf.numPages;
+        const pages = [];
+        for (let i = 1; i <= total; i++) {
+          setStatus('Page ' + i + ' of ' + total + '…');
+          const page = await pdf.getPage(i);
+          pages.push(page);
+          const content = await page.getTextContent();
+          const pt = buildPageText(content);
+          if (text && pt.trim()) text += '\n\n─── Page ' + i + ' ───\n\n';
+          text += pt;
+        }
+        if (!text.trim() || isGarbled(text)) {
+          setStatus('Switching to OCR…');
+          await loadTesseract();
+          const worker = await Tesseract.createWorker('eng', 1, {
+            logger: m => { if (m.status === 'recognizing text') setStatus('OCR ' + Math.round(m.progress * 100) + '%…'); }
+          });
+          const canvas = document.createElement('canvas');
+          let ocrText = '';
+          for (let i = 0; i < pages.length; i++) {
+            setStatus('OCR page ' + (i + 1) + ' of ' + total + '…');
+            const vp = pages[i].getViewport({ scale: 2.0 });
+            canvas.width = vp.width; canvas.height = vp.height;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            await pages[i].render({ canvasContext: ctx, viewport: vp }).promise;
+            const { data } = await worker.recognize(canvas);
+            const pt = data.text || '';
+            if (ocrText && pt.trim()) ocrText += '\n\n─── Page ' + (i + 1) + ' ───\n\n';
+            ocrText += pt;
+          }
+          await worker.terminate(); canvas.remove();
+          text = ocrText;
+        }
+      } else {
+        setStatus('Running OCR…');
+        await loadTesseract();
+        const worker = await Tesseract.createWorker('eng', 1, {
+          logger: m => { if (m.status === 'recognizing text') setStatus('OCR ' + Math.round(m.progress * 100) + '%…'); }
+        });
+        const url = URL.createObjectURL(file);
+        const { data } = await worker.recognize(url);
+        await worker.terminate(); URL.revokeObjectURL(url);
+        text = data.text || '';
+      }
+
+      trainCurrentText = text;
+      zone.classList.remove('loading');
+      zone.style.display           = 'none';
+      changeDoc.style.display      = '';
+      setStatus('');
+      populateTrainLines();
+    } catch (err) {
+      zone.classList.remove('loading');
+      setStatus('Error: ' + (err.message || err));
+    }
+  }
 })();
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
