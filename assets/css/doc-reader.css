@@ -97,7 +97,7 @@ body {
     transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s ease, color 0.16s ease;
     white-space: nowrap; font-family: inherit;
 }
-.hdr-btn:hover { background-position: 0% 0; border-color: var(--primary); color: #1a1205; }
+.hdr-btn:hover { background-position: 0 0; border-color: var(--primary); color: #1a1205; }
 .hdr-btn svg { width: 16px; height: 16px; }
 :root[data-theme="dark"]  .icon-sun  { display: block; }
 :root[data-theme="dark"]  .icon-moon { display: none;  }
