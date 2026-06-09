@@ -5,6 +5,150 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Doc Reader · URSA Express</title>
+<script>
+/* ── Restore theme & lang before paint (no FOUC) ── */
+(function(){
+  var t=localStorage.getItem('theme'); if(t) document.documentElement.setAttribute('data-theme',t);
+  var l=localStorage.getItem('lang');  if(l) document.documentElement.setAttribute('data-lang',l);
+})();
+
+/* ── Global: theme toggle ── */
+function toggleTheme(){
+  var r=document.documentElement;
+  var n=r.getAttribute('data-theme')==='dark'?'light':'dark';
+  r.setAttribute('data-theme',n); localStorage.setItem('theme',n);
+}
+
+/* ── i18n ── */
+var STRINGS={
+  en:{
+    'subtitle':'Extract &amp; parse text from PDF and image files',
+    'drop-title':'Drop a file here, or click to upload',
+    'drop-hint':'Supports <strong>PDF</strong>, <strong>PNG</strong>, <strong>JPG</strong>, and <strong>WEBP</strong>',
+    'broker-label':'Select Broker / Template',
+    'btn-parse':'Parse Document',
+    'loader-label':'Processing…',
+    'ocr-notice':'Using OCR mode — standard text extraction was unreliable for this PDF',
+    'parsed-title':'⚡ Parsed Fields',
+    'btn-train':'⚙ Train',
+    'output-title':'Extracted Text',
+    'btn-copy':'⧇ Copy',
+    'btn-clear':'✕ Clear',
+    'train-title':'Training Mode',
+    'train-hint':'Click any line to tag it as a field',
+    'btn-export':'⇓ Export',
+    'btn-load':'↑ Load templates.json',
+    'pane-label':'Document Lines',
+    'tagger-ph':'← Click a line from the document to tag it',
+    'label-broker':'Broker Name',
+    'label-selected':'Selected line',
+    'label-keyword':'Keyword / label',
+    'label-value':'Value to capture',
+    'label-tag':'Tag as field',
+    'label-pattern':'Pattern preview',
+    'btn-save':'Save Pattern',
+    'templates-label':'Saved Templates',
+    'ph-broker':'e.g. Echo Global, CH Robinson',
+    'ph-keyword':'e.g. Load #',
+    'ph-value':'e.g. S02805737',
+    'opt-select':'— select —',
+    'opt-ref':'Reference / Load #',
+    'opt-date':'Date & Time',
+    'opt-pickup':'Pickup Address',
+    'opt-delivery':'Delivery Address',
+    'opt-carrier':'Carrier Name',
+    'opt-weight':'Weight',
+    'opt-miles':'Miles / Distance',
+    'opt-rate':'Rate / Price',
+    'main-btn':'← Main',
+    'ttl-main':'Back to main page',
+    'ttl-theme':'Toggle theme',
+    'ttl-lang':'Switch language / Переключить язык',
+    'ttl-parse':'Parse the loaded document',
+    'ttl-copy':'Copy extracted text to clipboard',
+    'ttl-clear':'Clear document',
+    'ttl-train':'Open training mode',
+    'aria-drop':'Upload PDF or image file',
+  },
+  ru:{
+    'subtitle':'Извлечение и парсинг текста из PDF и изображений',
+    'drop-title':'Перетащите файл или нажмите для выбора',
+    'drop-hint':'Поддерживает <strong>PDF</strong>, <strong>PNG</strong>, <strong>JPG</strong> и <strong>WEBP</strong>',
+    'broker-label':'Брокер / шаблон',
+    'btn-parse':'Парсить',
+    'loader-label':'Обработка…',
+    'ocr-notice':'Режим OCR — стандартное извлечение текста ненадёжно для этого PDF',
+    'parsed-title':'⚡ Поля документа',
+    'btn-train':'⚙ Обучение',
+    'output-title':'Извлечённый текст',
+    'btn-copy':'⧇ Копировать',
+    'btn-clear':'✕ Очистить',
+    'train-title':'Режим обучения',
+    'train-hint':'Нажмите строку, чтобы пометить как поле',
+    'btn-export':'⇓ Экспорт',
+    'btn-load':'↑ Загрузить templates.json',
+    'pane-label':'Строки документа',
+    'tagger-ph':'← Нажмите строку для разметки',
+    'label-broker':'Имя брокера',
+    'label-selected':'Выбранная строка',
+    'label-keyword':'Ключевое слово / метка',
+    'label-value':'Значение для захвата',
+    'label-tag':'Тег поля',
+    'label-pattern':'Предпросмотр шаблона',
+    'btn-save':'Сохранить шаблон',
+    'templates-label':'Сохранённые шаблоны',
+    'ph-broker':'напр. Echo Global, CH Robinson',
+    'ph-keyword':'напр. Load #',
+    'ph-value':'напр. S02805737',
+    'opt-select':'— выбрать —',
+    'opt-ref':'Референс / Load #',
+    'opt-date':'Дата и время',
+    'opt-pickup':'Адрес погрузки',
+    'opt-delivery':'Адрес выгрузки',
+    'opt-carrier':'Перевозчик',
+    'opt-weight':'Вес',
+    'opt-miles':'Мили / расстояние',
+    'opt-rate':'Ставка / цена',
+    'main-btn':'← Главная',
+    'ttl-main':'На главную страницу',
+    'ttl-theme':'Сменить тему',
+    'ttl-lang':'Switch language / Переключить язык',
+    'ttl-parse':'Парсить загруженный документ',
+    'ttl-copy':'Копировать текст в буфер',
+    'ttl-clear':'Очистить',
+    'ttl-train':'Открыть режим обучения',
+    'aria-drop':'Загрузить PDF или изображение',
+  }
+};
+
+function applyLang(lang){
+  var s=STRINGS[lang]||STRINGS.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k=el.getAttribute('data-i18n'); if(s[k]!==undefined) el.innerHTML=s[k];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var k=el.getAttribute('data-i18n-ph'); if(s[k]!==undefined) el.placeholder=s[k];
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(function(el){
+    var k=el.getAttribute('data-i18n-title'); if(s[k]!==undefined) el.title=s[k];
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var k=el.getAttribute('data-i18n-aria'); if(s[k]!==undefined) el.setAttribute('aria-label',s[k]);
+  });
+  var lb=document.getElementById('langBtn');
+  if(lb) lb.textContent=lang==='en'?'RU':'EN';
+}
+
+function toggleLang(){
+  var r=document.documentElement;
+  var n=(r.getAttribute('data-lang')||'en')==='en'?'ru':'en';
+  r.setAttribute('data-lang',n); localStorage.setItem('lang',n); applyLang(n);
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  applyLang(document.documentElement.getAttribute('data-lang')||'en');
+});
+</script>
 <style>
 :root {
   --bg: #0b0a09;
@@ -673,21 +817,22 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
 
   <header class="topbar">
     <h1 class="page-title"><span class="title-text">Doc Reader</span></h1>
-    <p class="page-subtitle">Extract &amp; parse text from PDF and image files</p>
+    <p class="page-subtitle" data-i18n="subtitle">Extract &amp; parse text from PDF and image files</p>
     <div class="header-controls">
-      <a href="index.html" class="hdr-btn">&#8592; Main</a>
-      <button class="hdr-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">
+      <a href="index.html" class="hdr-btn" data-i18n="main-btn" data-i18n-title="ttl-main" title="Back to main page">&#8592; Main</a>
+      <button class="hdr-btn" id="langBtn" onclick="toggleLang()" data-i18n-title="ttl-lang" title="Switch language / Переключить язык">RU</button>
+      <button class="hdr-btn" id="themeBtn" onclick="toggleTheme()" data-i18n-title="ttl-theme" title="Toggle theme">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
     </div>
   </header>
 
-  <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload PDF or image file">
+  <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload PDF or image file" data-i18n-aria="aria-drop">
     <input type="file" id="fileInput" accept=".pdf,image/png,image/jpeg,image/jpg,image/webp" aria-label="Choose file">
     <span class="drop-icon">&#128196;</span>
-    <div class="drop-title">Drop a file here, or click to upload</div>
-    <div class="drop-hint">Supports <strong>PDF</strong>, <strong>PNG</strong>, <strong>JPG</strong>, and <strong>WEBP</strong></div>
+    <div class="drop-title" data-i18n="drop-title">Drop a file here, or click to upload</div>
+    <div class="drop-hint" data-i18n="drop-hint">Supports <strong>PDF</strong>, <strong>PNG</strong>, <strong>JPG</strong>, and <strong>WEBP</strong></div>
   </div>
 
   <div class="file-chip" id="fileChip">
@@ -698,18 +843,18 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
 
 
   <div class="broker-selector" id="brokerSelector">
-    <div class="broker-selector-label">Select Broker / Template</div>
+    <div class="broker-selector-label" data-i18n="broker-label">Select Broker / Template</div>
     <div class="broker-selector-row">
       <select class="broker-select" id="brokerSelect">
         <option value="auto">&#9888; Auto-detect</option>
       </select>
-      <button class="btn-parse" id="btnParse">Parse Document</button>
+      <button class="btn-parse" id="btnParse" data-i18n="btn-parse" data-i18n-title="ttl-parse" title="Parse the loaded document">Parse Document</button>
     </div>
   </div>
 
   <div class="loader" id="loader">
     <div class="spinner"></div>
-    <div class="loader-label" id="loaderLabel">Processing&hellip;</div>
+    <div class="loader-label" id="loaderLabel" data-i18n="loader-label">Processing&hellip;</div>
     <div class="loader-progress" id="loaderProgress"></div>
   </div>
 
@@ -717,15 +862,15 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
 
   <div class="ocr-notice" id="ocrNotice">
     <span class="ocr-notice-dot"></span>
-    Using OCR mode — standard text extraction was unreliable for this PDF
+    <span data-i18n="ocr-notice">Using OCR mode — standard text extraction was unreliable for this PDF</span>
   </div>
 
   <!-- Parsed Summary Card -->
   <div class="parsed-card" id="parsedCard">
     <div class="parsed-card-header">
-      <span class="parsed-card-title">&#9889; Parsed Fields</span>
+      <span class="parsed-card-title" data-i18n="parsed-title">&#9889; Parsed Fields</span>
       <span class="parsed-broker-badge" id="parsedBrokerBadge" style="display:none"></span>
-      <button class="btn-train" id="btnTrain">&#9881; Train</button>
+      <button class="btn-train" id="btnTrain" data-i18n="btn-train" data-i18n-title="ttl-train" title="Open training mode">&#9881; Train</button>
     </div>
     <div class="parsed-fields" id="parsedFields"></div>
   </div>
@@ -733,10 +878,10 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
   <!-- Raw Text Output -->
   <div class="output-section" id="outputSection">
     <div class="output-header">
-      <span class="output-title">Extracted Text</span>
+      <span class="output-title" data-i18n="output-title">Extracted Text</span>
       <div class="output-actions">
-        <button class="btn-copy" id="btnCopy">&#10697; Copy</button>
-        <button class="btn-clear" id="btnClear">&#10005; Clear</button>
+        <button class="btn-copy" id="btnCopy" data-i18n="btn-copy" data-i18n-title="ttl-copy" title="Copy extracted text to clipboard">&#10697; Copy</button>
+        <button class="btn-clear" id="btnClear" data-i18n="btn-clear" data-i18n-title="ttl-clear" title="Clear document">&#10005; Clear</button>
       </div>
     </div>
     <div class="output-box" id="outputBox"></div>
@@ -748,69 +893,69 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
 <div class="train-overlay" id="trainOverlay">
   <div class="train-panel-header">
     <button class="train-close-btn" id="trainCloseBtn" title="Close training panel">&#10005;</button>
-    <span class="train-panel-title">Training Mode</span>
-    <span class="train-panel-hint">Click any line to tag it as a field</span>
+    <span class="train-panel-title" data-i18n="train-title">Training Mode</span>
+    <span class="train-panel-hint" data-i18n="train-hint">Click any line to tag it as a field</span>
     <div class="train-panel-actions">
-      <button class="btn-train-action" id="btnExportTemplates">&#8659; Export</button>
-      <button class="btn-train-action" id="btnLoadDefaults">&#8593; Load templates.json</button>
+      <button class="btn-train-action" id="btnExportTemplates" data-i18n="btn-export">&#8659; Export</button>
+      <button class="btn-train-action" id="btnLoadDefaults" data-i18n="btn-load">&#8593; Load templates.json</button>
     </div>
   </div>
   <div class="train-body">
     <!-- Left: document lines -->
     <div class="train-lines-pane">
-      <div class="train-pane-label">Document Lines</div>
+      <div class="train-pane-label" data-i18n="pane-label">Document Lines</div>
       <div class="train-lines-list" id="trainLinesList"></div>
     </div>
     <!-- Right: tagger + templates -->
     <div class="train-right-pane">
       <div class="train-tagger-section">
-        <div class="tagger-placeholder" id="taggerPlaceholder">&#8592; Click a line from the document to tag it</div>
+        <div class="tagger-placeholder" id="taggerPlaceholder" data-i18n="tagger-ph">&#8592; Click a line from the document to tag it</div>
         <div class="tagger-form" id="taggerForm">
           <div class="tagger-group" style="margin-bottom:4px">
-            <label for="taggerBroker" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--primary)">Broker Name</label>
-            <input class="tagger-input" id="taggerBroker" type="text" placeholder="e.g. Echo Global, CH Robinson" autocomplete="off" list="brokerDatalist" style="border-color:rgba(255,179,24,0.35)">
+            <label for="taggerBroker" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--primary)" data-i18n="label-broker">Broker Name</label>
+            <input class="tagger-input" id="taggerBroker" type="text" placeholder="e.g. Echo Global, CH Robinson" data-i18n-ph="ph-broker" autocomplete="off" list="brokerDatalist" style="border-color:rgba(255,179,24,0.35)">
             <datalist id="brokerDatalist"></datalist>
           </div>
           <div>
-            <div class="tagger-selected-label">Selected line</div>
+            <div class="tagger-selected-label" data-i18n="label-selected">Selected line</div>
             <div class="tagger-selected-text" id="taggerSelectedText"></div>
           </div>
           <div class="tagger-grid">
             <div class="tagger-group">
-              <label for="taggerKeyword">Keyword / label</label>
-              <input class="tagger-input" id="taggerKeyword" type="text" placeholder="e.g. Load #" autocomplete="off">
+              <label for="taggerKeyword" data-i18n="label-keyword">Keyword / label</label>
+              <input class="tagger-input" id="taggerKeyword" type="text" placeholder="e.g. Load #" data-i18n-ph="ph-keyword" autocomplete="off">
             </div>
             <div class="tagger-group">
-              <label for="taggerValue">Value to capture</label>
-              <input class="tagger-input" id="taggerValue" type="text" placeholder="e.g. S02805737" autocomplete="off">
+              <label for="taggerValue" data-i18n="label-value">Value to capture</label>
+              <input class="tagger-input" id="taggerValue" type="text" placeholder="e.g. S02805737" data-i18n-ph="ph-value" autocomplete="off">
             </div>
             <div class="tagger-group">
-              <label for="taggerSelect">Tag as field</label>
+              <label for="taggerSelect" data-i18n="label-tag">Tag as field</label>
               <select class="tagger-select" id="taggerSelect">
-                <option value="">&#8212; select &#8212;</option>
-                <option value="Reference">Reference / Load #</option>
-                <option value="Date">Date &amp; Time</option>
-                <option value="Pickup">Pickup Address</option>
-                <option value="Delivery">Delivery Address</option>
-                <option value="Carrier">Carrier Name</option>
-                <option value="Weight">Weight</option>
-                <option value="Miles">Miles / Distance</option>
-                <option value="Rate">Rate / Price</option>
+                <option value="" data-i18n="opt-select">&#8212; select &#8212;</option>
+                <option value="Reference" data-i18n="opt-ref">Reference / Load #</option>
+                <option value="Date" data-i18n="opt-date">Date &amp; Time</option>
+                <option value="Pickup" data-i18n="opt-pickup">Pickup Address</option>
+                <option value="Delivery" data-i18n="opt-delivery">Delivery Address</option>
+                <option value="Carrier" data-i18n="opt-carrier">Carrier Name</option>
+                <option value="Weight" data-i18n="opt-weight">Weight</option>
+                <option value="Miles" data-i18n="opt-miles">Miles / Distance</option>
+                <option value="Rate" data-i18n="opt-rate">Rate / Price</option>
               </select>
             </div>
             <div class="tagger-group">
-              <label>Pattern preview</label>
+              <label data-i18n="label-pattern">Pattern preview</label>
               <div class="pattern-preview" id="patternPreview">&#8211;</div>
             </div>
           </div>
           <div class="tagger-actions">
-            <button class="btn-save-pattern" id="btnSavePattern" disabled>Save Pattern</button>
+            <button class="btn-save-pattern" id="btnSavePattern" disabled data-i18n="btn-save">Save Pattern</button>
             <span class="tagger-saved-msg" id="taggerSavedMsg">&#10003; Saved!</span>
           </div>
         </div>
       </div>
       <div class="train-templates-section">
-        <div class="templates-label">Saved Templates</div>
+        <div class="templates-label" data-i18n="templates-label">Saved Templates</div>
         <div id="templatesList"></div>
         <div class="templates-empty" id="templatesEmpty"></div>
       </div>
@@ -1661,14 +1806,7 @@ btnLoadDefaults.addEventListener('click', async () => {
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function toggleTheme() {
-  const root = document.documentElement;
-  const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  root.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-}
-/* Restore saved theme */
-(function() { const t = localStorage.getItem('theme'); if (t) document.documentElement.setAttribute('data-theme', t); })();
+
 </script>
 
 <script>
