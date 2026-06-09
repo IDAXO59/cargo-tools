@@ -460,6 +460,34 @@ body {
 }
 .btn-del-template:hover { border-color: #e05050; color: #e05050; }
 
+/* ── OCR mode notice ── */
+.ocr-notice {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: rgba(255,179,24,0.07);
+  border: 1px solid rgba(255,179,24,0.25);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--primary);
+  font-weight: 600;
+  animation: drIn 0.3s ease-out forwards;
+}
+.ocr-notice.visible { display: flex; }
+.ocr-notice-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--primary);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 0 rgba(255,179,24,0.5);
+  animation: ocrPulse 1.8s ease-in-out infinite;
+}
+@keyframes ocrPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,179,24,0.5); }
+  50%       { box-shadow: 0 0 0 5px rgba(255,179,24,0); }
+}
+
 /* ── Map background ── */
 .map-bg {
   position: fixed; inset: 0; z-index: 0;
@@ -584,6 +612,11 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
   </div>
 
   <div class="error-banner" id="errorBanner"></div>
+
+  <div class="ocr-notice" id="ocrNotice">
+    <span class="ocr-notice-dot"></span>
+    Using OCR mode — standard text extraction was unreliable for this PDF
+  </div>
 
   <!-- Parsed Summary Card -->
   <div class="parsed-card" id="parsedCard">
@@ -796,28 +829,89 @@ function processFile(file) {
 ══════════════════════════════════════════════ */
 async function processPDF(file) {
   showLoader('Reading PDF…');
+  document.getElementById('ocrNotice').classList.remove('visible');
   try {
     const buf = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
     const total = pdf.numPages;
+
+    /* ── Pass 1: standard text extraction ── */
     let allText = '';
+    const pages = [];
     for (let i = 1; i <= total; i++) {
       loaderLabel.textContent = 'Extracting page ' + i + ' of ' + total + '…';
       loaderProgress.textContent = Math.round((i / total) * 100) + '%';
       const page = await pdf.getPage(i);
+      pages.push(page);
       const content = await page.getTextContent();
       const pt = buildPageText(content);
       if (allText && pt.trim()) allText += '\n\n─── Page ' + i + ' ───\n\n';
       allText += pt;
     }
-    if (!allText.trim()) {
-      showError('No text extracted from this PDF. It may be a scanned image — upload each page as PNG instead.');
+
+    /* ── Quality check: flag garbled output ── */
+    if (!allText.trim() || isGarbled(allText)) {
+      loaderLabel.textContent = 'Text looks garbled — switching to OCR…';
+      loaderProgress.textContent = '';
+      const ocrText = await pdfOcrFallback(pdf, pages, total);
+      document.getElementById('ocrNotice').classList.add('visible');
+      finalizeText(ocrText);
       return;
     }
+
     finalizeText(allText);
   } catch (err) {
     showError('Failed to read PDF: ' + (err.message || err));
   }
+}
+
+/* Returns true when >20% of printable characters are non-ASCII or replacement chars */
+function isGarbled(text) {
+  const printable = text.replace(/\s/g, '');
+  if (!printable.length) return true;
+  let badCount = 0;
+  for (let i = 0; i < printable.length; i++) {
+    const cp = printable.charCodeAt(i);
+    /* non-ASCII printable, replacement char (U+FFFD), or private-use area */
+    if (cp > 127 || cp === 0xFFFD || (cp >= 0xE000 && cp <= 0xF8FF)) badCount++;
+  }
+  return (badCount / printable.length) > 0.20;
+}
+
+/* Render each page to canvas → Tesseract OCR */
+async function pdfOcrFallback(pdf, pages, total) {
+  await loadTesseract();
+  const worker = await Tesseract.createWorker('eng', 1, {
+    logger: m => {
+      if (m.status === 'recognizing text')
+        loaderProgress.textContent = Math.round(m.progress * 100) + '%';
+    }
+  });
+
+  const offscreen = document.createElement('canvas');
+  let allText = '';
+
+  for (let i = 0; i < pages.length; i++) {
+    loaderLabel.textContent = 'OCR page ' + (i + 1) + ' of ' + total + '…';
+    loaderProgress.textContent = '';
+    const page = pages[i];
+    const viewport = page.getViewport({ scale: 2.0 }); /* 2× for better OCR accuracy */
+    offscreen.width  = viewport.width;
+    offscreen.height = viewport.height;
+    const ctx = offscreen.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, offscreen.width, offscreen.height);
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    const { data } = await worker.recognize(offscreen);
+    const pt = data.text || '';
+    if (allText && pt.trim()) allText += '\n\n─── Page ' + (i + 1) + ' ───\n\n';
+    allText += pt;
+  }
+
+  await worker.terminate();
+  offscreen.remove();
+  return allText;
 }
 
 function buildPageText(content) {
@@ -1041,6 +1135,7 @@ btnCopy.addEventListener('click', async () => {
 btnClear.addEventListener('click', () => {
   hideOutput(); hideError(); hideLoader(); hideParsed();
   fileChip.classList.remove('visible');
+  document.getElementById('ocrNotice').classList.remove('visible');
   fileInput.value = '';
   lastExtractedText = '';
 });
