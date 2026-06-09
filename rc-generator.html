@@ -226,7 +226,12 @@ body {
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 24px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: panelIn 0.45s cubic-bezier(0.34,1.2,0.64,1) forwards;
 }
+.layout > .panel:first-child { animation-delay: 0.15s; }
+.layout > .panel:last-child  { animation-delay: 0.27s; }
 
 .panel-sticky {
   position: sticky;
@@ -261,7 +266,9 @@ body {
   color: var(--muted);
   letter-spacing: 0.04em;
   margin-bottom: 5px;
+  transition: color 0.15s ease;
 }
+.field:focus-within label { color: var(--primary); }
 
 .field input,
 .field textarea {
@@ -463,7 +470,7 @@ body {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s, transform 0.12s;
   white-space: nowrap;
 }
 .btn-copy:hover { background: var(--success); color: #fff; }
@@ -478,11 +485,15 @@ body {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s, transform 0.12s;
   white-space: nowrap;
 }
 .btn-copy-es:hover { background: #f59e0b; color: #fff; }
 .btn-copy-es.copied { background: #f59e0b; color: #fff; }
+.btn-copy.copied,
+.btn-copy-es.copied {
+  animation: btnPop 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
 
 .btn-tracking {
   padding: 11px 18px;
@@ -590,9 +601,16 @@ label.required::after { content: ' *'; color: #ef4444; }
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s, border-color 0.15s;
 }
 .btn-add-stop:hover { border-color: var(--primary); color: var(--primary); }
+.add-stop-icon {
+  display: inline-block;
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.btn-add-stop:hover .add-stop-icon {
+  transform: rotate(90deg);
+}
 .stop-remove-btn {
   margin-left: auto;
   background: none;
@@ -633,6 +651,26 @@ label.required::after { content: ' *'; color: #ef4444; }
 .field input.field-error, .field textarea.field-error {
   border-color: #ef4444 !important;
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.25), 0 0 0 3px rgba(239,68,68,0.15) !important;
+}
+
+/* ── Preview flash ── */
+.preview-flash {
+  animation: previewFlash 0.18s ease;
+}
+
+/* ── Keyframes ── */
+@keyframes panelIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes btnPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes previewFlash {
+  0%   { opacity: 1; }
+  40%  { opacity: 0.55; }
+  100% { opacity: 1; }
 }
 
   /* ── US Map Background ── */
@@ -877,7 +915,7 @@ label.required::after { content: ' *'; color: #ef4444; }
 
       <!-- STOPS (dynamic) -->
       <div id="stopsContainer"></div>
-      <button class="btn-add-stop" id="addStopBtn" onclick="addStop()" data-i18n="btnAddStop">+ Add Stop</button>
+      <button class="btn-add-stop" id="addStopBtn" onclick="addStop()"><span class="add-stop-icon">+</span> Add Stop</button>
 
       <!-- LOAD INFO -->
       <div class="fields-group">
@@ -1557,6 +1595,12 @@ function renderPreview() {
   setRo('telegram',   v('telegram'));
   setRo('whatsapp',   v('whatsapp') ? waUrl(v('whatsapp')) : '');
   setRo('email',      v('email'));
+  const preview = document.querySelector('.panel-sticky');
+  if (preview) {
+    preview.classList.remove('preview-flash');
+    void preview.offsetWidth;
+    preview.classList.add('preview-flash');
+  }
 }
 
 function onContactInput() {
