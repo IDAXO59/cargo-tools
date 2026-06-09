@@ -645,11 +645,6 @@ label.required::after { content: ' *'; color: #ef4444; }
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.25), 0 0 0 3px rgba(239,68,68,0.15) !important;
 }
 
-/* ── Preview flash ── */
-.preview-flash {
-  animation: previewFlash 0.18s ease;
-}
-
 /* ── Keyframes ── */
 @keyframes panelIn {
   from { opacity: 0; transform: translateY(12px); }
@@ -659,11 +654,6 @@ label.required::after { content: ' *'; color: #ef4444; }
   0%   { transform: scale(1); }
   50%  { transform: scale(1.08); }
   100% { transform: scale(1); }
-}
-@keyframes previewFlash {
-  0%   { opacity: 1; }
-  40%  { opacity: 0.55; }
-  100% { opacity: 1; }
 }
 
   /* ── US Map Background ── */
@@ -1588,12 +1578,6 @@ function renderPreview() {
   setRo('telegram',   v('telegram'));
   setRo('whatsapp',   v('whatsapp') ? waUrl(v('whatsapp')) : '');
   setRo('email',      v('email'));
-  const preview = document.querySelector('.panel-sticky');
-  if (preview) {
-    preview.classList.remove('preview-flash');
-    void preview.offsetWidth;
-    preview.classList.add('preview-flash');
-  }
 }
 
 function onContactInput() {
