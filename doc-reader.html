@@ -65,6 +65,8 @@ body {
 .hdr-btn {
   height: 36px; min-width: 36px; padding: 0 12px;
   background: var(--card);
+  background-image: linear-gradient(to right, var(--primary) 50%, transparent 50%);
+  background-size: 200% 100%; background-position: 101% 0; background-repeat: no-repeat;
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
@@ -72,10 +74,10 @@ body {
   cursor: pointer;
   display: inline-flex; align-items: center; gap: 4px;
   text-decoration: none;
-  transition: border-color 0.15s, background 0.15s;
+  transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s ease, color 0.16s ease;
   white-space: nowrap; font-family: inherit;
 }
-.hdr-btn:hover { border-color: var(--primary); background: var(--hover); }
+.hdr-btn:hover { background-position: 0% 0; border-color: var(--primary); color: #1a1205; }
 
 @media (max-width: 600px) {
   .topbar { padding-top: 60px; }
