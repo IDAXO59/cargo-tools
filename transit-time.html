@@ -68,6 +68,8 @@ body {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--divider);
   min-height: 52px;
+  opacity: 0;
+  animation: ttIn 0.4s ease-out 0.1s forwards;
 }
 
 .page-title {
@@ -117,6 +119,8 @@ body {
   background: var(--card); border: 1px solid var(--border);
   border-radius: 14px; padding: 24px; margin-bottom: 14px;
   transition: background 0.2s, border-color 0.2s;
+  opacity: 0;
+  animation: ttIn 0.4s ease-out 0.22s forwards;
 }
 
 .zip-row {
@@ -143,10 +147,15 @@ body {
   font-size: 0.9rem; font-family: inherit;
 }
 .zip-field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.zip-field input.valid {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74,222,128,0.15);
+}
 
 .arrow-sep {
   font-size: 1.1rem; color: var(--muted);
   padding-bottom: 10px; flex-shrink: 0; user-select: none;
+  animation: arrowPulse 3s ease-in-out infinite;
 }
 
 /* ── Parameters section ── */
@@ -180,9 +189,10 @@ body {
 
 .params-body {
   overflow: hidden; max-height: 0;
-  transition: max-height 0.28s ease;
+  opacity: 0;
+  transition: max-height 0.28s ease, opacity 0.2s ease;
 }
-.params-body.open { max-height: 600px; }
+.params-body.open { max-height: 600px; opacity: 1; }
 
 .params-grid {
   display: grid;
@@ -239,7 +249,7 @@ body {
   width: 100%; padding: 12px 24px; background: var(--primary);
   color: var(--on-primary); border: none; border-radius: 10px;
   font-size: 0.95rem; font-weight: 700; letter-spacing: 0.01em;
-  cursor: pointer; transition: background 0.15s, transform 0.1s, opacity 0.15s;
+  cursor: pointer; transition: background 0.15s, transform 0.1s, opacity 0.2s;
   font-family: inherit;
 }
 .calc-btn:hover:not(:disabled) { background: var(--primary-dark); }
@@ -248,14 +258,22 @@ body {
 
 /* ── Stale hint ── */
 .stale-hint {
-  display: none;
+  display: flex;
   background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25);
   border-radius: 10px; padding: 10px 16px;
   margin-bottom: 14px;
   align-items: center; justify-content: space-between; gap: 12px;
   font-size: 0.83rem; color: #fbbf24;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.22s ease;
 }
-.stale-hint.show { display: flex; }
+.stale-hint.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
 .stale-hint-text { display: flex; align-items: center; gap: 7px; }
 .recalc-btn {
   background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3);
@@ -287,7 +305,10 @@ body {
 
 /* ── Results ── */
 .results { display: none; }
-.results.show { display: block; }
+.results.show {
+  display: block;
+  animation: resultsIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
 
 .result-header {
   background: var(--card); border: 1px solid var(--border);
@@ -308,6 +329,14 @@ body {
   border-radius: 12px; padding: 14px 16px;
   transition: background 0.2s, border-color 0.2s;
 }
+.results.show .stat-card {
+  opacity: 0;
+  animation: statIn 0.3s ease-out forwards;
+}
+.results.show .stats-grid .stat-card:nth-child(1) { animation-delay: 0.08s; }
+.results.show .stats-grid .stat-card:nth-child(2) { animation-delay: 0.16s; }
+.results.show .stats-grid .stat-card:nth-child(3) { animation-delay: 0.24s; }
+.results.show .stats-grid .stat-card:nth-child(4) { animation-delay: 0.32s; }
 .stat-label {
   font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.09em; color: var(--muted); margin-bottom: 5px;
@@ -340,7 +369,11 @@ body {
   margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--divider);
 }
 .tl-list { display: flex; flex-direction: column; }
-.tl-item { display: flex; align-items: flex-start; gap: 12px; }
+.tl-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  opacity: 0;
+  animation: tlIn 0.3s ease-out forwards;
+}
 .tl-track { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
 .tl-dot {
   width: 26px; height: 26px; border-radius: 50%;
@@ -427,6 +460,27 @@ body {
   /* Lift all page content above the fixed map */
   body > div:not(.map-bg):not(.map-vignette) { position: relative; z-index: 1; }
 
+/* ── Animations ── */
+@keyframes arrowPulse {
+  0%, 100% { transform: scale(1);    opacity: 0.5; }
+  50%       { transform: scale(1.3); opacity: 1;   }
+}
+@keyframes resultsIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes statIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes tlIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes ttIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 </style>
 </head>
 <body>
@@ -1046,6 +1100,13 @@ function showMsg(text, type = 'error') {
 
 function hideMsg() { document.getElementById('msgBox').className = 'msg'; }
 
+function checkZipValid() {
+  const oVal = document.getElementById('zip-origin').value;
+  const dVal = document.getElementById('zip-dest').value;
+  document.getElementById('zip-origin').classList.toggle('valid', /^\d{5}$/.test(oVal));
+  document.getElementById('zip-dest').classList.toggle('valid', /^\d{5}$/.test(dVal));
+}
+
 function renderTimeline(steps) {
   const list = document.getElementById('tlList');
   list.innerHTML = '';
@@ -1072,6 +1133,7 @@ function renderTimeline(steps) {
         <div class="tl-name">${name}</div>
         ${sub ? `<div class="tl-sub">${sub}</div>` : ''}
       </div>`;
+    item.style.animationDelay = (idx * 0.06) + 's';
     list.appendChild(item);
   });
 }
@@ -1196,6 +1258,7 @@ async function calculate() {
     const el = document.getElementById(id);
     el.addEventListener('input', () => {
       el.value = el.value.replace(/\D/g, '').slice(0, 5);
+      checkZipValid();
       // Invalidate cache when ZIPs change
       _cache = null;
       document.getElementById('staleHint').classList.remove('show');
