@@ -118,6 +118,8 @@
     padding-bottom: 20px;
     border-bottom: 1px solid var(--divider);
     min-height: 48px;
+    opacity: 0;
+    animation: csIn 0.4s ease-out 0.1s forwards;
   }
 
   .app-title-block { width: 100%; }
@@ -229,7 +231,7 @@
     border-bottom: 1px solid var(--divider);
   }
 
-  .preset-section { margin-bottom: 24px; background: var(--bg); border-radius: 12px; padding: 12px; margin-left: -12px; margin-right: -12px; }
+  .preset-section { margin-bottom: 24px; background: var(--bg); border-radius: 12px; padding: 12px; margin-left: -12px; margin-right: -12px; opacity: 0; animation: csIn 0.4s ease-out 0.22s forwards; }
 
   .preset-grid {
     display: grid;
@@ -246,13 +248,16 @@
     border-radius: 10px;
     padding: 12px;
     cursor: pointer;
-    transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s ease, color 0.16s ease;
+    transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease,
+                transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.18s ease;
     display: flex;
     align-items: center;
     gap: 12px;
   }
   .preset-card:hover { border-color: var(--border-strong); background: var(--card-elev); }
-  .preset-card.active { border-color: var(--primary); background: var(--card-active); box-shadow: 0 0 0 1px rgba(255,179,24,0.25), inset 0 0 20px rgba(255,179,24,0.06); }
+  .preset-card:hover:not(.active) { transform: translateY(-1px); }
+  .preset-card.active { border-color: var(--primary); background: var(--card-active); box-shadow: 0 0 0 1px rgba(255,179,24,0.25), inset 0 0 20px rgba(255,179,24,0.06); transform: scale(1.03); }
 
   .preset-icon {
     width: 42px;
@@ -277,6 +282,8 @@
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-bottom: 18px;
+    opacity: 0;
+    animation: csIn 0.4s ease-out 0.34s forwards;
   }
   @media (max-width: 800px) {
     .grid { grid-template-columns: 1fr; }
@@ -327,7 +334,9 @@
     font-weight: 500;
     color: var(--muted);
     margin-bottom: 4px;
+    transition: color 0.15s ease;
   }
+  .field:focus-within label { color: var(--primary); }
 
   .field input {
     width: 100%;
@@ -567,6 +576,8 @@
     display: flex;
     gap: 10px;
     margin-bottom: 18px;
+    opacity: 0;
+    animation: csIn 0.4s ease-out 0.44s forwards;
   }
 
   .check-btn {
@@ -699,7 +710,7 @@
     margin-bottom: 6px;
   }
   .progress-bar-track { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+  .progress-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); transition-delay: 0.2s; }
   .progress-bar-fill.ok { background: var(--success); }
   .progress-bar-fill.warn { background: var(--warning); }
   .progress-bar-fill.bad { background: var(--danger); }
@@ -950,6 +961,19 @@
     font-size: 11px; font-weight: 700; margin-top: 1px;
   }
   @keyframes helpFade { from { opacity: 0; } to { opacity: 1; } }
+
+  .cargo-item-enter {
+    animation: cargoItemIn 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+  @keyframes cargoItemIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  }
+
+  @keyframes csIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
@@ -1898,6 +1922,8 @@ function renderCargoItems() {
     `;
     container.appendChild(div);
   });
+  const lastItem = container.lastElementChild;
+  if (lastItem) lastItem.classList.add('cargo-item-enter');
 }
 
 function escapeHtml(s) {
