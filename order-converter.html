@@ -54,7 +54,7 @@ body {
 .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 40px 60px; }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
-.topbar { position: relative; text-align: center; margin-bottom: 36px; padding-bottom: 20px; border-bottom: 1px solid var(--border); min-height: 48px; }
+.topbar { position: relative; text-align: center; margin-bottom: 36px; padding-bottom: 20px; border-bottom: 1px solid var(--border); min-height: 48px; opacity: 0; animation: ocIn 0.4s ease-out 0.1s forwards; }
 .page-title {
   font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em;
   background: linear-gradient(90deg, var(--accent), #FF8C00);
@@ -88,7 +88,7 @@ body {
 }
 
 /* ── Grid ────────────────────────────────────────────────────────────────── */
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; opacity: 0; animation: ocIn 0.4s ease-out 0.22s forwards; }
 @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 
 .panel {
@@ -110,8 +110,11 @@ body {
   padding: 3px 8px; border-radius: 6px;
   background: var(--accent-soft); color: var(--accent);
   border: 1px solid var(--accent);
+  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1);
+  opacity: 0; transform: translateX(6px);
 }
 .format-badge:empty { display: none; }
+.format-badge:not(:empty) { opacity: 1; transform: translateX(0); }
 .format-badge.low-confidence { background: rgba(245,158,11,0.12); color: #f59e0b; border-color: #f59e0b; }
 
 /* Sample loads dropdown (#6) */
@@ -217,6 +220,7 @@ kbd {
   width: 70px; flex-shrink: 0;
   font-family: 'SF Mono','Monaco',monospace;
   font-size: 13px; font-weight: 700; color: var(--text);
+  transition: color 0.15s ease;
 }
 .field-label-top { padding-top: 9px; }
 .field-sep { color: var(--text); font-family: 'SF Mono',monospace; font-size: 13px; flex-shrink: 0; }
@@ -241,10 +245,11 @@ kbd {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s, box-shadow 0.15s ease;
   margin-top: 14px;
 }
 .btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn:hover:not(:disabled) { box-shadow: 0 4px 16px rgba(255,179,24,0.25); }
 .btn:active { transform: translateY(0); }
 
 .btn-row { display: flex; gap: 8px; margin-top: 12px; }
@@ -328,6 +333,39 @@ kbd {
   }
   /* Lift main content above the fixed map */
   .wrap { position: relative; z-index: 1; }
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes ocIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Parse button bounce (#2) */
+.btn.parse-pop { animation: parsePop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes parsePop {
+  0%   { transform: scale(1); }
+  40%  { transform: translateY(-1px) scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Preview flash on update (#3) */
+.preview-flash { animation: previewFlash 0.15s ease; }
+@keyframes previewFlash {
+  0%   { opacity: 1; }
+  40%  { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* Copy button bounce on .ok (#5) */
+.btn-success.ok { animation: copyPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes copyPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* Field label highlight on focus (#7) */
+.field:focus-within .field-label { color: var(--accent); }
 
 </style>
 </head>
@@ -1387,6 +1425,8 @@ function parseChat(lines) {
 
 /* ── Main ──────────────────────────────────────────────────────────────── */
 function doParse() {
+  const parseBtn = document.querySelector('.btn[onclick="doParse()"]');
+  if (parseBtn) { parseBtn.classList.remove('parse-pop'); void parseBtn.offsetWidth; parseBtn.classList.add('parse-pop'); }
   const raw = document.getElementById('rawInput').value;
   if (!raw.trim()) return;
   LOADS = splitLoads(raw);
@@ -1540,6 +1580,7 @@ function renderPreview() {
     el.innerHTML = `<span class="preview-empty" data-i18n="previewEmpty">${t('previewEmpty')}</span>`;
   } else {
     el.textContent = out.join('\n');
+    el.classList.remove('preview-flash'); void el.offsetWidth; el.classList.add('preview-flash');
   }
 
   // Date validation warnings (#16)
