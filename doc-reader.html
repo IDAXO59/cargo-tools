@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cargo Tools · URSA Express</title>
+<title>Doc Reader · URSA Express</title>
 <style>
 :root {
   --bg: #0b0a09;
@@ -19,218 +19,484 @@
   --primary-dark: #e09e10;
   --primary-soft: rgba(255,179,24,0.12);
   --hover: #201d18;
+  --input-bg: #0f0d0b;
+  --on-primary: #1a1205;
+  --success: #4ade80;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--bg); color: var(--text); }
-
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
   min-height: 100vh;
+  padding: 24px 16px 72px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.wrap {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 32px 24px 80px;
-}
+.wrap { max-width: 780px; margin: 0 auto; }
 
 /* ── Header ── */
 .topbar {
   position: relative;
   text-align: center;
-  margin-bottom: 48px;
-  padding-bottom: 24px;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
   border-bottom: 1px solid var(--divider);
-  min-height: 48px;
+  min-height: 52px;
   opacity: 0;
-  animation: fadeUp 0.45s ease-out 0.15s forwards;
+  animation: drIn 0.4s ease-out 0.1s forwards;
 }
-
-.brand-logo-link {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: inline-flex;
-  transition: opacity 0.15s;
+.page-title {
+  font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em;
+  line-height: 1.15; margin-top: 4px;
+}
+.page-title .title-text {
+  background: linear-gradient(90deg, var(--primary), #FF8C00);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.page-subtitle { margin-top: 6px; color: var(--muted); font-size: 0.875rem; }
+.header-controls {
+  position: absolute; top: 50%; left: 0;
+  transform: translateY(-50%);
+  display: flex; gap: 6px; align-items: center;
+}
+.hdr-btn {
+  height: 36px; min-width: 36px; padding: 0 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.8rem; font-weight: 600;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
   text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+  white-space: nowrap; font-family: inherit;
 }
-.brand-logo-link:hover { opacity: 0.8; }
-.brand-logo { height: 38px; width: auto; display: block; }
+.hdr-btn:hover { border-color: var(--primary); background: var(--hover); }
 
 @media (max-width: 600px) {
   .topbar { padding-top: 60px; }
-  .brand-logo-link { left: 50%; transform: translateX(-50%); }
+  .header-controls { position: static; transform: none; margin-bottom: 12px; }
 }
 
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  background: linear-gradient(90deg, #FFB318, #FF8C00);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-  line-height: 1.1;
-  margin-top: 4px;
-}
-
-.page-subtitle {
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 0.95rem;
-  letter-spacing: 0.01em;
-}
-
-/* ── Cards ── */
-.cards {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.tool-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 280px;
-  padding: 28px 24px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  text-decoration: none;
-  color: var(--text);
-  transition: border-color 0.22s ease, box-shadow 0.22s ease,
-              background 0.22s ease,
-              transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* ── Drop Zone ── */
+.drop-zone {
+  border: 2px dashed var(--border-strong);
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
   cursor: pointer;
-  opacity: 0;
-  transform: translateY(14px);
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--card);
   position: relative;
+  opacity: 0;
+  animation: drIn 0.45s ease-out 0.25s forwards;
+}
+.drop-zone:hover,
+.drop-zone.drag-over { border-color: var(--primary); background: rgba(255,179,24,0.04); }
+.drop-zone input[type="file"] {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0; cursor: pointer;
+}
+.drop-icon { font-size: 2.5rem; line-height: 1; margin-bottom: 12px; display: block; }
+.drop-title { font-size: 1.05rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.drop-hint { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.drop-hint strong { color: var(--primary); font-weight: 600; }
+
+/* ── Loading ── */
+.loader { display: none; text-align: center; padding: 40px 0; }
+.loader.visible { display: block; }
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin: 0 auto 14px;
+}
+.loader-label { color: var(--muted); font-size: 0.875rem; }
+.loader-progress { margin-top: 6px; font-size: 0.8rem; color: var(--primary); font-weight: 600; min-height: 1.2em; }
+
+/* ── File chip ── */
+.file-chip {
+  display: none; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  margin-top: 14px; font-size: 0.82rem;
+}
+.file-chip.visible { display: flex; }
+.file-chip-icon { font-size: 1.3rem; flex-shrink: 0; }
+.file-chip-name { font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-chip-size { color: var(--muted); flex-shrink: 0; margin-left: auto; }
+
+/* ── Error Banner ── */
+.error-banner {
+  display: none; margin-top: 18px;
+  padding: 14px 18px;
+  background: rgba(224,80,80,0.08); border: 1px solid rgba(224,80,80,0.35);
+  border-radius: 10px; color: #f87171; font-size: 0.875rem; line-height: 1.5;
+}
+.error-banner.visible { display: block; }
+
+/* ── Parsed Summary Card ── */
+.parsed-card {
+  display: none; margin-top: 20px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  overflow: hidden;
+  animation: drIn 0.4s ease-out forwards;
+}
+.parsed-card.visible { display: block; }
+
+.parsed-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--divider);
+  background: var(--card-elev);
+}
+.parsed-card-title {
+  font-size: 0.78rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--primary);
+}
+.btn-train {
+  height: 30px; padding: 0 12px;
+  background: rgba(255,179,24,0.1); border: 1px solid rgba(255,179,24,0.3);
+  border-radius: 6px; color: var(--primary);
+  font-size: 0.75rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-train:hover { background: rgba(255,179,24,0.18); border-color: var(--primary); }
+
+.parsed-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0;
+}
+.pf-row {
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--divider);
+  display: flex; flex-direction: column; gap: 3px;
+}
+.pf-row:last-child { border-bottom: none; }
+.pf-label {
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--primary); opacity: 0.85;
+}
+.pf-value {
+  font-size: 0.875rem; color: var(--text);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  line-height: 1.4;
+  word-break: break-word;
+}
+.pf-value.not-found { color: var(--muted); font-style: italic; font-family: inherit; }
+.pf-value .pf-multi { display: block; }
+.pf-value .pf-multi + .pf-multi::before {
+  content: ''; display: block;
+  border-top: 1px dashed var(--divider); margin: 3px 0;
+}
+
+/* ── Output Section ── */
+.output-section { display: none; margin-top: 20px; }
+.output-section.visible { display: block; animation: drIn 0.4s ease-out forwards; }
+.output-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; gap: 10px;
+}
+.output-title {
+  font-size: 0.78rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted);
+}
+.output-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.btn-copy, .btn-clear {
+  height: 32px; padding: 0 14px; border-radius: 7px;
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--text); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  font-family: inherit; transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.btn-copy:hover { border-color: var(--primary); background: var(--hover); color: var(--primary); }
+.btn-clear:hover { border-color: #e05050; background: var(--hover); color: #e05050; }
+.btn-copy.copied { border-color: var(--success); color: var(--success); background: rgba(74,222,128,0.06); }
+
+.output-box {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; font-size: 0.875rem; line-height: 1.65; color: var(--text);
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 480px; overflow-y: auto;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+.output-box::-webkit-scrollbar { width: 6px; }
+.output-box::-webkit-scrollbar-track { background: transparent; }
+.output-box::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+/* ── Training Panel (full-screen overlay) ── */
+.train-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none;
+  transform: translateY(24px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.train-overlay.open {
+  opacity: 1; pointer-events: auto; transform: translateY(0);
+}
+
+.train-panel-header {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--divider);
+  background: var(--card);
+}
+.train-close-btn {
+  width: 32px; height: 32px;
+  background: var(--card-elev); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  font-size: 1rem; cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.train-close-btn:hover { border-color: #e05050; color: #e05050; }
+.train-panel-title {
+  font-size: 1rem; font-weight: 700; letter-spacing: -0.01em;
+  background: linear-gradient(90deg, var(--primary), #FF8C00);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.train-panel-hint { font-size: 0.8rem; color: var(--muted); margin-left: auto; }
+
+.train-body {
+  flex: 1; display: flex; min-height: 0;
+  gap: 0;
+}
+
+/* Lines pane */
+.train-lines-pane {
+  width: 44%; min-width: 220px; max-width: 400px;
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--divider);
   overflow: hidden;
 }
-
-.tool-card:nth-child(1) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.35s forwards; }
-.tool-card:nth-child(2) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.45s forwards; }
-.tool-card:nth-child(3) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.55s forwards; }
-.tool-card:nth-child(4) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.65s forwards; }
-.tool-card:nth-child(5) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.75s forwards; }
-.tool-card:nth-child(6) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.85s forwards; }
-
-.tool-card:hover,
-.tool-card:focus-visible {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary), 0 8px 32px rgba(255,179,24,0.15);
-  background: var(--card-elev);
-  transform: translateY(-3px);
-  outline: none;
+.train-pane-label {
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--muted); padding: 10px 16px 8px;
+  flex-shrink: 0; border-bottom: 1px solid var(--divider);
 }
-
-.tool-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 16px; right: 16px;
-  height: 2px;
-  background: var(--primary);
-  border-radius: 2px 2px 0 0;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.25s cubic-bezier(0.34,1.2,0.64,1);
+.train-lines-list {
+  flex: 1; overflow-y: auto;
+  padding: 6px 0;
 }
-.tool-card:hover::after,
-.tool-card:focus-visible::after { transform: scaleX(1); }
+.train-lines-list::-webkit-scrollbar { width: 5px; }
+.train-lines-list::-webkit-scrollbar-track { background: transparent; }
+.train-lines-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
 
-.card-icon {
-  font-size: 2rem;
-  line-height: 1;
-  margin-bottom: 4px;
-  display: inline-block;
-  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+.train-line-item {
+  display: block; width: 100%; text-align: left;
+  padding: 7px 16px;
+  background: none; border: none; color: var(--muted);
+  font-size: 0.78rem; font-family: 'SF Mono', 'Fira Code', monospace;
+  cursor: pointer; line-height: 1.4;
+  transition: background 0.12s, color 0.12s;
+  word-break: break-word;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-
-.tool-card:hover .card-icon,
-.tool-card:focus-visible .card-icon { transform: translateX(5px); }
-
-.card-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-
-.card-desc {
-  font-size: 0.875rem;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-.card-arrow {
-  margin-top: auto;
-  padding-top: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
+.train-line-item:hover { background: var(--hover); color: var(--text); }
+.train-line-item.selected {
+  background: rgba(255,179,24,0.1);
   color: var(--primary);
-  letter-spacing: 0.02em;
-  opacity: 0;
-  transform: translateX(-5px);
-  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.34,1.2,0.64,1);
+  font-weight: 600;
+}
+.train-line-item.tagged {
+  border-left: 2px solid var(--success);
+  padding-left: 14px;
 }
 
-.tool-card:hover .card-arrow,
-.tool-card:focus .card-arrow,
-.tool-card:focus-visible .card-arrow {
-  opacity: 1;
-  transform: translateX(0);
+/* Right pane */
+.train-right-pane {
+  flex: 1; display: flex; flex-direction: column;
+  overflow-y: auto; min-width: 0;
+}
+.train-right-pane::-webkit-scrollbar { width: 5px; }
+.train-right-pane::-webkit-scrollbar-track { background: transparent; }
+.train-right-pane::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+/* Tagger */
+.train-tagger-section {
+  flex-shrink: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--divider);
+}
+.tagger-placeholder {
+  color: var(--muted); font-size: 0.85rem; text-align: center;
+  padding: 24px 0;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+.tagger-form { display: none; flex-direction: column; gap: 12px; }
+.tagger-form.visible { display: flex; }
+
+.tagger-selected-text {
+  padding: 9px 13px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; font-size: 0.8rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--text); word-break: break-word;
+  line-height: 1.45;
+}
+.tagger-selected-label {
+  font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--muted); margin-bottom: 4px;
 }
 
-@media (max-width: 620px) {
-  .tool-card { width: 100%; }
-  .cards { flex-direction: column; align-items: center; }
+.tagger-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.tagger-group { display: flex; flex-direction: column; gap: 4px; }
+.tagger-group.full { grid-column: 1 / -1; }
+.tagger-group label {
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--muted);
+}
+.tagger-input, .tagger-select {
+  height: 34px; padding: 0 10px;
+  background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--text);
+  font-size: 0.82rem; font-family: inherit;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.tagger-input:focus, .tagger-select:focus { outline: none; border-color: var(--primary); }
+.tagger-select option { background: #1c1916; }
+
+.pattern-preview {
+  padding: 7px 11px;
+  background: rgba(255,179,24,0.05); border: 1px solid rgba(255,179,24,0.2);
+  border-radius: 6px; font-size: 0.78rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--primary); word-break: break-all;
+  min-height: 32px; line-height: 1.5;
 }
 
-  /* ── US Map Background ── */
-  .map-bg {
-    position: fixed; inset: 0; z-index: 0;
-    pointer-events: none; overflow: hidden;
-  }
-  .map-bg svg { width: 100%; height: 100%; }
-  .map-bg svg path {
-    fill: transparent !important;
-    stroke: rgba(255,179,24,0.145) !important;
-    stroke-width: 0.8 !important;
-    transition: fill 2s ease-in-out !important;
-  }
-  .map-bg svg path.state-lit {
-    fill: rgba(255,179,24,0.32) !important;
-  }
-  :root[data-theme="light"] .map-bg svg path {
-    stroke: rgba(120,80,0,0.135) !important;
-  }
-  .map-vignette {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background: radial-gradient(ellipse 100% 90% at 50% 45%,
-      transparent 18%, rgba(11,10,9,0.52) 60%, rgba(11,10,9,0.92) 100%);
-  }
-  :root[data-theme="light"] .map-vignette {
-    background: radial-gradient(ellipse 100% 90% at 50% 45%,
-      rgba(238,240,245,0) 18%, rgba(238,240,245,0.62) 60%, rgba(238,240,245,0.96) 100%);
-  }
-  /* Lift all page content above the fixed map */
-  body > div:not(.map-bg):not(.map-vignette) { position: relative; z-index: 1; }
-
-@keyframes cardIn {
-  to { opacity: 1; transform: translateY(0); }
+.tagger-actions {
+  display: flex; align-items: center; gap: 10px;
+  padding-top: 4px;
 }
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(-5px); }
+.btn-save-pattern {
+  height: 34px; padding: 0 18px;
+  background: var(--primary); border: none; border-radius: 7px;
+  color: var(--on-primary); font-size: 0.82rem; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.btn-save-pattern:hover { background: var(--primary-dark); }
+.btn-save-pattern:disabled { opacity: 0.4; cursor: default; }
+.tagger-saved-msg {
+  font-size: 0.8rem; color: var(--success); font-weight: 600;
+  opacity: 0; transition: opacity 0.2s;
+}
+.tagger-saved-msg.show { opacity: 1; }
+
+/* Templates */
+.train-templates-section {
+  flex: 1; padding: 16px 20px;
+}
+.templates-label {
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--muted); margin-bottom: 12px;
+}
+.templates-empty {
+  font-size: 0.82rem; color: var(--muted);
+  padding: 16px; text-align: center;
+  border: 1px dashed var(--border); border-radius: 8px;
+}
+.template-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 9px; margin-bottom: 8px;
+}
+.template-field-badge {
+  flex-shrink: 0;
+  font-size: 0.68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 2px 7px; border-radius: 4px;
+  background: rgba(255,179,24,0.12); color: var(--primary);
+  margin-top: 1px;
+}
+.template-info { flex: 1; min-width: 0; }
+.template-keyword {
+  font-size: 0.78rem; color: var(--muted); margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.template-keyword span { color: var(--text); font-weight: 600; }
+.template-pattern {
+  font-size: 0.75rem; color: var(--primary); opacity: 0.75;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  word-break: break-all;
+}
+.template-example {
+  font-size: 0.72rem; color: var(--muted); margin-top: 2px;
+}
+.btn-del-template {
+  flex-shrink: 0; width: 26px; height: 26px;
+  background: none; border: 1px solid var(--border);
+  border-radius: 5px; color: var(--muted);
+  font-size: 0.75rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.15s, color 0.15s;
+  font-family: inherit;
+}
+.btn-del-template:hover { border-color: #e05050; color: #e05050; }
+
+/* ── Map background ── */
+.map-bg {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+}
+.map-bg svg { width: 100%; height: 100%; }
+.map-bg svg path {
+  fill: transparent !important;
+  stroke: rgba(255,179,24,0.145) !important;
+  stroke-width: 0.8 !important;
+  transition: fill 2s ease-in-out !important;
+}
+.map-bg svg path.state-lit { fill: rgba(255,179,24,0.32) !important; }
+.map-vignette {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 100% 90% at 50% 45%,
+    transparent 18%, rgba(11,10,9,0.52) 60%, rgba(11,10,9,0.92) 100%);
+}
+body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relative; z-index: 1; }
+
+/* ── Animations ── */
+@keyframes drIn {
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .train-body { flex-direction: column; }
+  .train-lines-pane { width: 100%; max-width: none; max-height: 240px; border-right: none; border-bottom: 1px solid var(--divider); }
+  .tagger-grid { grid-template-columns: 1fr; }
+  .parsed-fields { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
-<!-- US Map Background -->
 <div class="map-bg" aria-hidden="true">
 <svg xmlns="http://www.w3.org/2000/svg" style="stroke-linejoin:round;fill:none;" version="1.1" viewBox="0 0 1000 589" preserveAspectRatio="xMidYMid meet">
   <path id="MA" data-name="Massachusetts" data-id="MA" d="m 956.31178,153.05085 -0.29118,-0.19412 0,0.29119 0.29118,-0.0971 z m -2.91189,-2.6207 0.67944,-0.29119 0,-0.38825 -0.67944,0.67944 z m 12.03583,-7.57092 -0.0971,-1.35889 -0.19412,-0.7765 0.29119,2.13539 z m -42.41659,-9.9975 -0.67944,0.29119 -5.5326,1.65007 -1.94126,0.67944 -2.23245,0.67944 -0.7765,0.29119 0,0.29119 0.29118,5.04728 0.29119,4.65903 0.29119,4.27078 0.48532,0.29119 1.74714,-0.48532 7.86211,-2.32951 0.19412,0.48531 13.97709,-5.33847 0.0971,0.19413 1.26182,-0.48532 4.4649,-1.74713 4.27078,5.14434 0,0 0.58238,-0.48531 0.29119,-1.45595 -0.0971,2.32952 0,0 0.97063,0 0.29119,1.16475 0.87357,1.65008 0,0 4.56197,-5.5326 3.78546,1.26182 0.87357,-1.94126 6.21204,-3.30015 -2.62071,-5.14435 0.67945,3.30015 -3.20309,2.42658 -3.59133,0.29119 -7.18267,-7.66799 -3.20309,-4.85315 3.20309,-3.39721 -3.30015,-0.19413 -1.35888,-3.20308 -0.0971,-0.19413 -5.53259,6.01791 -12.22996,4.07666 -3.97959,1.26182 0,0 z" style="stroke-width:0.97063118000000004;fill:#f9f9f9"></path>
@@ -287,61 +553,742 @@ body {
 </svg>
 </div>
 <div class="map-vignette" aria-hidden="true"></div>
-<div class="wrap">
-  <header class="topbar">
 
-    <h1 class="page-title">Cargo Tools</h1>
-    <p class="page-subtitle">Tools for dispatchers</p>
+<div class="wrap">
+
+  <header class="topbar">
+    <h1 class="page-title"><span class="title-text">Doc Reader</span></h1>
+    <p class="page-subtitle">Extract &amp; parse text from PDF and image files</p>
+    <div class="header-controls">
+      <a href="index.html" class="hdr-btn">&#8592; Main</a>
+    </div>
   </header>
 
-  <main class="cards">
-    <a href="cargo-spacer.html" class="tool-card">
-      <div class="card-icon">🚛</div>
-      <div class="card-name">Cargo Spacer</div>
-      <div class="card-desc">Verify if cargo fits in the truck</div>
-      <div class="card-arrow">Open tool →</div>
-    </a>
+  <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload PDF or image file">
+    <input type="file" id="fileInput" accept=".pdf,image/png,image/jpeg,image/jpg,image/webp" aria-label="Choose file">
+    <span class="drop-icon">&#128196;</span>
+    <div class="drop-title">Drop a file here, or click to upload</div>
+    <div class="drop-hint">Supports <strong>PDF</strong>, <strong>PNG</strong>, <strong>JPG</strong>, and <strong>WEBP</strong></div>
+  </div>
 
-    <a href="transit-time.html" class="tool-card">
-      <div class="card-icon">⏱️</div>
-      <div class="card-name">Transit Time</div>
-      <div class="card-desc">Drive time with HOS logbook rules</div>
-      <div class="card-arrow">Open tool →</div>
-    </a>
+  <div class="file-chip" id="fileChip">
+    <span class="file-chip-icon" id="chipIcon">&#128196;</span>
+    <span class="file-chip-name" id="chipName"></span>
+    <span class="file-chip-size" id="chipSize"></span>
+  </div>
 
-    <a href="resources.html" class="tool-card">
-      <div class="card-icon">📁</div>
-      <div class="card-name">Resources</div>
-      <div class="card-desc">Documents, templates and reference files</div>
-      <div class="card-arrow">Open tool →</div>
-    </a>
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+    <div class="loader-label" id="loaderLabel">Processing&hellip;</div>
+    <div class="loader-progress" id="loaderProgress"></div>
+  </div>
 
-    <a href="order-converter.html" class="tool-card">
-      <div class="card-icon">📋</div>
-      <div class="card-name">Order Converter</div>
-      <div class="card-desc">Parse raw load text into clean summary</div>
-      <div class="card-arrow">Open tool →</div>
-    </a>
+  <div class="error-banner" id="errorBanner"></div>
 
-    <a href="rc-generator.html" class="tool-card">
-      <div class="card-icon">📋</div>
-      <div class="card-name">RC Generator</div>
-      <div class="card-desc">Rate Confirmation builder</div>
-      <div class="card-arrow">Open tool →</div>
-    </a>
+  <!-- Parsed Summary Card -->
+  <div class="parsed-card" id="parsedCard">
+    <div class="parsed-card-header">
+      <span class="parsed-card-title">&#9889; Parsed Fields</span>
+      <button class="btn-train" id="btnTrain">&#9881; Train</button>
+    </div>
+    <div class="parsed-fields" id="parsedFields"></div>
+  </div>
 
-    <a href="doc-reader.html" class="tool-card">
-      <div class="card-icon">🔍</div>
-      <div class="card-name">Doc Reader</div>
-      <div class="card-desc">Extract text from PDFs and images</div>
-      <div class="card-arrow">Open tool →</div>
-    </a>
+  <!-- Raw Text Output -->
+  <div class="output-section" id="outputSection">
+    <div class="output-header">
+      <span class="output-title">Extracted Text</span>
+      <div class="output-actions">
+        <button class="btn-copy" id="btnCopy">&#10697; Copy</button>
+        <button class="btn-clear" id="btnClear">&#10005; Clear</button>
+      </div>
+    </div>
+    <div class="output-box" id="outputBox"></div>
+  </div>
 
-</main>
 </div>
 
+<!-- Training Panel -->
+<div class="train-overlay" id="trainOverlay">
+  <div class="train-panel-header">
+    <button class="train-close-btn" id="trainCloseBtn" title="Close training panel">&#10005;</button>
+    <span class="train-panel-title">Training Mode</span>
+    <span class="train-panel-hint">Click any line to tag it as a field</span>
+  </div>
+  <div class="train-body">
+    <!-- Left: document lines -->
+    <div class="train-lines-pane">
+      <div class="train-pane-label">Document Lines</div>
+      <div class="train-lines-list" id="trainLinesList"></div>
+    </div>
+    <!-- Right: tagger + templates -->
+    <div class="train-right-pane">
+      <div class="train-tagger-section">
+        <div class="tagger-placeholder" id="taggerPlaceholder">&#8592; Click a line from the document to tag it</div>
+        <div class="tagger-form" id="taggerForm">
+          <div>
+            <div class="tagger-selected-label">Selected line</div>
+            <div class="tagger-selected-text" id="taggerSelectedText"></div>
+          </div>
+          <div class="tagger-grid">
+            <div class="tagger-group">
+              <label for="taggerKeyword">Keyword / label</label>
+              <input class="tagger-input" id="taggerKeyword" type="text" placeholder="e.g. Load #" autocomplete="off">
+            </div>
+            <div class="tagger-group">
+              <label for="taggerValue">Value to capture</label>
+              <input class="tagger-input" id="taggerValue" type="text" placeholder="e.g. S02805737" autocomplete="off">
+            </div>
+            <div class="tagger-group">
+              <label for="taggerSelect">Tag as field</label>
+              <select class="tagger-select" id="taggerSelect">
+                <option value="">&#8212; select &#8212;</option>
+                <option value="Reference">Reference / Load #</option>
+                <option value="Date">Date &amp; Time</option>
+                <option value="Pickup">Pickup Address</option>
+                <option value="Delivery">Delivery Address</option>
+                <option value="Carrier">Carrier Name</option>
+                <option value="Weight">Weight</option>
+                <option value="Miles">Miles / Distance</option>
+                <option value="Rate">Rate / Price</option>
+              </select>
+            </div>
+            <div class="tagger-group">
+              <label>Pattern preview</label>
+              <div class="pattern-preview" id="patternPreview">&#8211;</div>
+            </div>
+          </div>
+          <div class="tagger-actions">
+            <button class="btn-save-pattern" id="btnSavePattern" disabled>Save Pattern</button>
+            <span class="tagger-saved-msg" id="taggerSavedMsg">&#10003; Saved!</span>
+          </div>
+        </div>
+      </div>
+      <div class="train-templates-section">
+        <div class="templates-label">Saved Templates</div>
+        <div id="templatesList"></div>
+        <div class="templates-empty" id="templatesEmpty"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ══════════════════════════════════════════════
+   pdf.js
+══════════════════════════════════════════════ */
+import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+
+const TESSERACT_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.0/tesseract.min.js';
+const STORAGE_KEY   = 'rc-templates';
+
+/* ══════════════════════════════════════════════
+   DOM refs
+══════════════════════════════════════════════ */
+const dropZone       = document.getElementById('dropZone');
+const fileInput      = document.getElementById('fileInput');
+const loader         = document.getElementById('loader');
+const loaderLabel    = document.getElementById('loaderLabel');
+const loaderProgress = document.getElementById('loaderProgress');
+const outputSection  = document.getElementById('outputSection');
+const outputBox      = document.getElementById('outputBox');
+const errorBanner    = document.getElementById('errorBanner');
+const fileChip       = document.getElementById('fileChip');
+const chipIcon       = document.getElementById('chipIcon');
+const chipName       = document.getElementById('chipName');
+const chipSize       = document.getElementById('chipSize');
+const btnCopy        = document.getElementById('btnCopy');
+const btnClear       = document.getElementById('btnClear');
+const parsedCard     = document.getElementById('parsedCard');
+const parsedFields   = document.getElementById('parsedFields');
+const btnTrain       = document.getElementById('btnTrain');
+const trainOverlay   = document.getElementById('trainOverlay');
+const trainCloseBtn  = document.getElementById('trainCloseBtn');
+const trainLinesList = document.getElementById('trainLinesList');
+const taggerPlaceholder = document.getElementById('taggerPlaceholder');
+const taggerForm     = document.getElementById('taggerForm');
+const taggerSelectedText = document.getElementById('taggerSelectedText');
+const taggerKeyword  = document.getElementById('taggerKeyword');
+const taggerValue    = document.getElementById('taggerValue');
+const taggerSelect   = document.getElementById('taggerSelect');
+const patternPreview = document.getElementById('patternPreview');
+const btnSavePattern = document.getElementById('btnSavePattern');
+const taggerSavedMsg = document.getElementById('taggerSavedMsg');
+const templatesList  = document.getElementById('templatesList');
+const templatesEmpty = document.getElementById('templatesEmpty');
+
+/* ══════════════════════════════════════════════
+   State
+══════════════════════════════════════════════ */
+let lastExtractedText = '';
+let tesseractLoaded   = false;
+
+/* ══════════════════════════════════════════════
+   Upload & file handling
+══════════════════════════════════════════════ */
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0]; if (f) processFile(f);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) processFile(fileInput.files[0]); });
+dropZone.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+});
+
+/* ══════════════════════════════════════════════
+   UI helpers
+══════════════════════════════════════════════ */
+function showLoader(label) {
+  hideError(); hideParsed(); hideOutput();
+  loader.classList.add('visible');
+  loaderLabel.textContent = label || 'Processing…';
+  loaderProgress.textContent = '';
+}
+function hideLoader() { loader.classList.remove('visible'); }
+
+function showError(msg) {
+  hideLoader();
+  errorBanner.textContent = msg;
+  errorBanner.classList.add('visible');
+}
+function hideError() { errorBanner.classList.remove('visible'); }
+
+function hideParsed() { parsedCard.classList.remove('visible'); }
+function hideOutput() { outputSection.classList.remove('visible'); }
+
+function showFileChip(file) {
+  chipName.textContent = file.name;
+  chipSize.textContent = formatBytes(file.size);
+  chipIcon.textContent = file.type === 'application/pdf' ? '📄' : '🖼️';
+  fileChip.classList.add('visible');
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1048576).toFixed(1) + ' MB';
+}
+
+/* ══════════════════════════════════════════════
+   Dispatch
+══════════════════════════════════════════════ */
+const SUPPORTED_IMG = ['image/png', 'image/jpeg', 'image/webp'];
+
+function processFile(file) {
+  hideError(); fileInput.value = '';
+  showFileChip(file);
+  if (file.type === 'application/pdf') {
+    processPDF(file);
+  } else if (SUPPORTED_IMG.includes(file.type)) {
+    processImage(file);
+  } else {
+    showError('Unsupported file: "' + file.name + '". Upload a PDF, PNG, JPG, or WEBP.');
+    fileChip.classList.remove('visible');
+  }
+}
+
+/* ══════════════════════════════════════════════
+   PDF extraction
+══════════════════════════════════════════════ */
+async function processPDF(file) {
+  showLoader('Reading PDF…');
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    const total = pdf.numPages;
+    let allText = '';
+    for (let i = 1; i <= total; i++) {
+      loaderLabel.textContent = 'Extracting page ' + i + ' of ' + total + '…';
+      loaderProgress.textContent = Math.round((i / total) * 100) + '%';
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pt = buildPageText(content);
+      if (allText && pt.trim()) allText += '\n\n─── Page ' + i + ' ───\n\n';
+      allText += pt;
+    }
+    if (!allText.trim()) {
+      showError('No text extracted from this PDF. It may be a scanned image — upload each page as PNG instead.');
+      return;
+    }
+    finalizeText(allText);
+  } catch (err) {
+    showError('Failed to read PDF: ' + (err.message || err));
+  }
+}
+
+function buildPageText(content) {
+  if (!content.items.length) return '';
+  const THRESH = 5;
+  const sorted = [...content.items].sort((a, b) => {
+    const dy = b.transform[5] - a.transform[5];
+    if (Math.abs(dy) > THRESH) return dy;
+    return a.transform[4] - b.transform[4];
+  });
+  const lines = [];
+  let cur = [], lastY = null;
+  for (const item of sorted) {
+    const y = Math.round(item.transform[5]);
+    if (lastY === null || Math.abs(y - lastY) > THRESH) {
+      if (cur.length) lines.push(cur);
+      cur = [item]; lastY = y;
+    } else { cur.push(item); }
+  }
+  if (cur.length) lines.push(cur);
+  return lines
+    .map(ln => ln.map(it => it.str.trimEnd()).join(ln.length > 2 ? '  ' : ' '))
+    .filter(l => l.trim())
+    .join('\n');
+}
+
+/* ══════════════════════════════════════════════
+   Image OCR
+══════════════════════════════════════════════ */
+function loadTesseract() {
+  return new Promise((res, rej) => {
+    if (tesseractLoaded) { res(); return; }
+    const s = document.createElement('script');
+    s.src = TESSERACT_CDN;
+    s.onload = () => { tesseractLoaded = true; res(); };
+    s.onerror = () => rej(new Error('Failed to load Tesseract.js'));
+    document.head.appendChild(s);
+  });
+}
+
+async function processImage(file) {
+  showLoader('Loading OCR engine…');
+  try {
+    await loadTesseract();
+    loaderLabel.textContent = 'Running OCR…';
+    loaderProgress.textContent = '';
+    const worker = await Tesseract.createWorker('eng', 1, {
+      logger: m => {
+        if (m.status === 'recognizing text')
+          loaderProgress.textContent = Math.round(m.progress * 100) + '%';
+      }
+    });
+    const { data } = await worker.recognize(file);
+    await worker.terminate();
+    if (!data.text || !data.text.trim()) {
+      showError('No text detected. Make sure the image is clear and contains readable text.');
+      return;
+    }
+    finalizeText(data.text);
+  } catch (err) {
+    showError('OCR failed: ' + (err.message || err));
+  }
+}
+
+/* ══════════════════════════════════════════════
+   Finalize: parse + display
+══════════════════════════════════════════════ */
+function finalizeText(text) {
+  hideLoader();
+  lastExtractedText = text;
+  renderParsed(parseDocument(text));
+  outputBox.textContent = text.trim();
+  outputSection.classList.add('visible');
+}
+
+/* ══════════════════════════════════════════════
+   PARSING ENGINE
+══════════════════════════════════════════════ */
+const FIELD_LABELS = {
+  Reference: 'Reference / Load #',
+  Date:      'Date & Time',
+  Pickup:    'Pickup',
+  Delivery:  'Delivery',
+  Carrier:   'Carrier',
+  Weight:    'Weight',
+  Miles:     'Miles / Distance',
+  Rate:      'Rate / Price',
+};
+const FIELD_NAMES = Object.keys(FIELD_LABELS);
+
+/* Default regex sets — each is [regex, captureGroup] */
+const DEFAULT_PATTERNS = {
+  Reference: [
+    [/\b([A-Z]{1,5}\d{5,12}[A-Z]?)\b/g, 1],
+    [/(?:load|order|ref(?:erence)?|confirmation|pro|shipment)\s*(?:no\.?|#|num(?:ber)?)?[:\s]+([A-Z0-9]{5,15})/gi, 1],
+  ],
+  Date: [
+    [/\b(\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+\d{1,2}:\d{2}(?:\s*[AP]M)?)?)\b/gi, 1],
+    [/\b(\d{1,2}-\d{1,2}-\d{4}(?:\s+\d{1,2}:\d{2}(?:\s*[AP]M)?)?)\b/gi, 1],
+    [/\b(\d{1,2}-[A-Za-z]{3}-\d{2,4})\b/gi, 1],
+  ],
+  Pickup: [
+    [/(?:pickup|pick[\s-]?up|pu|origin|shipper|from)[:\s]+([A-Z][a-zA-Z .]+(?:,\s*[A-Z]{2})?(?:\s+\d{5}(?:-\d{4})?)?)/gi, 1],
+  ],
+  Delivery: [
+    [/(?:delivery|deliver(?:ed)?|del|destination|consignee|to)[:\s]+([A-Z][a-zA-Z .]+(?:,\s*[A-Z]{2})?(?:\s+\d{5}(?:-\d{4})?)?)/gi, 1],
+  ],
+  Carrier: [
+    [/(?:carrier|trucking|transport(?:ation)?|hauling|motor\s*carrier)[:\s]+([A-Z][A-Za-z0-9\s&.,'-]{2,50}?)(?:\n|$|,\s*(?:MC|DOT|LLC|Inc|Corp))/gi, 1],
+    [/(?:carrier)[:\s]+(.+)/gi, 1],
+  ],
+  Weight: [
+    [/([\d,]+(?:\.\d+)?\s*(?:lbs?|pounds?|kg|kilograms?))\b/gi, 1],
+    [/(?:weight|wt\.?)[:\s]+([\d,]+(?:\.\d+)?\s*(?:lbs?|pounds?|kg)?)/gi, 1],
+  ],
+  Miles: [
+    [/([\d,]+(?:\.\d+)?\s*(?:miles?|mi\.?))\b/gi, 1],
+    [/(?:miles?|distance|mileage)[:\s]+([\d,]+(?:\.\d+)?)/gi, 1],
+  ],
+  Rate: [
+    [/(\$[\d,]+(?:\.\d{2})?)\b/g, 1],
+    [/(?:rate|pay(?:ment)?|price|amount|total|charge)[:\s]+(\$?[\d,]+(?:\.\d{2})?)/gi, 1],
+  ],
+};
+
+function parseDocument(text) {
+  const results = {};
+  const custom = loadPatterns();
+
+  for (const field of FIELD_NAMES) {
+    const found = new Set();
+
+    /* 1. Custom patterns first */
+    for (const p of custom.filter(c => c.field === field)) {
+      for (const v of runCustomPattern(p, text)) found.add(v);
+    }
+
+    /* 2. Default patterns if nothing yet */
+    if (!found.size) {
+      for (const [re, grp] of DEFAULT_PATTERNS[field] || []) {
+        re.lastIndex = 0;
+        let m;
+        while ((m = re.exec(text)) !== null) {
+          const v = (m[grp] || m[0]).trim();
+          if (v && v.length > 1) found.add(v);
+        }
+      }
+    }
+
+    results[field] = found.size ? [...found] : null;
+  }
+  return results;
+}
+
+function runCustomPattern(p, text) {
+  try {
+    const reStr = p.keyword
+      ? escRx(p.keyword) + '[^\\n]{0,60}(' + p.pattern + ')'
+      : '(' + p.pattern + ')';
+    const re = new RegExp(reStr, 'gi');
+    const out = [];
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      const v = (m[1] || m[0]).trim();
+      if (v && !out.includes(v)) out.push(v);
+    }
+    return out;
+  } catch { return []; }
+}
+
+function escRx(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+/* ══════════════════════════════════════════════
+   Render parsed card
+══════════════════════════════════════════════ */
+function renderParsed(results) {
+  parsedFields.innerHTML = '';
+  for (const field of FIELD_NAMES) {
+    const row = document.createElement('div');
+    row.className = 'pf-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'pf-label';
+    lbl.textContent = FIELD_LABELS[field];
+    const val = document.createElement('span');
+    val.className = 'pf-value';
+    if (results[field]) {
+      results[field].forEach((v, i) => {
+        const s = document.createElement('span');
+        s.className = 'pf-multi';
+        s.textContent = v;
+        val.appendChild(s);
+      });
+    } else {
+      val.classList.add('not-found');
+      val.textContent = 'Not found';
+    }
+    row.appendChild(lbl);
+    row.appendChild(val);
+    parsedFields.appendChild(row);
+  }
+  parsedCard.classList.add('visible');
+}
+
+/* ══════════════════════════════════════════════
+   Copy + Clear
+══════════════════════════════════════════════ */
+btnCopy.addEventListener('click', async () => {
+  const text = outputBox.textContent;
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    btnCopy.textContent = '✓ Copied!';
+    btnCopy.classList.add('copied');
+    setTimeout(() => { btnCopy.textContent = '⎘ Copy'; btnCopy.classList.remove('copied'); }, 1800);
+  } catch {
+    btnCopy.textContent = 'Select manually';
+    setTimeout(() => { btnCopy.textContent = '⎘ Copy'; }, 2000);
+  }
+});
+
+btnClear.addEventListener('click', () => {
+  hideOutput(); hideError(); hideLoader(); hideParsed();
+  fileChip.classList.remove('visible');
+  fileInput.value = '';
+  lastExtractedText = '';
+});
+
+/* ══════════════════════════════════════════════
+   TRAINING PANEL
+══════════════════════════════════════════════ */
+btnTrain.addEventListener('click', openTrainPanel);
+trainCloseBtn.addEventListener('click', closeTrainPanel);
+
+function openTrainPanel() {
+  populateTrainLines();
+  renderTemplates();
+  resetTagger();
+  trainOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTrainPanel() {
+  trainOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* Populate lines */
+function populateTrainLines() {
+  trainLinesList.innerHTML = '';
+  if (!lastExtractedText) {
+    const p = document.createElement('div');
+    p.style.cssText = 'padding:16px;color:var(--muted);font-size:0.82rem;';
+    p.textContent = 'No document loaded.';
+    trainLinesList.appendChild(p);
+    return;
+  }
+  const lines = lastExtractedText.split('\n').filter(l => l.trim().length > 0);
+  lines.forEach((line, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'train-line-item';
+    btn.textContent = line;
+    btn.title = line;
+    btn.dataset.line = line;
+    btn.dataset.idx = idx;
+    btn.addEventListener('click', () => selectTrainLine(btn, line));
+    trainLinesList.appendChild(btn);
+  });
+}
+
+let selectedLineBtn = null;
+
+function selectTrainLine(btn, line) {
+  if (selectedLineBtn) selectedLineBtn.classList.remove('selected');
+  selectedLineBtn = btn;
+  btn.classList.add('selected');
+
+  /* Auto-detect keyword/value */
+  const { keyword, value } = autoSplit(line);
+  taggerSelectedText.textContent = line;
+  taggerKeyword.value = keyword;
+  taggerValue.value = value;
+  taggerSelect.value = '';
+  updatePatternPreview();
+
+  taggerPlaceholder.style.display = 'none';
+  taggerForm.classList.add('visible');
+  btnSavePattern.disabled = true;
+}
+
+function autoSplit(line) {
+  /* "Label: Value" */
+  const m1 = line.match(/^([^:]{2,40}):\s*(.+)$/);
+  if (m1) return { keyword: m1[1].trim(), value: m1[2].trim() };
+  /* "Label # Value" */
+  const m2 = line.match(/^([^#]{2,30}#\s*)(.+)$/);
+  if (m2) return { keyword: m2[1].trim(), value: m2[2].trim() };
+  return { keyword: '', value: line.trim() };
+}
+
+/* Live pattern preview */
+[taggerValue, taggerSelect].forEach(el =>
+  el.addEventListener('input', updatePatternPreview)
+);
+taggerSelect.addEventListener('change', () => {
+  updatePatternPreview();
+  btnSavePattern.disabled = !taggerSelect.value || !taggerValue.value.trim();
+});
+taggerValue.addEventListener('input', () => {
+  btnSavePattern.disabled = !taggerSelect.value || !taggerValue.value.trim();
+});
+
+function updatePatternPreview() {
+  const val   = taggerValue.value.trim();
+  const field = taggerSelect.value;
+  if (!val) { patternPreview.textContent = '–'; return; }
+  patternPreview.textContent = derivePattern(val, field);
+}
+
+/* ── Pattern derivation ── */
+function derivePattern(value, field) {
+  switch (field) {
+    case 'Reference': {
+      /* "S02805737" → [A-Z]+\d+ | "WIBHS260145A" → [A-Z]+\d+[A-Z]? */
+      let p = value.replace(/[A-Z]+/g, '[A-Z]+').replace(/\d+/g, '\\d+');
+      /* escape any remaining special chars */
+      return p;
+    }
+    case 'Date': {
+      /* detect common date shapes */
+      if (/^\d{1,2}\/\d{1,2}\/\d{2,4}/.test(value))
+        return '\\d{1,2}\\/\\d{1,2}\\/\\d{2,4}(?:\\s+\\d{1,2}:\\d{2}(?:\\s*[AP]M)?)?';
+      if (/^\d{1,2}-\d{1,2}-\d{4}/.test(value))
+        return '\\d{1,2}-\\d{1,2}-\\d{4}';
+      if (/^\d{1,2}-[A-Za-z]{3}/.test(value))
+        return '\\d{1,2}-[A-Za-z]{3}-\\d{2,4}';
+      return escRx(value).replace(/\d+/g, '\\d+');
+    }
+    case 'Rate':
+      return '\\$[\\d,]+(?:\\.\\d{2})?';
+    case 'Weight':
+      return '[\\d,]+(?:\\.\\d+)?\\s*(?:lbs?|pounds?|kg|kilograms?)';
+    case 'Miles':
+      return '[\\d,]+(?:\\.\\d+)?\\s*(?:miles?|mi\\.?)';
+    default:
+      /* generic: escape, then generalize digits */
+      return escRx(value).replace(/\d+/g, '\\d+');
+  }
+}
+
+/* ── Save pattern ── */
+btnSavePattern.addEventListener('click', () => {
+  const field   = taggerSelect.value;
+  const value   = taggerValue.value.trim();
+  const keyword = taggerKeyword.value.trim();
+  if (!field || !value) return;
+
+  const pattern = derivePattern(value, field);
+  const rec = {
+    id:       Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    field,
+    keyword,
+    pattern,
+    example:  value,
+    created:  Date.now(),
+  };
+
+  savePattern(rec);
+
+  /* Mark line as tagged */
+  if (selectedLineBtn) selectedLineBtn.classList.add('tagged');
+
+  /* Flash saved message */
+  taggerSavedMsg.classList.add('show');
+  setTimeout(() => taggerSavedMsg.classList.remove('show'), 2000);
+
+  /* Refresh templates list */
+  renderTemplates();
+
+  /* Re-run parser and update card */
+  if (lastExtractedText) renderParsed(parseDocument(lastExtractedText));
+});
+
+function resetTagger() {
+  taggerPlaceholder.style.display = '';
+  taggerForm.classList.remove('visible');
+  taggerKeyword.value = '';
+  taggerValue.value = '';
+  taggerSelect.value = '';
+  patternPreview.textContent = '–';
+  btnSavePattern.disabled = true;
+  if (selectedLineBtn) { selectedLineBtn.classList.remove('selected'); selectedLineBtn = null; }
+}
+
+/* ══════════════════════════════════════════════
+   localStorage pattern management
+══════════════════════════════════════════════ */
+function loadPatterns() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function savePattern(rec) {
+  const all = loadPatterns();
+  all.push(rec);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+function deletePattern(id) {
+  const all = loadPatterns().filter(p => p.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
+/* ── Render saved templates ── */
+function renderTemplates() {
+  const all = loadPatterns();
+  templatesList.innerHTML = '';
+  if (!all.length) {
+    templatesEmpty.textContent = 'No saved patterns yet. Tag some lines above to create them.';
+    templatesEmpty.style.display = 'block';
+    return;
+  }
+  templatesEmpty.style.display = 'none';
+  all.slice().reverse().forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'template-item';
+
+    const badge = document.createElement('span');
+    badge.className = 'template-field-badge';
+    badge.textContent = p.field;
+
+    const info = document.createElement('div');
+    info.className = 'template-info';
+
+    const kw = document.createElement('div');
+    kw.className = 'template-keyword';
+    kw.innerHTML = p.keyword
+      ? 'Keyword: <span>' + esc(p.keyword) + '</span>'
+      : '<span style="color:var(--muted);font-style:italic">No keyword</span>';
+
+    const pat = document.createElement('div');
+    pat.className = 'template-pattern';
+    pat.textContent = p.pattern;
+
+    const ex = document.createElement('div');
+    ex.className = 'template-example';
+    ex.textContent = 'Example: ' + p.example;
+
+    info.appendChild(kw);
+    info.appendChild(pat);
+    info.appendChild(ex);
+
+    const del = document.createElement('button');
+    del.className = 'btn-del-template';
+    del.title = 'Delete pattern';
+    del.textContent = '✕';
+    del.addEventListener('click', () => {
+      deletePattern(p.id);
+      renderTemplates();
+      if (lastExtractedText) renderParsed(parseDocument(lastExtractedText));
+    });
+
+    item.appendChild(badge);
+    item.appendChild(info);
+    item.appendChild(del);
+    templatesList.appendChild(item);
+  });
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+
 <script>
-/* Map state glow animation */
+/* Map state glow */
 (function(){
   function run(){
     var svg=document.querySelector('.map-bg svg');
@@ -349,36 +1296,25 @@ body {
     var all=Array.from(svg.querySelectorAll('path[id]'))
                .filter(function(p){return p.id&&p.id.length<=2;});
     if(all.length<3)return;
-    var busy=new Set();
-    var MAX=3;
-
+    var busy=new Set(), MAX=3;
     function activate(){
       if(busy.size>=MAX)return;
       var pool=all.filter(function(p){return!busy.has(p.id);});
       if(!pool.length)return;
       var p=pool[Math.floor(Math.random()*pool.length)];
-      busy.add(p.id);
-      p.classList.add('state-lit');
+      busy.add(p.id); p.classList.add('state-lit');
       var hold=2200+Math.random()*2600;
       setTimeout(function(){
         p.classList.remove('state-lit');
         setTimeout(function(){busy.delete(p.id);},2100);
       },hold);
     }
-
-    function loop(){
-      activate();
-      setTimeout(loop,800+Math.random()*1100);
-    }
-    // stagger startup
-    setTimeout(activate,400);
-    setTimeout(activate,1300);
-    setTimeout(activate,2400);
-    setTimeout(loop,900);
+    function loop(){ activate(); setTimeout(loop,800+Math.random()*1100); }
+    setTimeout(activate,400); setTimeout(activate,1300);
+    setTimeout(activate,2400); setTimeout(loop,900);
   }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',run);
-  }else{run();}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run);
+  else run();
 })();
 </script>
 </body>
