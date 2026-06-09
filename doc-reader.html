@@ -1507,6 +1507,9 @@ btnTrain.addEventListener('click', openTrainPanel);
 trainCloseBtn.addEventListener('click', closeTrainPanel);
 
 function openTrainPanel() {
+  const hasText = !!trainCurrentText;
+  document.getElementById('trainFileZone').style.display  = hasText ? 'none' : '';
+  document.getElementById('trainChangeDoc').style.display = hasText ? ''     : 'none';
   populateTrainLines();
   renderTemplates();
   resetTagger();
@@ -1522,7 +1525,7 @@ function closeTrainPanel() {
 /* Populate lines */
 function populateTrainLines() {
   trainLinesList.innerHTML = '';
-  const src = trainCurrentText || lastExtractedText;
+  const src = trainCurrentText;
   if (!src) return;
   const lines = src.split('\n').filter(l => l.trim().length > 0);
   lines.forEach((line, idx) => {
