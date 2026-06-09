@@ -819,7 +819,6 @@ canvas#viz3d:active { cursor: grabbing; }
 }
 .dimension-errors p { font-size: 0.8rem; color: var(--danger); font-weight: 500; }
 
-/* ── US Map Background ── */
 .map-bg {
     position: fixed;
     inset: 0;
