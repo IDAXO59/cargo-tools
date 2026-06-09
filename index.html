@@ -45,6 +45,8 @@ body {
   padding-bottom: 24px;
   border-bottom: 1px solid var(--divider);
   min-height: 48px;
+  opacity: 0;
+  animation: fadeUp 0.45s ease-out 0.15s forwards;
 }
 
 .brand-logo-link {
@@ -99,24 +101,56 @@ body {
   border-radius: 14px;
   text-decoration: none;
   color: var(--text);
-  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s, transform 0.15s;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease,
+              background 0.22s ease,
+              transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
+  opacity: 0;
+  transform: translateY(14px);
+  position: relative;
+  overflow: hidden;
 }
+
+.tool-card:nth-child(1) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.35s forwards; }
+.tool-card:nth-child(2) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.45s forwards; }
+.tool-card:nth-child(3) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.55s forwards; }
+.tool-card:nth-child(4) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.65s forwards; }
+.tool-card:nth-child(5) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.75s forwards; }
+.tool-card:nth-child(6) { animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.85s forwards; }
 
 .tool-card:hover,
 .tool-card:focus-visible {
   border-color: var(--primary);
   box-shadow: 0 0 0 1px var(--primary), 0 8px 32px rgba(255,179,24,0.15);
   background: var(--card-elev);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   outline: none;
 }
+
+.tool-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 16px; right: 16px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s cubic-bezier(0.34,1.2,0.64,1);
+}
+.tool-card:hover::after,
+.tool-card:focus-visible::after { transform: scaleX(1); }
 
 .card-icon {
   font-size: 2rem;
   line-height: 1;
   margin-bottom: 4px;
+  display: inline-block;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+.tool-card:hover .card-icon,
+.tool-card:focus-visible .card-icon { transform: scale(1.15) translateY(-1px); }
 
 .card-name {
   font-size: 1.1rem;
@@ -139,12 +173,16 @@ body {
   color: var(--primary);
   letter-spacing: 0.02em;
   opacity: 0;
-  transition: opacity 0.15s;
+  transform: translateX(-5px);
+  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.34,1.2,0.64,1);
 }
 
 .tool-card:hover .card-arrow,
 .tool-card:focus .card-arrow,
-.tool-card:focus-visible .card-arrow { opacity: 1; }
+.tool-card:focus-visible .card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
 
 @media (max-width: 620px) {
   .tool-card { width: 100%; }
@@ -180,6 +218,14 @@ body {
   }
   /* Lift all page content above the fixed map */
   body > div:not(.map-bg):not(.map-vignette) { position: relative; z-index: 1; }
+
+@keyframes cardIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 </style>
 </head>
