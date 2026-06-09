@@ -29,7 +29,7 @@ var STRINGS={
     'btn-parse':'Parse Document',
     'loader-label':'Processing…',
     'ocr-notice':'Using OCR mode — standard text extraction was unreliable for this PDF',
-    'parsed-title':'⚡ Parsed Fields',
+    'parsed-title':'⚡ Structured Output',
     'btn-train':'⚙ Train',
     'output-title':'Extracted Text',
     'btn-copy':'⧇ Copy',
@@ -52,14 +52,16 @@ var STRINGS={
     'ph-keyword':'e.g. Load #',
     'ph-value':'e.g. S02805737',
     'opt-select':'— select —',
-    'opt-ref':'Reference / Load #',
-    'opt-date':'Date & Time',
-    'opt-pickup':'Pickup Address',
-    'opt-delivery':'Delivery Address',
-    'opt-carrier':'Carrier Name',
-    'opt-weight':'Weight',
-    'opt-miles':'Miles / Distance',
-    'opt-rate':'Rate / Price',
+    'opt-pu-time':'Pick up time',
+    'opt-pu-loc':'Pick-up location',
+    'opt-ref':'PU notes / ref#',
+    'opt-poc':'POC',
+    'opt-del-time':'Delivery time',
+    'opt-del-loc':'Delivery location',
+    'opt-del-notes':'Delivery notes',
+    'opt-pieces':'Total Pieces',
+    'opt-weight':'Total Weight',
+    'opt-miles':'Loaded Miles',
     'main-btn':'← Main',
     'ttl-main':'Back to main page',
     'ttl-theme':'Toggle theme',
@@ -78,7 +80,7 @@ var STRINGS={
     'btn-parse':'Парсить',
     'loader-label':'Обработка…',
     'ocr-notice':'Режим OCR — стандартное извлечение текста ненадёжно для этого PDF',
-    'parsed-title':'⚡ Поля документа',
+    'parsed-title':'⚡ Структурированный вывод',
     'btn-train':'⚙ Обучение',
     'output-title':'Извлечённый текст',
     'btn-copy':'⧇ Копировать',
@@ -101,14 +103,16 @@ var STRINGS={
     'ph-keyword':'напр. Load #',
     'ph-value':'напр. S02805737',
     'opt-select':'— выбрать —',
-    'opt-ref':'Референс / Load #',
-    'opt-date':'Дата и время',
-    'opt-pickup':'Адрес погрузки',
-    'opt-delivery':'Адрес выгрузки',
-    'opt-carrier':'Перевозчик',
-    'opt-weight':'Вес',
-    'opt-miles':'Мили / расстояние',
-    'opt-rate':'Ставка / цена',
+    'opt-pu-time':'Время погрузки',
+    'opt-pu-loc':'Место погрузки',
+    'opt-ref':'Ref# / номер загрузки',
+    'opt-poc':'Контакт (POC)',
+    'opt-del-time':'Время выгрузки',
+    'opt-del-loc':'Место выгрузки',
+    'opt-del-notes':'Примечания доставки',
+    'opt-pieces':'Количество мест',
+    'opt-weight':'Общий вес',
+    'opt-miles':'Пробег (мили)',
     'main-btn':'← Главная',
     'ttl-main':'На главную страницу',
     'ttl-theme':'Сменить тему',
@@ -350,34 +354,29 @@ body {
 }
 .btn-train:hover { background: rgba(255,179,24,0.18); border-color: var(--primary); }
 
-.parsed-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 0;
+.parsed-block {
+  padding: 18px 22px 22px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.9rem; line-height: 2.1;
 }
-.pf-row {
-  padding: 11px 18px;
-  border-bottom: 1px solid var(--divider);
-  display: flex; flex-direction: column; gap: 3px;
+.pb-line { display: block; white-space: pre-wrap; }
+.pb-star  { color: var(--primary); }
+.pb-label { color: var(--primary); font-weight: 600; }
+.pb-value { color: var(--text); }
+.pb-sep {
+  display: block; color: var(--border-strong);
+  margin: 2px 0 2px; line-height: 1.6; user-select: none;
 }
-.pf-row:last-child { border-bottom: none; }
-.pf-label {
-  font-size: 0.72rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.07em;
-  color: var(--primary); opacity: 0.85;
+.pb-gap { display: block; height: 4px; }
+.btn-copy-parsed {
+  height: 30px; padding: 0 13px; flex-shrink: 0;
+  background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); font-size: 0.75rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  font-family: inherit; transition: border-color 0.15s, color 0.15s;
 }
-.pf-value {
-  font-size: 0.875rem; color: var(--text);
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  line-height: 1.4;
-  word-break: break-word;
-}
-.pf-value.not-found { color: var(--muted); font-style: italic; font-family: inherit; }
-.pf-value .pf-multi { display: block; }
-.pf-value .pf-multi + .pf-multi::before {
-  content: ''; display: block;
-  border-top: 1px dashed var(--divider); margin: 3px 0;
-}
+.btn-copy-parsed:hover { border-color: var(--primary); color: var(--primary); }
+.btn-copy-parsed.copied { border-color: var(--success); color: var(--success); }
 
 /* ── Output Section ── */
 .output-section { display: none; margin-top: 20px; }
@@ -793,7 +792,7 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
   .train-body { flex-direction: column; }
   .train-lines-pane { width: 100%; max-width: none; max-height: 240px; border-right: none; border-bottom: 1px solid var(--divider); }
   .tagger-grid { grid-template-columns: 1fr; }
-  .parsed-fields { grid-template-columns: 1fr; }
+  .parsed-block { padding: 14px 16px; font-size: 0.82rem; }
 }
 </style>
 </head>
@@ -913,10 +912,11 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
   <!-- Parsed Summary Card -->
   <div class="parsed-card" id="parsedCard">
     <div class="parsed-card-header">
-      <span class="parsed-card-title" data-i18n="parsed-title">&#9889; Parsed Fields</span>
+      <span class="parsed-card-title" data-i18n="parsed-title">&#9889; Structured Output</span>
       <span class="parsed-broker-badge" id="parsedBrokerBadge" style="display:none"></span>
+      <button class="btn-copy-parsed" id="btnCopyParsed" title="Copy formatted text">&#10697; Copy</button>
     </div>
-    <div class="parsed-fields" id="parsedFields"></div>
+    <div class="parsed-block" id="parsedFields"></div>
   </div>
 
   <!-- Raw Text Output -->
@@ -985,14 +985,16 @@ body > div:not(.map-bg):not(.map-vignette):not(.train-overlay) { position: relat
               <label for="taggerSelect" data-i18n="label-tag">Tag as field</label>
               <select class="tagger-select" id="taggerSelect">
                 <option value="" data-i18n="opt-select">&#8212; select &#8212;</option>
-                <option value="Reference" data-i18n="opt-ref">Reference / Load #</option>
-                <option value="Date" data-i18n="opt-date">Date &amp; Time</option>
-                <option value="Pickup" data-i18n="opt-pickup">Pickup Address</option>
-                <option value="Delivery" data-i18n="opt-delivery">Delivery Address</option>
-                <option value="Carrier" data-i18n="opt-carrier">Carrier Name</option>
-                <option value="Weight" data-i18n="opt-weight">Weight</option>
-                <option value="Miles" data-i18n="opt-miles">Miles / Distance</option>
-                <option value="Rate" data-i18n="opt-rate">Rate / Price</option>
+                <option value="PickupTime"       data-i18n="opt-pu-time">Pick up time</option>
+                <option value="PickupLocation"   data-i18n="opt-pu-loc">Pick-up location</option>
+                <option value="Reference"        data-i18n="opt-ref">PU notes / ref#</option>
+                <option value="POC"              data-i18n="opt-poc">POC</option>
+                <option value="DeliveryTime"     data-i18n="opt-del-time">Delivery time</option>
+                <option value="DeliveryLocation" data-i18n="opt-del-loc">Delivery location</option>
+                <option value="DeliveryNotes"    data-i18n="opt-del-notes">Delivery notes</option>
+                <option value="Pieces"           data-i18n="opt-pieces">Total Pieces</option>
+                <option value="Weight"           data-i18n="opt-weight">Total Weight</option>
+                <option value="Miles"            data-i18n="opt-miles">Loaded Miles</option>
               </select>
             </div>
             <div class="tagger-group">
@@ -1065,6 +1067,7 @@ const brokerSelect      = document.getElementById('brokerSelect');
 const btnParse          = document.getElementById('btnParse');
 const parsedBrokerBadge = document.getElementById('parsedBrokerBadge');
 const btnExportTemplates = document.getElementById('btnExportTemplates');
+const btnCopyParsed     = document.getElementById('btnCopyParsed');
 const btnLoadDefaults   = document.getElementById('btnLoadDefaults');
 
 /* ══════════════════════════════════════════════
@@ -1074,6 +1077,7 @@ let lastExtractedText  = '';
 let tesseractLoaded    = false;
 let lastMatchedBroker  = null;
 let trainCurrentText   = '';  /* text loaded into training panel */
+let lastParsedResults  = null;
 
 /* ══════════════════════════════════════════════
    Upload & file handling
@@ -1092,6 +1096,21 @@ dropZone.addEventListener('keydown', e => {
 /* ══════════════════════════════════════════════
    UI helpers
 ══════════════════════════════════════════════ */
+
+/* ── Copy structured output ── */
+btnCopyParsed.addEventListener('click', async () => {
+  if (!lastParsedResults) return;
+  try {
+    await navigator.clipboard.writeText(buildCopyText(lastParsedResults));
+    btnCopyParsed.textContent = '✓ Copied!';
+    btnCopyParsed.classList.add('copied');
+    setTimeout(() => { btnCopyParsed.innerHTML = '&#10697; Copy'; btnCopyParsed.classList.remove('copied'); }, 1800);
+  } catch {
+    btnCopyParsed.textContent = 'Select manually';
+    setTimeout(() => { btnCopyParsed.innerHTML = '&#10697; Copy'; }, 2000);
+  }
+});
+
 function showLoader(label) {
   hideError(); hideParsed(); hideOutput(); hideBrokerSelector();
   loader.classList.add('visible');
@@ -1310,37 +1329,80 @@ function finalizeExtractedText(text) {
    PARSING ENGINE
 ══════════════════════════════════════════════ */
 const FIELD_LABELS = {
-  Reference: 'Reference / Load #',
-  Date:      'Date & Time',
-  Pickup:    'Pickup',
-  Delivery:  'Delivery',
-  Carrier:   'Carrier',
-  Weight:    'Weight',
-  Miles:     'Miles / Distance',
-  Rate:      'Rate / Price',
+  PickupTime:       'Pick up time',
+  PickupLocation:   'Pick-up location',
+  Reference:        'PU notes/ref#',
+  POC:              'POC',
+  DeliveryTime:     'Delivery time',
+  DeliveryLocation: 'Delivery location',
+  DeliveryNotes:    'Delivery notes',
+  Pieces:           'Total Pieces',
+  Weight:           'Total Weight',
+  Miles:            'Loaded Miles',
 };
 const FIELD_NAMES = Object.keys(FIELD_LABELS);
 
+/* Template used for rendering + copy — groups define separator positions */
+const PARSED_TEMPLATE = [
+  [
+    { field: 'PickupTime',     label: 'Pick up time'     },
+    { field: 'PickupLocation', label: 'Pick-up location' },
+    { field: 'Reference',      label: 'PU notes/ref#'    },
+    { field: 'POC',            label: 'POC'              },
+  ],
+  [
+    { field: 'DeliveryTime',     label: 'Delivery time'     },
+    { field: 'DeliveryLocation', label: 'Delivery location' },
+    { field: 'DeliveryNotes',    label: 'Delivery notes'    },
+  ],
+  [
+    { field: 'Pieces', label: 'Total Pieces' },
+    { field: 'Weight', label: 'Total Weight' },
+  ],
+  [
+    { field: 'Miles', label: 'Loaded Miles' },
+  ],
+];
+
 /* Default regex sets — each is [regex, captureGroup] */
+const DATE_RE = [
+  /\b(\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+\d{1,2}:\d{2}(?:\s*[AP]M)?)?)\b/gi,
+  /\b(\d{1,2}-\d{1,2}-\d{4}(?:\s+\d{1,2}:\d{2}(?:\s*[AP]M)?)?)\b/gi,
+  /\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\s+\d{1,2}:\d{2}(?:\s*[AP]M)?)\b/gi,
+];
+const CITY_ST_RE = /([A-Z][a-zA-Z .]+(?:,\s*[A-Z]{2})\s*\d{5}(?:-\d{4})?)/g;
 const DEFAULT_PATTERNS = {
+  PickupTime: [
+    [/(?:pick[\s-]?up|pu\b|shipper|origin|ready[\s-]?(?:date|time)?|loading)[^\n]{0,50}(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}(?:[^\n]{0,12}\d{1,2}:\d{2}(?:\s*[AP]M)?)?)/gi, 1],
+    [/\b(\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+\d{1,2}:\d{2}(?:\s*[AP]M)?)?)\b/gi, 1],
+    [/\b(\d{1,2}-\d{1,2}-\d{4}(?:\s+\d{1,2}:\d{2}(?:\s*[AP]M)?)?)\b/gi, 1],
+  ],
+  PickupLocation: [
+    [/(?:pick[\s-]?up|pu\b|shipper|origin|from|ship\s*from)[:\s]+([A-Z][a-zA-Z .]+(?:,\s*[A-Z]{2})?\s*\d{5}(?:-\d{4})?)/gi, 1],
+    [/(?:pick[\s-]?up|pu\b|shipper|origin|from)[:\s]+([A-Z][a-zA-Z .]+,\s*[A-Z]{2})/gi, 1],
+  ],
   Reference: [
     [/\b([A-Z]{1,5}\d{5,12}[A-Z]?)\b/g, 1],
     [/(?:load|order|ref(?:erence)?|confirmation|pro|shipment)\s*(?:no\.?|#|num(?:ber)?)?[:\s]+([A-Z0-9]{5,15})/gi, 1],
   ],
-  Date: [
-    [/\b(\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+\d{1,2}:\d{2}(?:\s*[AP]M)?)?)\b/gi, 1],
-    [/\b(\d{1,2}-\d{1,2}-\d{4}(?:\s+\d{1,2}:\d{2}(?:\s*[AP]M)?)?)\b/gi, 1],
-    [/\b(\d{1,2}-[A-Za-z]{3}-\d{2,4})\b/gi, 1],
+  POC: [
+    [/(?:poc|point\s*of\s*contact|contact|agent|dispatcher)\s*[:\-]\s*([A-Za-z][A-Za-z\s.'-]{2,40})/gi, 1],
+    [/(?:poc|contact|phone|tel(?:\.)?|call)[:\s]+(\+?1?[\s\-.]?\(?\d{3}\)?[\s\-.]?\d{3}[\s\-.]?\d{4})/gi, 1],
   ],
-  Pickup: [
-    [/(?:pickup|pick[\s-]?up|pu|origin|shipper|from)[:\s]+([A-Z][a-zA-Z .]+(?:,\s*[A-Z]{2})?(?:\s+\d{5}(?:-\d{4})?)?)/gi, 1],
+  DeliveryTime: [
+    [/(?:deliver(?:y|ed)?|del\b|consignee|destination|drop[\s-]?off)[^\n]{0,50}(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}(?:[^\n]{0,12}\d{1,2}:\d{2}(?:\s*[AP]M)?)?)/gi, 1],
   ],
-  Delivery: [
-    [/(?:delivery|deliver(?:ed)?|del|destination|consignee|to)[:\s]+([A-Z][a-zA-Z .]+(?:,\s*[A-Z]{2})?(?:\s+\d{5}(?:-\d{4})?)?)/gi, 1],
+  DeliveryLocation: [
+    [/(?:deliver(?:y|ed)?|del\b|consignee|destination|drop[\s-]?off|deliver[\s-]?to)[:\s]+([A-Z][a-zA-Z .]+(?:,\s*[A-Z]{2})?\s*\d{5}(?:-\d{4})?)/gi, 1],
+    [/(?:deliver(?:y|ed)?|del\b|consignee|destination)[:\s]+([A-Z][a-zA-Z .]+,\s*[A-Z]{2})/gi, 1],
   ],
-  Carrier: [
-    [/(?:carrier|trucking|transport(?:ation)?|hauling|motor\s*carrier)[:\s]+([A-Z][A-Za-z0-9\s&.,'-]{2,50}?)(?:\n|$|,\s*(?:MC|DOT|LLC|Inc|Corp))/gi, 1],
-    [/(?:carrier)[:\s]+(.+)/gi, 1],
+  DeliveryNotes: [
+    [/(?:delivery\s*(?:notes?|instructions?|special|requirements?)|special\s*instructions?|delivery\s*comments?)[:\s]+([^\n]{5,150})/gi, 1],
+  ],
+  Pieces: [
+    [/([\d,]+)\s*(?:pcs?|pieces?|pallets?|skids?|units?)\b/gi, 1],
+    [/(?:pieces?|pallets?|skids?|units?|qty\.?|quantity)[:\s]+([\d,]+)/gi, 1],
+    [/(\d+)\s*(?:x\s*)?\d+\s*(?:pcs?|pieces?)/gi, 1],
   ],
   Weight: [
     [/([\d,]+(?:\.\d+)?\s*(?:lbs?|pounds?|kg|kilograms?))\b/gi, 1],
@@ -1349,10 +1411,6 @@ const DEFAULT_PATTERNS = {
   Miles: [
     [/([\d,]+(?:\.\d+)?\s*(?:miles?|mi\.?))\b/gi, 1],
     [/(?:miles?|distance|mileage)[:\s]+([\d,]+(?:\.\d+)?)/gi, 1],
-  ],
-  Rate: [
-    [/(\$[\d,]+(?:\.\d{2})?)\b/g, 1],
-    [/(?:rate|pay(?:ment)?|price|amount|total|charge)[:\s]+(\$?[\d,]+(?:\.\d{2})?)/gi, 1],
   ],
 };
 
@@ -1438,8 +1496,20 @@ function escRx(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 /* ══════════════════════════════════════════════
    Render parsed card
 ══════════════════════════════════════════════ */
+function buildCopyText(results) {
+  return PARSED_TEMPLATE.map((group, gi) => {
+    const lines = group.map(({ field, label }) => {
+      const value = results[field] ? results[field][0] : '';
+      return '* ' + label + ': ' + value;
+    }).join('\n');
+    return gi < PARSED_TEMPLATE.length - 1 ? lines + '\n___' : lines;
+  }).join('\n\n');
+}
+
 function renderParsed(results, matchedBroker, wasAuto) {
   parsedFields.innerHTML = '';
+  lastParsedResults = results;
+
   /* Broker badge */
   if (matchedBroker) {
     parsedBrokerBadge.textContent = (wasAuto ? '⚡ ' : '') + matchedBroker;
@@ -1448,29 +1518,28 @@ function renderParsed(results, matchedBroker, wasAuto) {
   } else {
     parsedBrokerBadge.style.display = 'none';
   }
-  for (const field of FIELD_NAMES) {
-    const row = document.createElement('div');
-    row.className = 'pf-row';
-    const lbl = document.createElement('span');
-    lbl.className = 'pf-label';
-    lbl.textContent = FIELD_LABELS[field];
-    const val = document.createElement('span');
-    val.className = 'pf-value';
-    if (results[field]) {
-      results[field].forEach((v, i) => {
-        const s = document.createElement('span');
-        s.className = 'pf-multi';
-        s.textContent = v;
-        val.appendChild(s);
-      });
-    } else {
-      val.classList.add('not-found');
-      val.textContent = 'Not found';
+
+  PARSED_TEMPLATE.forEach((group, gi) => {
+    group.forEach(({ field, label }) => {
+      const value = results[field] ? results[field][0] : '';
+      const line = document.createElement('div');
+      line.className = 'pb-line';
+      line.innerHTML =
+        '<span class="pb-star">* </span>' +
+        '<span class="pb-label">' + esc(label) + ':</span>' +
+        ' <span class="pb-value">' + esc(value) + '</span>';
+      parsedFields.appendChild(line);
+    });
+    if (gi < PARSED_TEMPLATE.length - 1) {
+      const sep = document.createElement('div');
+      sep.className = 'pb-sep'; sep.textContent = '___';
+      parsedFields.appendChild(sep);
+      const gap = document.createElement('div');
+      gap.className = 'pb-gap';
+      parsedFields.appendChild(gap);
     }
-    row.appendChild(lbl);
-    row.appendChild(val);
-    parsedFields.appendChild(row);
-  }
+  });
+
   parsedCard.classList.add('visible');
 }
 
@@ -1591,31 +1660,37 @@ function updatePatternPreview() {
 
 /* ── Pattern derivation ── */
 function derivePattern(value, field) {
+  const datePattern = (v) => {
+    if (/^\d{1,2}\/\d{1,2}\/\d{2,4}/.test(v))
+      return '\\d{1,2}\\/\\d{1,2}\\/\\d{2,4}(?:\\s+\\d{1,2}:\\d{2}(?:\\s*[AP]M)?)?';
+    if (/^\d{1,2}-\d{1,2}-\d{4}/.test(v))
+      return '\\d{1,2}-\\d{1,2}-\\d{4}(?:\\s+\\d{1,2}:\\d{2}(?:\\s*[AP]M)?)?';
+    if (/^\d{1,2}-[A-Za-z]{3}/.test(v))
+      return '\\d{1,2}-[A-Za-z]{3}-\\d{2,4}';
+    return escRx(v).replace(/\d+/g, '\\d+');
+  };
   switch (field) {
     case 'Reference': {
-      /* "S02805737" → [A-Z]+\d+ | "WIBHS260145A" → [A-Z]+\d+[A-Z]? */
       let p = value.replace(/[A-Z]+/g, '[A-Z]+').replace(/\d+/g, '\\d+');
-      /* escape any remaining special chars */
       return p;
     }
-    case 'Date': {
-      /* detect common date shapes */
-      if (/^\d{1,2}\/\d{1,2}\/\d{2,4}/.test(value))
-        return '\\d{1,2}\\/\\d{1,2}\\/\\d{2,4}(?:\\s+\\d{1,2}:\\d{2}(?:\\s*[AP]M)?)?';
-      if (/^\d{1,2}-\d{1,2}-\d{4}/.test(value))
-        return '\\d{1,2}-\\d{1,2}-\\d{4}';
-      if (/^\d{1,2}-[A-Za-z]{3}/.test(value))
-        return '\\d{1,2}-[A-Za-z]{3}-\\d{2,4}';
+    case 'PickupTime':
+    case 'DeliveryTime':
+      return datePattern(value);
+    case 'PickupLocation':
+    case 'DeliveryLocation':
+    case 'DeliveryNotes':
       return escRx(value).replace(/\d+/g, '\\d+');
-    }
-    case 'Rate':
-      return '\\$[\\d,]+(?:\\.\\d{2})?';
+    case 'POC':
+      if (/\d{3}/.test(value)) return '\\+?1?[\\s\\-.\\(\\)\\d]{10,14}';
+      return escRx(value).replace(/[A-Z][a-z]+/g, '[A-Z][a-z]+');
+    case 'Pieces':
+      return '[\\d,]+';
     case 'Weight':
       return '[\\d,]+(?:\\.\\d+)?\\s*(?:lbs?|pounds?|kg|kilograms?)';
     case 'Miles':
       return '[\\d,]+(?:\\.\\d+)?\\s*(?:miles?|mi\\.?)';
     default:
-      /* generic: escape, then generalize digits */
       return escRx(value).replace(/\d+/g, '\\d+');
   }
 }
