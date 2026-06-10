@@ -24,14 +24,7 @@
     --green: #16a34a;
     --green-soft: rgba(22,163,74,0.10);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { background: var(--bg); color: var(--text); }
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+
 .wrap {
     max-width: 900px;
     margin: 0 auto;

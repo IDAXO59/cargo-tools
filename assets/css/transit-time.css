@@ -29,17 +29,6 @@
 }
 
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { background: var(--bg); color: var(--text); }
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-    min-height: 100vh;
-    padding: 24px 16px 72px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    transition: background 0.2s, color 0.2s;
-}
-
 .wrap { max-width: 680px; margin: 0 auto; }
 
 /* ── Header ── */

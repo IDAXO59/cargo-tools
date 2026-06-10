@@ -72,12 +72,6 @@
     --ground-line: rgba(200,190,170,0.2);
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-}
 
 button, .preset-card, .toggle-row, .add-cargo-btn, .header-btn,
 .unit-selector button, .remove-btn, .check-btn {
@@ -85,14 +79,8 @@ button, .preset-card, .toggle-row, .add-cargo-btn, .header-btn,
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
+
     padding: 24px 16px 48px;
-    transition: background 0.2s, color 0.2s;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
     touch-action: manipulation;
 }
 
