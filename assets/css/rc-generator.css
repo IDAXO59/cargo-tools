@@ -9,9 +9,7 @@
     --muted: #958e82;
     --dim: #656c7e;
     --divider: #201d18;
-    --primary: #FFB318;
-    --primary-dark: #e09e10;
-    --primary-soft: rgba(255,179,24,0.12);
+
     --success: #22c55e;
     --success-soft: rgba(34,197,94,0.12);
     --hover: #201d18;
@@ -27,9 +25,6 @@
     --muted: #6b7280;
     --dim: #9ca3af;
     --divider: #f0f0f0;
-    --primary: #FFB318;
-    --primary-dark: #e09e10;
-    --primary-soft: rgba(255,179,24,0.10);
     --success: #16a34a;
     --success-soft: rgba(22,163,74,0.10);
     --hover: #f3f4f6;
@@ -37,10 +32,6 @@
 }
 
 /* sun/moon icon swap */
-:root[data-theme="dark"] .icon-sun { display: block; }
-:root[data-theme="dark"] .icon-moon { display: none; }
-:root[data-theme="light"] .icon-sun { display: none; }
-:root[data-theme="light"] .icon-moon { display: block; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--bg); color: var(--text); }
@@ -648,6 +639,5 @@ label.required::after { content: ' *'; color: #ef4444; }
     50%  { transform: scale(1.08); }
     100% { transform: scale(1); }
 }
-
 
 

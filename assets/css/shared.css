@@ -1,3 +1,41 @@
+/* ── Brand colors ── */
+:root {
+    --primary: #FFB318;
+    --primary-dark: #e09e10;
+    --primary-soft: rgba(255, 179, 24, 0.12);
+}
+
+/* ── Dark theme ── */
+:root[data-theme="dark"] {
+    --bg: #0b0a09;
+    --card: #141210;
+    --card-elev: #1c1916;
+    --border: #2c2820;
+    --border-strong: #3d3828;
+    --text: #f5f0e8;
+    --muted: #958e82;
+    --divider: #201d18;
+    --hover: #201d18;
+}
+
+/* ── Light theme ── */
+:root[data-theme="light"] {
+    --bg: #eef0f5;
+    --card: #f5f6f9;
+    --card-elev: #f5f6f9;
+    --border: #d8dde8;
+    --border-strong: #c1c8d6;
+    --text: #0f172a;
+    --muted: #64748b;
+    --divider: #d8dde8;
+    --hover: #eaecf2;
+}
+/* ── Theme icon toggle ── */
+:root[data-theme="dark"]  .icon-sun  { display: block; }
+:root[data-theme="dark"]  .icon-moon { display: none;  }
+:root[data-theme="light"] .icon-sun  { display: none;  }
+:root[data-theme="light"] .icon-moon { display: block; }
+
 /* ── US Map Background ── */
 .map-bg {
     position: fixed; inset: 0; z-index: 0;
@@ -25,5 +63,5 @@
     background: radial-gradient(ellipse 100% 90% at 50% 45%,
     rgba(238,240,245,0) 18%, rgba(238,240,245,0.62) 60%, rgba(238,240,245,0.96) 100%);
 }
-/* Lift all page content above the fixed map */
-body > div:not(.map-bg):not(.map-vignette) { position: relative; z-index: 1; }
+/* Lift main content above the fixed map */
+.wrap { position: relative; z-index: 1; }
