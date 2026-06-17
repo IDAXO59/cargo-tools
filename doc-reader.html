@@ -169,58 +169,42 @@
         <div class="train-drop-hint">PDF &#xB7; PNG &#xB7; JPG &#xB7; WEBP</div>
         <div class="train-file-status" id="trainFileStatus"></div>
       </div>
+      <div class="train-mode-toggle" id="trainModeToggle">
+        <button class="tmt-btn active" id="trainModeListBtn" type="button">&#128203; List</button>
+        <button class="tmt-btn" id="trainModeDocBtn" type="button">&#128196; Document</button>
+      </div>
+      <div class="train-doc-pagenav" id="trainDocPageNav">
+        <button id="trainDocPrev" type="button">&#8249;</button>
+        <span id="trainDocPageLabel">Page 1 / 1</span>
+        <button id="trainDocNext" type="button">&#8250;</button>
+      </div>
       <div class="train-lines-list" id="trainLinesList"></div>
+      <div class="train-doc-view" id="trainDocView">
+        <div class="train-doc-scroll" id="trainDocScroll">
+          <img class="train-doc-img" id="trainDocImg" alt="">
+          <div class="train-doc-overlays" id="trainDocOverlays"></div>
+        </div>
+      </div>
       <button class="train-change-doc" id="trainChangeDoc" style="display:none">&#8635; Change document</button>
     </div>
-    <!-- Right: tagger + templates -->
+    <!-- Right: broker + mapping + save + templates -->
     <div class="train-right-pane">
-      <div class="train-tagger-section">
-        <div class="tagger-placeholder" id="taggerPlaceholder" data-i18n="tagger-ph">&#8592; Click a line from the document to tag it</div>
-        <div class="tagger-form" id="taggerForm">
-          <div class="tagger-group" style="margin-bottom:4px">
-            <label for="taggerBroker" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--primary)" data-i18n="label-broker">Broker Name</label>
-            <input class="tagger-input" id="taggerBroker" type="text" placeholder="e.g. Echo Global, CH Robinson" data-i18n-ph="ph-broker" autocomplete="off" list="brokerDatalist" style="border-color:rgba(255,179,24,0.35)">
-            <datalist id="brokerDatalist"></datalist>
-          </div>
-          <div>
-            <div class="tagger-selected-label" data-i18n="label-selected">Selected line</div>
-            <div class="tagger-selected-text" id="taggerSelectedText"></div>
-          </div>
-          <div class="tagger-grid">
-            <div class="tagger-group">
-              <label for="taggerKeyword" data-i18n="label-keyword">Keyword / label</label>
-              <input class="tagger-input" id="taggerKeyword" type="text" placeholder="e.g. Load #" data-i18n-ph="ph-keyword" autocomplete="off">
-            </div>
-            <div class="tagger-group">
-              <label for="taggerValue" data-i18n="label-value">Value to capture</label>
-              <input class="tagger-input" id="taggerValue" type="text" placeholder="e.g. S02805737" data-i18n-ph="ph-value" autocomplete="off">
-            </div>
-            <div class="tagger-group">
-              <label for="taggerSelect" data-i18n="label-tag">Tag as field</label>
-              <select class="tagger-select" id="taggerSelect">
-                <option value="" data-i18n="opt-select">&#8212; select &#8212;</option>
-                <option value="PickupTime"       data-i18n="opt-pu-time">Pick up time</option>
-                <option value="PickupLocation"   data-i18n="opt-pu-loc">Pick-up location</option>
-                <option value="Reference"        data-i18n="opt-ref">PU notes / ref#</option>
-                <option value="POC"              data-i18n="opt-poc">POC</option>
-                <option value="DeliveryTime"     data-i18n="opt-del-time">Delivery time</option>
-                <option value="DeliveryLocation" data-i18n="opt-del-loc">Delivery location</option>
-                <option value="DeliveryNotes"    data-i18n="opt-del-notes">Delivery notes</option>
-                <option value="Pieces"           data-i18n="opt-pieces">Total Pieces</option>
-                <option value="Weight"           data-i18n="opt-weight">Total Weight</option>
-                <option value="Miles"            data-i18n="opt-miles">Loaded Miles</option>
-              </select>
-            </div>
-            <div class="tagger-group">
-              <label data-i18n="label-pattern">Pattern preview</label>
-              <div class="pattern-preview" id="patternPreview">&#8211;</div>
-            </div>
-          </div>
-          <div class="tagger-actions">
-            <button class="btn-save-pattern" id="btnSavePattern" disabled data-i18n="btn-save">Save Pattern</button>
-            <span class="tagger-saved-msg" id="taggerSavedMsg">&#10003; Saved!</span>
-          </div>
+      <div class="train-broker-row">
+        <div class="train-broker-label" data-i18n="label-broker">Broker Name *</div>
+        <input class="train-broker-input" id="taggerBroker" type="text"
+               placeholder="e.g. Echo Global, CH Robinson" data-i18n-ph="ph-broker"
+               autocomplete="off" list="brokerDatalist">
+        <datalist id="brokerDatalist"></datalist>
+      </div>
+      <div class="train-mapping-section">
+        <div class="train-pane-label">Current Mapping</div>
+        <div class="train-mapping-list" id="trainMappingList">
+          <div class="tm-empty">&#8592; Click lines on the left to tag them</div>
         </div>
+      </div>
+      <div class="train-bottom-actions">
+        <button class="btn-clear-mapping" id="btnClearMapping">&#8635; Clear</button>
+        <button class="btn-save-template" id="btnSaveTemplate" disabled>Save Template</button>
       </div>
       <div class="train-templates-section">
         <div class="templates-label" data-i18n="templates-label">Saved Templates</div>
