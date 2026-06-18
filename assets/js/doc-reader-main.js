@@ -648,6 +648,12 @@ function applyTaggedState(item, idx, field, text) {
 }
 
 function activateLine(item, idx, text) {
+  if (activeMapField) {
+    tagLine(idx, activeMapField, text);
+    activeMapField = null;
+    renderMappingPanel();
+    return;
+  }
   if (activeLineItem && activeLineItem !== item) deactivateLine(activeLineItem);
   if (item.classList.contains('active')) { deactivateLine(item); return; }
   activeLineItem = item;
@@ -777,7 +783,16 @@ function renderDocView() {
       b.style.background  = hexToRgba(color, 0.18);
       if (mapping.field === activeMapField) b.classList.add('tdo-box--active');
     }
-    b.addEventListener('click', e => { e.stopPropagation(); openDocTagPopover(b, idx, line.text); });
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      if (activeMapField) {
+        tagLine(idx, activeMapField, line.text);
+        activeMapField = null;
+        renderMappingPanel();
+      } else {
+        openDocTagPopover(b, idx, line.text);
+      }
+    });
     trainDocOverlays.appendChild(b);
   });
 }
@@ -821,63 +836,93 @@ function closeDocPopover() {
 }
 document.addEventListener('click', closeDocPopover);
 
-/* ── Mapping panel (right side) ── */
+/* ── Toggle active field for form-based selection ── */
+function toggleActiveField(field) {
+  activeMapField = activeMapField === field ? null : field;
+  renderMappingPanel();
+  if (trainViewMode === 'doc') renderDocView();
+}
+
+/* ── Mapping panel — structured form ── */
 function renderMappingPanel() {
   trainMappingList.innerHTML = '';
-  const hasAny = Object.keys(trainMappings).length > 0;
 
-  if (!hasAny) {
-    trainMappingList.innerHTML = '<div class="tm-empty">&#8592; Click lines on the left to tag them</div>';
-  } else {
-    PARSED_TEMPLATE.forEach(group => {
-      group.forEach(({ field, label }) => {
-        const mapped = Object.entries(trainMappings).filter(([, m]) => m.field === field);
-        if (!mapped.length) return;
-        const color = FIELD_COLORS[field] || 'var(--primary)';
-        const isActive = activeMapField === field;
-
-        const row = document.createElement('div');
-        row.className = 'tm-row' + (isActive ? ' tm-active' : '');
-
-        const fieldDiv = document.createElement('div');
-        fieldDiv.className = 'tm-field';
-        fieldDiv.style.color = color;
-        fieldDiv.innerHTML = '<span class="tm-dot" style="background:' + color + '"></span>' + esc(label);
-        row.appendChild(fieldDiv);
-
-        mapped.forEach(([idx, m]) => {
-          if (isActive) {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'tm-value-input';
-            input.value = m.text;
-            input.addEventListener('input', () => { trainMappings[idx].text = input.value; });
-            input.addEventListener('click', e => e.stopPropagation());
-            row.appendChild(input);
-          } else {
-            const val = document.createElement('div');
-            val.className = 'tm-value';
-            val.textContent = m.text;
-            row.appendChild(val);
-          }
-        });
-
-        row.addEventListener('click', () => {
-          activeMapField = isActive ? null : field;
-          renderMappingPanel();
-          if (trainViewMode === 'doc') renderDocView();
-          if (!isActive) {
-            const inp = trainMappingList.querySelector('.tm-value-input');
-            if (inp) inp.focus();
-          }
-        });
-
-        trainMappingList.appendChild(row);
-      });
-    });
+  // Build field → [{idx, text}] lookup
+  const fieldMap = {};
+  for (const [idx, { field, text }] of Object.entries(trainMappings)) {
+    if (!fieldMap[field]) fieldMap[field] = [];
+    fieldMap[field].push({ idx, text });
   }
 
+  // Active field hint
+  if (activeMapField) {
+    const hint = document.createElement('div');
+    hint.className = 'tm-active-hint';
+    const color = FIELD_COLORS[activeMapField] || 'var(--primary)';
+    const lbl   = FIELD_LABELS[activeMapField] || activeMapField;
+    hint.innerHTML = 'Click a line or box to set <span style="color:' + color + ';font-weight:700">' + esc(lbl) + '</span>';
+    trainMappingList.appendChild(hint);
+  }
+
+  PARSED_TEMPLATE.forEach((group, gi) => {
+    if (gi > 0) {
+      const sep = document.createElement('div');
+      sep.className = 'tm-divider';
+      trainMappingList.appendChild(sep);
+    }
+
+    group.forEach(({ field, label }) => {
+      const color    = FIELD_COLORS[field] || 'var(--primary)';
+      const isActive = activeMapField === field;
+      const assigned = fieldMap[field] || [];
+
+      const row = document.createElement('div');
+      row.className = 'tm-form-row' + (isActive ? ' tm-form-row--active' : '');
+      if (isActive) row.style.borderColor = color;
+
+      const lbl = document.createElement('div');
+      lbl.className = 'tm-form-label';
+      lbl.style.color = color;
+      lbl.textContent = label;
+      row.appendChild(lbl);
+
+      const val = document.createElement('div');
+      val.className = 'tm-form-val';
+
+      assigned.forEach(({ idx, text }) => {
+        const chip = document.createElement('div');
+        chip.className = 'tm-form-chip';
+        chip.style.borderColor = color + '55';
+
+        const span = document.createElement('span');
+        span.className = 'tm-form-chip-text';
+        span.textContent = text;
+        chip.appendChild(span);
+
+        const del = document.createElement('button');
+        del.className = 'tm-form-del';
+        del.textContent = '×';
+        del.title = 'Remove';
+        del.addEventListener('click', e => { e.stopPropagation(); untagLine(idx); });
+        chip.appendChild(del);
+
+        val.appendChild(chip);
+      });
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'tm-form-add' + (isActive ? ' tm-form-add--active' : '');
+      addBtn.textContent = '+';
+      addBtn.title = isActive ? 'Cancel' : 'Select from document';
+      addBtn.addEventListener('click', e => { e.stopPropagation(); toggleActiveField(field); });
+      val.appendChild(addBtn);
+
+      row.appendChild(val);
+      trainMappingList.appendChild(row);
+    });
+  });
+
   const broker = document.getElementById('taggerBroker')?.value?.trim() || '';
+  const hasAny = Object.keys(trainMappings).length > 0;
   btnSaveTemplate.disabled = !hasAny || !broker;
 }
 

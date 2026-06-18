@@ -477,37 +477,59 @@
 }
 .train-mapping-list::-webkit-scrollbar { width: 4px; }
 .train-mapping-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
-.tm-empty { color: var(--muted); font-size: 0.8rem; padding: 16px 0; text-align: center; }
-.tm-row {
-    margin-bottom: 6px; cursor: pointer;
-    border-radius: 6px; padding: 4px 5px;
-    border: 1px solid transparent;
-    transition: background 0.13s, border-color 0.13s;
+.tm-active-hint {
+    font-size: 0.73rem; color: var(--muted); text-align: center;
+    padding: 6px 10px; margin-bottom: 8px;
+    background: rgba(255,179,24,0.06); border: 1px solid rgba(255,179,24,0.2);
+    border-radius: 6px; line-height: 1.4;
 }
-.tm-row:hover { background: var(--card); }
-.tm-row.tm-active { background: var(--card); border-color: var(--border-strong); }
-.tm-field {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 0.7rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 3px;
+.tm-divider { height: 1px; background: var(--divider); margin: 6px 0; }
+.tm-form-row {
+    display: flex; flex-direction: column; gap: 3px;
+    padding: 5px 7px; border-radius: 6px;
+    border: 1px solid transparent; margin-bottom: 1px;
+    transition: background 0.12s, border-color 0.12s;
 }
-.tm-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.tm-value {
-    font-size: 0.76rem; color: var(--muted);
-    font-family: 'SF Mono','Fira Code',monospace;
-    padding: 3px 8px; margin-left: 11px;
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 5px; word-break: break-word; line-height: 1.5;
-    margin-bottom: 2px;
+.tm-form-row--active { background: rgba(255,179,24,0.05); }
+.tm-form-label {
+    font-size: 0.67rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
 }
-.tm-value-input {
-    display: block; width: calc(100% - 11px); margin-left: 11px; margin-bottom: 3px;
-    font-size: 0.76rem; font-family: 'SF Mono','Fira Code',monospace;
-    padding: 4px 8px; background: var(--bg); color: var(--fg);
-    border: 1px solid var(--primary); border-radius: 5px;
-    outline: none; box-sizing: border-box;
+.tm-form-val {
+    display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-height: 24px;
 }
-.tm-value-input:focus { box-shadow: 0 0 0 2px rgba(255,179,24,0.25); }
+.tm-form-chip {
+    display: flex; align-items: center; gap: 3px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 5px 2px 7px;
+    max-width: 100%;
+}
+.tm-form-chip-text {
+    font-size: 0.71rem; font-family: 'SF Mono','Fira Code',monospace;
+    color: var(--fg); word-break: break-all; line-height: 1.4;
+}
+.tm-form-del {
+    background: none; border: none; cursor: pointer; flex-shrink: 0;
+    color: var(--muted); font-size: 0.75rem; padding: 0 1px; line-height: 1;
+}
+.tm-form-del:hover { color: #e05050; }
+.tm-form-add {
+    width: 22px; height: 22px; border-radius: 4px; flex-shrink: 0;
+    border: 1px dashed var(--border); background: none;
+    color: var(--muted); font-size: 1rem; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+}
+.tm-form-add:hover { border-color: var(--primary); color: var(--primary); background: rgba(255,179,24,0.08); }
+.tm-form-add--active {
+    border-style: solid; border-color: var(--primary);
+    color: var(--primary); background: rgba(255,179,24,0.12);
+    animation: pulse-add 0.9s ease-in-out infinite alternate;
+}
+@keyframes pulse-add {
+    from { box-shadow: 0 0 0 1px rgba(255,179,24,0.2); }
+    to   { box-shadow: 0 0 0 4px rgba(255,179,24,0.35); }
+}
 
 /* ── Bottom actions ── */
 .train-bottom-actions {
