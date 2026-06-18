@@ -622,8 +622,6 @@ function renderTrainLines() {
     trainLinesList.appendChild(item);
   });
 }
-/* alias for callers that used the old name */
-const populateTrainLines = renderTrainLines;
 
 function applyUntaggedState(item, idx, text) {
   item.classList.remove('tagged');
@@ -695,7 +693,11 @@ function deactivateLine(item) {
 function tagLine(idx, field, text) {
   trainMappings[idx] = { field, text };
   const item = trainLinesList.querySelector('[data-idx="' + idx + '"]');
-  if (item) { item.className = 'train-line-item'; applyTaggedState(item, idx, field, text); }
+  if (item) {
+    if (activeLineItem === item) activeLineItem = null;
+    item.className = 'train-line-item';
+    applyTaggedState(item, idx, field, text);
+  }
   renderMappingPanel();
   if (trainViewMode === 'doc') renderDocView();
 }
@@ -792,7 +794,7 @@ function openDocTagPopover(box, idx, text) {
   pop.querySelector('.tli-apply').addEventListener('click', e => {
     e.stopPropagation();
     const field = pop.querySelector('.tli-field-select').value;
-    if (field) tagLine(idx, field, text); else untagLine(idx);
+    if (field) tagLine(idx, field, text);
     closeDocPopover();
   });
   pop.querySelector('.tli-cancel').addEventListener('click', e => { e.stopPropagation(); closeDocPopover(); });
@@ -947,11 +949,6 @@ function derivePattern(value, field) {
 function loadPatterns() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
   catch { return []; }
-}
-function savePattern(rec) {
-  const all = loadPatterns();
-  all.push(rec);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
 }
 function deletePattern(id) {
   const all = loadPatterns().filter(p => p.id !== id);
@@ -1187,10 +1184,11 @@ function pdfLineBoxes(content, viewport, cw, ch) {
 
 function loadImageEl(file) {
   return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
     const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = URL.createObjectURL(file);
+    img.onload  = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = (e) => { URL.revokeObjectURL(url); reject(e); };
+    img.src = url;
   });
 }
 
@@ -1251,7 +1249,7 @@ function loadImageEl(file) {
 
           const pageLines = pdfLineBoxes(content, viewport, canvas.width, canvas.height);
           if (pageLines.length) anyText = true;
-          pages.push({ src: canvas.toDataURL('image/png'), width: canvas.width, height: canvas.height });
+          pages.push({ src: canvas.toDataURL('image/jpeg', 0.9), width: canvas.width, height: canvas.height });
           const pageIdx = pages.length - 1;
           if (lines.length && pageLines.length) lines.push({ text: '─── Page ' + i + ' ───', page: pageIdx, box: null });
           for (const l of pageLines) lines.push({ text: l.text, page: pageIdx, box: l.box });
@@ -1274,7 +1272,7 @@ function loadImageEl(file) {
             ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             await pdfPages[i].render({ canvasContext: ctx, viewport: vp }).promise;
             const { data } = await worker.recognize(canvas);
-            pages.push({ src: canvas.toDataURL('image/png'), width: canvas.width, height: canvas.height });
+            pages.push({ src: canvas.toDataURL('image/jpeg', 0.9), width: canvas.width, height: canvas.height });
             const pageIdx = pages.length - 1;
             const ocrLines = (data.lines || [])
               .map(ln => ({ text: ln.text.trim(), box: bboxToPctBox(ln.bbox, canvas.width, canvas.height) }))
@@ -1296,7 +1294,7 @@ function loadImageEl(file) {
         canvas.getContext('2d').drawImage(imgEl, 0, 0);
         const { data } = await worker.recognize(canvas);
         await worker.terminate();
-        pages.push({ src: canvas.toDataURL('image/png'), width: canvas.width, height: canvas.height });
+        pages.push({ src: canvas.toDataURL('image/jpeg', 0.9), width: canvas.width, height: canvas.height });
         const ocrLines = (data.lines || [])
           .map(ln => ({ text: ln.text.trim(), box: bboxToPctBox(ln.bbox, canvas.width, canvas.height) }))
           .filter(l => l.text);
