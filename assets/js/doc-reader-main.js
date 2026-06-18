@@ -649,9 +649,33 @@ function applyTaggedState(item, idx, field, text) {
 
 function activateLine(item, idx, text) {
   if (activeMapField) {
-    tagLine(idx, activeMapField, text);
-    activeMapField = null;
-    renderMappingPanel();
+    if (activeLineItem && activeLineItem !== item) deactivateLine(activeLineItem);
+    activeLineItem = item;
+    item.classList.add('active');
+    const editDiv = document.createElement('div');
+    editDiv.className = 'tli-selector';
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'tli-field-select'; inp.style.flex = '1';
+    inp.value = text;
+    const applyBtn = document.createElement('button');
+    applyBtn.className = 'tli-apply'; applyBtn.innerHTML = '&#10003;';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'tli-cancel'; cancelBtn.innerHTML = '&#10005;';
+    editDiv.appendChild(inp); editDiv.appendChild(applyBtn); editDiv.appendChild(cancelBtn);
+    item.appendChild(editDiv);
+    requestAnimationFrame(() => { inp.focus(); inp.select(); });
+    applyBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const v = inp.value.trim();
+      if (v) { tagLine(idx, activeMapField, v); activeMapField = null; renderMappingPanel(); }
+      deactivateLine(item);
+    });
+    cancelBtn.addEventListener('click', e => { e.stopPropagation(); deactivateLine(item); });
+    inp.addEventListener('click', e => e.stopPropagation());
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); applyBtn.click(); }
+      if (e.key === 'Escape') { deactivateLine(item); }
+    });
     return;
   }
   if (activeLineItem && activeLineItem !== item) deactivateLine(activeLineItem);
@@ -786,9 +810,7 @@ function renderDocView() {
     b.addEventListener('click', e => {
       e.stopPropagation();
       if (activeMapField) {
-        tagLine(idx, activeMapField, line.text);
-        activeMapField = null;
-        renderMappingPanel();
+        openFieldAssignPopover(b, idx, line.text);
       } else {
         openDocTagPopover(b, idx, line.text);
       }
@@ -828,6 +850,42 @@ function openDocTagPopover(box, idx, text) {
   pop.querySelector('.tli-field-select').addEventListener('click', e => e.stopPropagation());
   pop.querySelector('.tli-field-select').addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); pop.querySelector('.tli-apply').click(); }
+  });
+}
+
+function openFieldAssignPopover(box, idx, text) {
+  closeDocPopover();
+  const pop = document.createElement('div');
+  pop.className = 'tdo-popover';
+  pop.addEventListener('click', e => e.stopPropagation());
+
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'tdo-assign-input'; inp.value = text;
+
+  const applyBtn = document.createElement('button');
+  applyBtn.className = 'tli-apply'; applyBtn.innerHTML = '&#10003;'; applyBtn.title = 'Assign';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'tli-cancel'; cancelBtn.innerHTML = '&#10005;';
+
+  pop.appendChild(inp); pop.appendChild(applyBtn); pop.appendChild(cancelBtn);
+  pop.style.top  = (box.offsetTop + box.offsetHeight + 4) + 'px';
+  pop.style.left = box.offsetLeft + 'px';
+  trainDocOverlays.appendChild(pop);
+  activeDocPopover = pop;
+
+  requestAnimationFrame(() => { inp.focus(); inp.select(); });
+
+  applyBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const v = inp.value.trim();
+    if (v && activeMapField) { tagLine(idx, activeMapField, v); activeMapField = null; renderMappingPanel(); }
+    closeDocPopover();
+  });
+  cancelBtn.addEventListener('click', e => { e.stopPropagation(); closeDocPopover(); });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); applyBtn.click(); }
+    if (e.key === 'Escape') { closeDocPopover(); }
   });
 }
 

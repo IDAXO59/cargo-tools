@@ -307,6 +307,12 @@
 .tdo-box:hover { background: rgba(255,179,24,0.2); border-color: var(--primary); border-style: solid; }
 .tdo-box.tagged { border-style: solid; border-width: 2px; }
 .tdo-box.tdo-box--active { border-width: 3px !important; box-shadow: 0 0 0 3px rgba(255,179,24,0.35); z-index: 2; }
+.tdo-assign-input {
+    flex: 1; height: 28px; padding: 0 8px; min-width: 200px;
+    background: var(--input-bg,var(--card)); border: 1px solid var(--primary);
+    border-radius: 5px; color: var(--fg); outline: none;
+    font-size: 0.78rem; font-family: 'SF Mono','Fira Code',monospace;
+}
 .tdo-popover {
     position: absolute; z-index: 5; min-width: 210px;
     background: var(--card-elev); border: 1px solid var(--border-strong);
