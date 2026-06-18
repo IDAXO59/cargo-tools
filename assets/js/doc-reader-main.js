@@ -801,6 +801,7 @@ function openDocTagPopover(box, idx, text) {
   pop.style.left = box.offsetLeft + 'px';
   trainDocOverlays.appendChild(pop);
   activeDocPopover = pop;
+  pop.addEventListener('click', e => e.stopPropagation());
 
   pop.querySelector('.tli-apply').addEventListener('click', e => {
     e.stopPropagation();

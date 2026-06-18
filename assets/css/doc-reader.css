@@ -296,7 +296,7 @@
 
 /* ── Document view (image + overlay boxes) ── */
 .train-doc-view { display: none; flex: 1; overflow: auto; background: #050505; justify-content: center; align-items: flex-start; }
-.train-doc-scroll { position: relative; width: 80%; min-width: auto; flex-shrink: 0; }
+.train-doc-scroll { position: relative; width: 64%; min-width: auto; flex-shrink: 0; }
 .train-doc-img { display: block; width: 100%; height: auto; user-select: none; }
 .train-doc-overlays { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 .tdo-box {
