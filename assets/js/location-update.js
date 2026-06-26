@@ -155,13 +155,11 @@ async function generate() {
     btn.disabled = false;
     btn.classList.remove('loading');
 
-    const msg = `Hi, team! Current location: ${location}`;
-    document.getElementById('resultText').textContent = msg;
-    document.getElementById('resultCard').hidden = false;
+    document.getElementById('resultText').textContent = `Hi, team! Current location: ${location}`;
 }
 
 function copyResult() {
-    const text = document.getElementById('resultText').textContent;
+    const text = document.getElementById('resultText').innerText;
     const btn  = document.getElementById('copyBtn');
     const span = btn.querySelector('span');
     const d    = T[currentLang] || T.en;

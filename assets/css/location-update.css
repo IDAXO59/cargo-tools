@@ -110,6 +110,14 @@
 .btn-copy.ok { background: var(--success); color: #fff; border-color: var(--success); }
 .btn-copy svg { width: 14px; height: 14px; flex-shrink: 0; }
 
+.loc-placeholder {
+    display: inline-block;
+    background: var(--primary-soft); color: var(--primary);
+    padding: 1px 8px; border-radius: 5px;
+    border: 1px solid rgba(255,179,24,0.3);
+    font-weight: 600;
+}
+
 /* ── Spinner inside generate button ── */
 .btn-generate.loading { position: relative; color: transparent; }
 .btn-generate.loading::after {
