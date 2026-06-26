@@ -26,9 +26,6 @@ const T = {
         'btn-view':      'View',
         'btn-download':  'Download',
         'btn-open':      'Open',
-        'section-templates': 'Message Templates',
-        'btn-copy':          'Copy',
-        'btn-copied':        '✓ Copied',
     },
     ru: {
         'page-title':    'Ресурсы',
@@ -47,9 +44,6 @@ const T = {
         'btn-view':      'Просмотр',
         'btn-download':  'Скачать',
         'btn-open':      'Открыть',
-        'section-templates': 'Шаблоны сообщений',
-        'btn-copy':          'Копировать',
-        'btn-copied':        '✓ Скопировано',
     }
 };
 
@@ -63,81 +57,9 @@ function applyLang(lang) {
     if (passInput) passInput.placeholder = dict['pass-ph'];
     document.getElementById('langBtn').textContent = lang === 'en' ? 'RU' : 'EN';
     localStorage.setItem(LS_LANG, lang);
-    renderTemplates(lang);
 }
 function toggleLang() {
     applyLang(localStorage.getItem(LS_LANG) === 'ru' ? 'en' : 'ru');
-}
-
-const TEMPLATES = {
-  en: [
-    { name: 'Rate Confirmation Follow-up',
-      text: "Hi {{BROKER}}, following up on the rate confirmation for load #{{LOAD}}. Could you send the signed RC over when you get a chance? Thanks!" },
-    { name: 'Detention Notice',
-      text: "Hi {{BROKER}}, our driver has been on-site at {{LOCATION}} since {{TIME}} for load #{{LOAD}}, which puts us past free time. Detention charges will apply per the rate confirmation. Please advise." },
-  ],
-  ru: [
-    { name: 'Подтверждение ставки',
-      text: "Привет, {{BROKER}}, уточняю по подтверждению ставки для груза #{{LOAD}}. Можете прислать подписанный RC при возможности? Спасибо!" },
-    { name: 'Уведомление о простое',
-      text: "Привет, {{BROKER}}, наш водитель находится на объекте {{LOCATION}} с {{TIME}} по грузу #{{LOAD}}, что превышает бесплатное время. Будут начислены сборы за простой согласно подтверждению ставки. Прошу сообщить." },
-  ],
-};
-
-const PH_LABELS = {
-  en: { BROKER: 'Broker Name', LOAD: 'Load #', LOCATION: 'Location', TIME: 'Time', DATE: 'Date', INVOICE: 'Invoice #', DESTINATION: 'Destination' },
-  ru: { BROKER: 'Брокер', LOAD: '№ груза', LOCATION: 'Место', TIME: 'Время', DATE: 'Дата', INVOICE: '№ счёта', DESTINATION: 'Назначение' },
-};
-
-function renderTemplates(lang) {
-  lang = lang || localStorage.getItem(LS_LANG) || 'en';
-  const tpls = TEMPLATES[lang] || TEMPLATES.en;
-  const labels = PH_LABELS[lang] || PH_LABELS.en;
-  const list = document.getElementById('tmplList');
-  list.innerHTML = tpls.map(tpl => {
-    const body = tpl.text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
-      const label = labels[key] || key;
-      return `<span class="ph" contenteditable="true" onclick="selectPh(this)" onfocus="selectPh(this)">[${label}]</span>`;
-    });
-    return `
-      <div class="tmpl-card">
-        <div class="tmpl-head">
-          <div class="tmpl-badge">✉</div>
-          <div class="tmpl-name">${tpl.name}</div>
-          <button class="btn btn-copy" onclick="copyTemplate(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            <span data-i18n="btn-copy">Copy</span>
-          </button>
-        </div>
-        <div class="tmpl-body">${body}</div>
-      </div>`;
-  }).join('');
-}
-
-function selectPh(span) {
-  const range = document.createRange();
-  range.selectNodeContents(span);
-  const sel = window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
-}
-
-function copyTemplate(btn) {
-  const body = btn.closest('.tmpl-card').querySelector('.tmpl-body');
-  const text = body.innerText;
-  const span = btn.querySelector('span');
-  const orig = span.textContent;
-  const lang = localStorage.getItem(LS_LANG) || 'en';
-  const okText = T[lang]['btn-copied'];
-  const reset = () => { span.textContent = orig; btn.classList.remove('ok'); };
-  const ok = () => { span.textContent = okText; btn.classList.add('ok'); setTimeout(reset, 1400); };
-  navigator.clipboard.writeText(text).then(ok).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); ok(); } catch (e) {}
-    document.body.removeChild(ta);
-  });
 }
 
 function checkPass() {
@@ -159,9 +81,8 @@ document.getElementById('pass-input').addEventListener('keypress', function(e) {
 });
 
 (function() {
-    const initLang = localStorage.getItem(LS_LANG) || 'en';
     applyTheme(localStorage.getItem(LS_THEME) || 'dark');
-    applyLang(initLang);
+    applyLang(localStorage.getItem(LS_LANG)   || 'en');
     if (localStorage.getItem('isAuthorized') === 'true') {
         document.getElementById('auth-screen').style.display = 'none';
         const mc = document.getElementById('main-content');
