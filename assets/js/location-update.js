@@ -6,7 +6,8 @@ const T = {
     ru: { inputLabel: 'ZIP, Город/Штат или ссылка Maps', generateBtn: 'Создать', copyBtn: 'Копировать', copiedBtn: '✓ Скопировано' },
 };
 
-let currentLang = 'en';
+let currentLang  = 'en';
+let lastCoords   = null;
 
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
@@ -59,6 +60,7 @@ async function reverseGeocode(lat, lon) {
     const city  = a.city || a.town || a.village || a.county || '';
     const state = stateAbbr(a);
     const zip   = a.postcode ? a.postcode.split('-')[0] : '';
+    lastCoords = { lat, lon };
     return formatLocation(city, state, zip);
 }
 
@@ -78,6 +80,7 @@ async function lookupZip(zip) {
     if (!r.ok) throw new Error('ZIP not found');
     const d = await r.json();
     const p = d.places[0];
+    lastCoords = { lat: parseFloat(p.latitude), lon: parseFloat(p.longitude) };
     return formatLocation(p['place name'], p['state abbreviation'], zip);
 }
 
@@ -129,6 +132,79 @@ async function resolve(raw) {
     }
 }
 
+/* ── Mini map ── */
+
+// Simple linear approximation calibrated to the 1000×589 SVG viewBox
+function latLonToSvg(lat, lon) {
+    return {
+        x: 155 + (lon + 124.8) / 57.9 * 820,
+        y: 55  + (49.4 - lat)  / 25   * 480,
+    };
+}
+
+function showMiniMap(location) {
+    const panel     = document.getElementById('miniMap');
+    const sourceSvg = document.querySelector('.map-bg svg');
+    if (!sourceSvg) { panel.hidden = true; return; }
+
+    const stateMatch = location.match(/,\s*([A-Z]{2})(?:\s|$)/);
+    const stateCode  = stateMatch ? stateMatch[1] : null;
+
+    panel.innerHTML = '';
+    const svg = sourceSvg.cloneNode(true);
+    svg.removeAttribute('style');
+    panel.appendChild(svg);
+
+    if (stateCode) {
+        const sp = svg.querySelector(`#${stateCode}`);
+        if (sp) sp.classList.add('map-state-active');
+    }
+
+    // Dot position: prefer exact lat/lon, fallback to state bbox center
+    let dotX, dotY;
+    if (lastCoords) {
+        const p = latLonToSvg(lastCoords.lat, lastCoords.lon);
+        dotX = p.x; dotY = p.y;
+    } else if (stateCode) {
+        const sp = sourceSvg.querySelector(`#${stateCode}`);
+        if (sp) {
+            const bb = sp.getBBox();
+            dotX = bb.x + bb.width / 2;
+            dotY = bb.y + bb.height / 2;
+        }
+    }
+
+    if (dotX !== undefined) {
+        const ns = 'http://www.w3.org/2000/svg';
+
+        const pulse = document.createElementNS(ns, 'circle');
+        pulse.setAttribute('cx', dotX); pulse.setAttribute('cy', dotY);
+        pulse.setAttribute('r', '5'); pulse.setAttribute('fill', 'none');
+        pulse.setAttribute('stroke', 'rgba(255,179,24,0.75)');
+        pulse.setAttribute('stroke-width', '1.5');
+        const aR = document.createElementNS(ns, 'animate');
+        aR.setAttribute('attributeName', 'r'); aR.setAttribute('from', '5');
+        aR.setAttribute('to', '22'); aR.setAttribute('dur', '1.8s');
+        aR.setAttribute('repeatCount', 'indefinite');
+        const aO = document.createElementNS(ns, 'animate');
+        aO.setAttribute('attributeName', 'opacity'); aO.setAttribute('from', '0.8');
+        aO.setAttribute('to', '0'); aO.setAttribute('dur', '1.8s');
+        aO.setAttribute('repeatCount', 'indefinite');
+        pulse.append(aR, aO);
+        svg.appendChild(pulse);
+
+        const dot = document.createElementNS(ns, 'circle');
+        dot.setAttribute('cx', dotX); dot.setAttribute('cy', dotY);
+        dot.setAttribute('r', '5');
+        dot.setAttribute('fill', 'var(--primary)');
+        dot.setAttribute('stroke', 'var(--on-primary)');
+        dot.setAttribute('stroke-width', '1.5');
+        svg.appendChild(dot);
+    }
+
+    panel.hidden = false;
+}
+
 /* ── UI ── */
 
 async function generate() {
@@ -145,6 +221,7 @@ async function generate() {
     btn.disabled = true;
     btn.classList.add('loading');
 
+    lastCoords = null;
     let location = raw;
     try {
         location = (await resolve(raw)) || raw;
@@ -156,6 +233,7 @@ async function generate() {
     btn.classList.remove('loading');
 
     document.getElementById('resultText').textContent = `Hi, team! Current location: ${location}`;
+    showMiniMap(location);
 }
 
 function copyResult() {
