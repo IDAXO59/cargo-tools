@@ -68,13 +68,9 @@ async function forwardGeocode(query) {
     if (!r.ok) throw new Error('Nominatim search error');
     const results = await r.json();
     if (!results.length) throw new Error('Not found');
-    const a = results[0].address || {};
-    const city  = a.city || a.town || a.village || a.county || '';
-    const state = stateAbbr(a);
-    const zip   = a.postcode ? a.postcode.split('-')[0] : '';
-    const loc   = formatLocation(city, state, zip);
-    if (!loc) throw new Error('Empty result');
-    return loc;
+    const { lat, lon } = results[0];
+    // Reverse geocode the returned coordinates to get postcode
+    return await reverseGeocode(parseFloat(lat), parseFloat(lon));
 }
 
 async function lookupZip(zip) {
