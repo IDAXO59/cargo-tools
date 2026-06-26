@@ -33,7 +33,23 @@
         setTimeout(activate,2400);
         setTimeout(loop,900);
     }
+
+    function init(){
+        var containers=document.querySelectorAll('.map-bg');
+        if(!containers.length){run();return;}
+        var base=document.currentScript
+            ? document.currentScript.src.replace(/\/js\/[^/]+$/,'')
+            : (document.querySelector('script[src*="map.js"]')||{src:''}).src.replace(/\/js\/[^/]+$/,'');
+        fetch(base+'/map.svg')
+            .then(function(r){return r.text();})
+            .then(function(html){
+                containers.forEach(function(c){c.innerHTML=html;});
+                run();
+            })
+            .catch(function(){run();}); // fallback if SVG already inline
+    }
+
     if(document.readyState==='loading'){
-        document.addEventListener('DOMContentLoaded',run);
-    }else{run();}
+        document.addEventListener('DOMContentLoaded',init);
+    }else{init();}
 })();
