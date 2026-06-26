@@ -5,45 +5,33 @@ A collection of web tools designed to optimize and simplify the daily workflow o
 ## 🚀 Live Link
 View the project: [https://idaxo59.github.io/cargo-tools/](https://idaxo59.github.io/cargo-tools/)
 
-## 🛠 Features:
+## 🛠 Features
 
-* **Cargo Spacer** – Space visualization tool. Quickly verify if cargo fits in the truck and determine the best load distribution.
-* **RChief** – Smart data parser. Converts raw, chaotic load descriptions into a clean, structured summary ready to be sent to drivers.
-* **Broker Directory** – Directory of brokers and representatives. Search for contacts and copy email addresses with one click for rapid communication.
-* **Resources** – Resource library. Document templates, instructions, and reference files to keep everything you need at your fingertips.
+* **Cargo Spacer** – 3D visualization tool. Check if cargo fits in the truck and find the best load distribution.
+* **Transit Time** – Drive time and ETA calculator with HOS logbook rules (drive limits, mandatory rest, breaks, fuel stops).
+* **Resources** – Internal document library (insurance, MC/DOT, guides) plus quick-copy message templates for broker communication.
 
 ## 💻 Technologies
-Built with a focus on performance and user experience:
-* **HTML5 / CSS3** (features a modern dark theme for comfortable night shifts).
-* **Responsive Design** – tools work seamlessly across desktops, tablets, and mobile devices.
+* **HTML5 / CSS3 / vanilla JS** — no frameworks or build step.
+* **Dark theme** for comfortable night-shift work, with light theme toggle.
+* **Responsive design** — works on desktop, tablet, and mobile.
 
-## 📦 Local Setup
-To run the project locally or make modifications:
-1. Clone the repository:
-   ```bash
-   git clone [https://github.com/idaxo59/cargo-tools.git](https://github.com/idaxo59/cargo-tools.git)
+---
 
 # Cargo Tools – инструменты для диспетчеров 🚛
 
-Набор веб-инструментов, разработанных для оптимизации и упрощения ежедневной работы диспетчеров в сфере грузоперевозок.
+Набор веб-инструментов для упрощения ежедневной работы диспетчеров грузоперевозок.
 
 ## 🚀 Живая ссылка
-Посмотреть проект: [https://idaxo59.github.io/cargo-tools/](https://idaxo59.github.io/cargo-tools/)
+[https://idaxo59.github.io/cargo-tools/](https://idaxo59.github.io/cargo-tools/)
 
-## 🛠 Что входит в набор:
+## 🛠 Что входит в набор
 
-* **Cargo Spacer** – Инструмент для визуализации пространства. Помогает быстро проверить, поместится ли груз в трак и как его лучше распределить.
-* **RChief** – Умный парсер данных. Превращает «сырой» и хаотичный текст описания загрузки в чистую, структурированную сводку которую удобно отправить водителю.
-* **Broker Directory** – Справочник брокеров и представителей. Быстрый поиск контактов и возможность копирования email-адресов в один клик для оперативной связи.
-* **Resources** – Библиотека ресурсов. Шаблоны документов, инструкции и справочные файлы, необходимые под рукой.
+* **Cargo Spacer** – 3D-визуализация загрузки. Проверка, поместится ли груз в трак, и подбор оптимального распределения.
+* **Transit Time** – Расчёт времени в пути и ETA с учётом HOS (лимиты вождения, обязательный отдых, перерывы, заправки).
+* **Resources** – Внутренняя библиотека документов (страховка, MC/DOT, инструкции) и готовые шаблоны сообщений для брокеров.
 
 ## 💻 Технологии
-Проект выполнен с упором на скорость работы и удобство интерфейса:
-* **HTML5 / CSS3** (используется современная темная тема для комфортной работы в ночное время).
-* **Responsive Design** – инструменты корректно отображаются как на компьютерах, так и на планшетах.
-
-## 📦 Как запустить локально
-Если вы хотите внести изменения или запустить проект у себя на компьютере:
-1. Склонируйте репозиторий:
-   ```bash
-   git clone [https://github.com/idaxo59/cargo-tools.git](https://github.com/idaxo59/cargo-tools.git)
+* **HTML5 / CSS3 / чистый JS** — без фреймворков и сборки.
+* **Тёмная тема** для комфортной работы ночью, с переключением на светлую.
+* **Адаптивная вёрстка** — десктоп, планшет, мобильные.
