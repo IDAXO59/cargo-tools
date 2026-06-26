@@ -42,6 +42,12 @@ function formatLocation(city, state, zip) {
     return loc;
 }
 
+function stateAbbr(a) {
+    const iso = a['ISO3166-2-lvl4'];
+    if (iso) return iso.split('-').pop();
+    return a.state || '';
+}
+
 async function reverseGeocode(lat, lon) {
     const r = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
@@ -51,9 +57,24 @@ async function reverseGeocode(lat, lon) {
     const d = await r.json();
     const a = d.address || {};
     const city  = a.city || a.town || a.village || a.county || '';
-    const state = a.state || '';
+    const state = stateAbbr(a);
     const zip   = a.postcode ? a.postcode.split('-')[0] : '';
     return formatLocation(city, state, zip);
+}
+
+async function forwardGeocode(query) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&countrycodes=us&limit=1&addressdetails=1`;
+    const r = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    if (!r.ok) throw new Error('Nominatim search error');
+    const results = await r.json();
+    if (!results.length) throw new Error('Not found');
+    const a = results[0].address || {};
+    const city  = a.city || a.town || a.village || a.county || '';
+    const state = stateAbbr(a);
+    const zip   = a.postcode ? a.postcode.split('-')[0] : '';
+    const loc   = formatLocation(city, state, zip);
+    if (!loc) throw new Error('Empty result');
+    return loc;
 }
 
 async function lookupZip(zip) {
@@ -104,8 +125,12 @@ async function resolve(raw) {
         return await lookupZip(val);
     }
 
-    // Arbitrary text — use as-is
-    return val;
+    // City name / free text — forward geocode, fallback to raw text
+    try {
+        return await forwardGeocode(val);
+    } catch (_) {
+        return val;
+    }
 }
 
 /* ── UI ── */
