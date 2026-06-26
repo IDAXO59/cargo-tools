@@ -2,8 +2,8 @@ const LS_THEME = 'ursa-theme';
 const LS_LANG  = 'ursa-lang';
 
 const T = {
-    en: { inputLabel: 'ZIP, City/State, or Maps link', generateBtn: 'Generate', copyBtn: 'Copy', copiedBtn: '✓ Copied' },
-    ru: { inputLabel: 'ZIP, Город/Штат или ссылка Maps', generateBtn: 'Создать', copyBtn: 'Копировать', copiedBtn: '✓ Скопировано' },
+    en: { inputLabel: 'ZIP, City/State, or Maps link', generateBtn: 'Go', copyBtn: 'Copy', copiedBtn: '✓ Copied' },
+    ru: { inputLabel: 'ZIP, Город/Штат или ссылка Maps', generateBtn: 'Go', copyBtn: 'Копировать', copiedBtn: '✓ Скопировано' },
 };
 
 let currentLang  = 'en';

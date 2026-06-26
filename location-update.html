@@ -38,10 +38,12 @@
   <main>
     <div class="input-card">
       <label class="field-label" for="locInput" data-i18n="inputLabel">ZIP, City/State, or Maps link</label>
-      <textarea id="locInput" class="loc-input" rows="2"
-        placeholder="ZIP, City/State, or Maps link"
-        autocomplete="off" spellcheck="false"></textarea>
-      <button class="btn-generate" id="generateBtn" data-i18n="generateBtn">Generate</button>
+      <div class="input-row">
+        <textarea id="locInput" class="loc-input" rows="2"
+          placeholder="ZIP, City/State, or Maps link"
+          autocomplete="off" spellcheck="false"></textarea>
+        <button class="btn-generate" id="generateBtn" data-i18n="generateBtn">Go</button>
+      </div>
     </div>
 
     <div class="result-card" id="resultCard">
