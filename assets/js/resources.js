@@ -63,36 +63,56 @@ function applyLang(lang) {
     if (passInput) passInput.placeholder = dict['pass-ph'];
     document.getElementById('langBtn').textContent = lang === 'en' ? 'RU' : 'EN';
     localStorage.setItem(LS_LANG, lang);
+    renderTemplates(lang);
 }
 function toggleLang() {
     applyLang(localStorage.getItem(LS_LANG) === 'ru' ? 'en' : 'ru');
 }
 
-const TEMPLATES = [
-  { name: 'Rate Confirmation Follow-up',
-    text: "Hi {{BROKER}}, following up on the rate confirmation for load #{{LOAD}}. Could you send the signed RC over when you get a chance? Thanks!" },
-  { name: 'POD Request',
-    text: "Hi {{BROKER}}, checking in on load #{{LOAD}} — could you send over the POD for our records? Appreciate it." },
-  { name: 'Detention Notice',
-    text: "Hi {{BROKER}}, our driver has been on-site at {{LOCATION}} since {{TIME}} for load #{{LOAD}}, which puts us past free time. Detention charges will apply per the rate confirmation. Please advise." },
-  { name: 'Payment Follow-up',
-    text: "Hi {{BROKER}}, following up on invoice #{{INVOICE}} for load #{{LOAD}}, due {{DATE}}. Could you confirm payment status? Thanks." },
-  { name: 'Appointment Confirmation',
-    text: "Hi {{BROKER}}, confirming our driver's appointment for load #{{LOAD}} at {{LOCATION}} on {{DATE}} at {{TIME}}. Let us know if anything changes." },
-  { name: 'Check Call / Status Update',
-    text: "Hi {{BROKER}}, quick update on load #{{LOAD}} — currently at {{LOCATION}}, ETA {{TIME}} to {{DESTINATION}}." },
-];
-
-const PH_LABELS = {
-  BROKER: 'Broker Name', LOAD: 'Load #', LOCATION: 'Location',
-  TIME: 'Time', DATE: 'Date', INVOICE: 'Invoice #', DESTINATION: 'Destination',
+const TEMPLATES = {
+  en: [
+    { name: 'Rate Confirmation Follow-up',
+      text: "Hi {{BROKER}}, following up on the rate confirmation for load #{{LOAD}}. Could you send the signed RC over when you get a chance? Thanks!" },
+    { name: 'POD Request',
+      text: "Hi {{BROKER}}, checking in on load #{{LOAD}} — could you send over the POD for our records? Appreciate it." },
+    { name: 'Detention Notice',
+      text: "Hi {{BROKER}}, our driver has been on-site at {{LOCATION}} since {{TIME}} for load #{{LOAD}}, which puts us past free time. Detention charges will apply per the rate confirmation. Please advise." },
+    { name: 'Payment Follow-up',
+      text: "Hi {{BROKER}}, following up on invoice #{{INVOICE}} for load #{{LOAD}}, due {{DATE}}. Could you confirm payment status? Thanks." },
+    { name: 'Appointment Confirmation',
+      text: "Hi {{BROKER}}, confirming our driver's appointment for load #{{LOAD}} at {{LOCATION}} on {{DATE}} at {{TIME}}. Let us know if anything changes." },
+    { name: 'Check Call / Status Update',
+      text: "Hi {{BROKER}}, quick update on load #{{LOAD}} — currently at {{LOCATION}}, ETA {{TIME}} to {{DESTINATION}}." },
+  ],
+  ru: [
+    { name: 'Подтверждение ставки',
+      text: "Привет, {{BROKER}}, уточняю по подтверждению ставки для груза #{{LOAD}}. Можете прислать подписанный RC при возможности? Спасибо!" },
+    { name: 'Запрос POD',
+      text: "Привет, {{BROKER}}, по грузу #{{LOAD}} — можете прислать POD для наших записей? Буду признателен." },
+    { name: 'Уведомление о простое',
+      text: "Привет, {{BROKER}}, наш водитель находится на объекте {{LOCATION}} с {{TIME}} по грузу #{{LOAD}}, что превышает бесплатное время. Будут начислены сборы за простой согласно подтверждению ставки. Прошу сообщить." },
+    { name: 'Уточнение оплаты',
+      text: "Привет, {{BROKER}}, уточняю по счёту #{{INVOICE}} за груз #{{LOAD}}, срок оплаты {{DATE}}. Можете подтвердить статус платежа? Спасибо." },
+    { name: 'Подтверждение записи',
+      text: "Привет, {{BROKER}}, подтверждаю запись водителя для груза #{{LOAD}} на объекте {{LOCATION}} {{DATE}} в {{TIME}}. Сообщите, если что-то изменится." },
+    { name: 'Статус груза',
+      text: "Привет, {{BROKER}}, краткое обновление по грузу #{{LOAD}} — сейчас в {{LOCATION}}, прибытие {{TIME}} в {{DESTINATION}}." },
+  ],
 };
 
-function renderTemplates() {
+const PH_LABELS = {
+  en: { BROKER: 'Broker Name', LOAD: 'Load #', LOCATION: 'Location', TIME: 'Time', DATE: 'Date', INVOICE: 'Invoice #', DESTINATION: 'Destination' },
+  ru: { BROKER: 'Брокер', LOAD: '№ груза', LOCATION: 'Место', TIME: 'Время', DATE: 'Дата', INVOICE: '№ счёта', DESTINATION: 'Назначение' },
+};
+
+function renderTemplates(lang) {
+  lang = lang || localStorage.getItem(LS_LANG) || 'en';
+  const tpls = TEMPLATES[lang] || TEMPLATES.en;
+  const labels = PH_LABELS[lang] || PH_LABELS.en;
   const list = document.getElementById('tmplList');
-  list.innerHTML = TEMPLATES.map(tpl => {
+  list.innerHTML = tpls.map(tpl => {
     const body = tpl.text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
-      const label = PH_LABELS[key] || key;
+      const label = labels[key] || key;
       return `<span class="ph" contenteditable="true" onclick="selectPh(this)" onfocus="selectPh(this)">[${label}]</span>`;
     });
     return `
@@ -155,9 +175,9 @@ document.getElementById('pass-input').addEventListener('keypress', function(e) {
 });
 
 (function() {
-    renderTemplates();
+    const initLang = localStorage.getItem(LS_LANG) || 'en';
     applyTheme(localStorage.getItem(LS_THEME) || 'dark');
-    applyLang(localStorage.getItem(LS_LANG)   || 'en');
+    applyLang(initLang);
     if (localStorage.getItem('isAuthorized') === 'true') {
         document.getElementById('auth-screen').style.display = 'none';
         const mc = document.getElementById('main-content');
