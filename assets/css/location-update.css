@@ -1,0 +1,121 @@
+/* ── Extra tokens not in shared.css ── */
+:root[data-theme="dark"]  { --input-bg: #0f0d0b; --on-primary: #1a1205; --success: #4ade80; }
+:root[data-theme="light"] { --input-bg: #eef0f5; --on-primary: #1a1205; --success: #16a34a; }
+
+.wrap { max-width: 620px; margin: 0 auto; padding: 28px 16px 60px; }
+
+/* ── Header ── */
+.topbar {
+    position: relative; text-align: center;
+    margin-bottom: 32px; padding-bottom: 20px;
+    border-bottom: 1px solid var(--divider);
+    min-height: 52px;
+}
+.page-title {
+    font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em;
+    line-height: 1.15; margin-top: 4px; color: var(--text);
+}
+.page-title .title-text {
+    background: linear-gradient(90deg, var(--primary), #FF8C00);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.page-subtitle { margin-top: 6px; color: var(--muted); font-size: 0.875rem; }
+
+.header-controls {
+    position: absolute; top: 50%; left: 0;
+    transform: translateY(-50%);
+    display: flex; gap: 6px; align-items: center;
+}
+.hdr-btn {
+    height: 36px; min-width: 36px; padding: 0 10px; overflow: hidden;
+    background: var(--card);
+    background-image: linear-gradient(to right, var(--primary) 50%, transparent 50%);
+    background-size: 200% 100%; background-position: 101% 0; background-repeat: no-repeat;
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); cursor: pointer; font-family: inherit;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background-position 0.18s cubic-bezier(.4,0,1,1), border-color 0.16s, color 0.16s;
+    text-decoration: none;
+}
+.hdr-btn:hover { background-position: 0% 0; border-color: var(--primary); color: var(--on-primary); }
+.hdr-btn svg { width: 16px; height: 16px; }
+
+@media (max-width: 600px) {
+    .topbar { padding-top: 60px; }
+    .header-controls { top: 0; transform: none; }
+}
+
+/* ── Input card ── */
+.input-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px; margin-bottom: 14px;
+    display: flex; flex-direction: column; gap: 14px;
+}
+.field-label {
+    font-size: 0.8rem; font-weight: 600; color: var(--muted);
+    letter-spacing: 0.05em; text-transform: uppercase;
+}
+.loc-input {
+    width: 100%; padding: 12px 14px;
+    background: var(--input-bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 10px;
+    font-family: inherit; font-size: 0.95rem; line-height: 1.5;
+    resize: none; outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.loc-input::placeholder { color: var(--muted); }
+.loc-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.loc-input.shake {
+    animation: shake 0.3s ease;
+    border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+}
+@keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25%      { transform: translateX(-4px); }
+    75%      { transform: translateX(4px); }
+}
+
+.btn-generate {
+    align-self: flex-end; height: 40px; padding: 0 22px;
+    background: var(--primary); color: var(--on-primary);
+    border: none; border-radius: 10px; cursor: pointer;
+    font-family: inherit; font-size: 0.875rem; font-weight: 700;
+    transition: opacity 0.15s, transform 0.1s;
+}
+.btn-generate:hover { opacity: 0.88; }
+.btn-generate:active { transform: scale(0.97); }
+.btn-generate:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Result card ── */
+.result-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 22px;
+    display: flex; align-items: center; gap: 14px;
+}
+.result-text {
+    flex: 1; font-size: 0.95rem; line-height: 1.5;
+    color: var(--text); word-break: break-word;
+    font-family: inherit;
+}
+.btn-copy {
+    flex-shrink: 0; height: 36px; padding: 0 14px;
+    background: var(--card); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    cursor: pointer; font-family: inherit; font-size: 0.8rem;
+    font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.btn-copy:hover { border-color: var(--primary); }
+.btn-copy.ok { background: var(--success); color: #fff; border-color: var(--success); }
+.btn-copy svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* ── Spinner inside generate button ── */
+.btn-generate.loading { position: relative; color: transparent; }
+.btn-generate.loading::after {
+    content: ''; position: absolute;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--on-primary); border-top-color: transparent;
+    animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
