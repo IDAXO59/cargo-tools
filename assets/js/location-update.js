@@ -134,12 +134,22 @@ async function resolve(raw) {
 
 /* ── Mini map ── */
 
-// Simple linear approximation calibrated to the 1000×589 SVG viewBox
+// Albers equal-area conic projection calibrated to the 1000×589 SVG viewBox
+// Calibration anchors from SVG path data:
+//   MT/ID/Canada tripoint (309.09, 52.88) ≈ 49°N 116°W
+//   MT/ND/Canada corner  (465.66, 72.97) ≈ 49°N 104°W
+//   Southern TX tip      (574, 537)      ≈ 26°N 97.5°W
 function latLonToSvg(lat, lon) {
-    return {
-        x: 155 + (lon + 124.8) / 57.9 * 820,
-        y: 55  + (49.4 - lat)  / 25   * 480,
-    };
+    const D  = Math.PI / 180;
+    const n  = (Math.sin(29.5 * D) + Math.sin(45.5 * D)) / 2;
+    const C  = Math.cos(29.5 * D) ** 2 + 2 * n * Math.sin(29.5 * D);
+    const r0 = Math.sqrt(C - 2 * n * Math.sin(37.5 * D)) / n;
+    const lam0 = -96 * D;
+    const r  = Math.sqrt(C - 2 * n * Math.sin(lat * D)) / n;
+    const t  = n * (lon * D - lam0);
+    const ax = r * Math.sin(t);
+    const ay = r0 - r * Math.cos(t);
+    return { x: 1137 * ax + 571, y: -1130 * ay + 308 };
 }
 
 function showMiniMap(location) {
