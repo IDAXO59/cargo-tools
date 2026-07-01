@@ -1,5 +1,8 @@
 /* Map state glow animation */
 (function(){
+    var _resolveMapReady;
+    window._mapSvgReady = new Promise(function(res) { _resolveMapReady = res; });
+
     function run(){
         var svg=document.querySelector('.map-bg svg');
         if(!svg)return;
@@ -36,7 +39,7 @@
 
     function init(){
         var containers=document.querySelectorAll('.map-bg');
-        if(!containers.length){run();return;}
+        if(!containers.length){_resolveMapReady();run();return;}
         var base=document.currentScript
             ? document.currentScript.src.replace(/\/js\/[^/]+$/,'')
             : (document.querySelector('script[src*="map.js"]')||{src:''}).src.replace(/\/js\/[^/]+$/,'');
@@ -44,9 +47,10 @@
             .then(function(r){return r.text();})
             .then(function(html){
                 containers.forEach(function(c){c.innerHTML=html;});
+                _resolveMapReady();
                 run();
             })
-            .catch(function(){run();}); // fallback if SVG already inline
+            .catch(function(){_resolveMapReady();run();}); // fallback if SVG already inline
     }
 
     if(document.readyState==='loading'){

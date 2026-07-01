@@ -46,7 +46,8 @@ function formatLocation(city, state, zip) {
 function stateAbbr(a) {
     const iso = a['ISO3166-2-lvl4'];
     if (iso) return iso.split('-').pop();
-    return a.state || '';
+    const st = a.state || '';
+    return st.length === 2 ? st : '';
 }
 
 async function reverseGeocode(lat, lon) {
@@ -152,12 +153,13 @@ function latLonToSvg(lat, lon) {
     return { x: 1137 * ax + 571, y: -1130 * ay + 308 };
 }
 
-function showMiniMap(location) {
+async function showMiniMap(location) {
+    await (window._mapSvgReady || Promise.resolve());
     const panel     = document.getElementById('miniMap');
     const sourceSvg = document.querySelector('.map-bg svg');
     if (!sourceSvg) { panel.hidden = true; return; }
 
-    const stateMatch = location.match(/,\s*([A-Z]{2})(?:\s|$)/);
+    const stateMatch = location.match(/,\s*([A-Z]{2})(?:[,\s]|$)/);
     const stateCode  = stateMatch ? stateMatch[1] : null;
 
     panel.innerHTML = '';
@@ -179,8 +181,10 @@ function showMiniMap(location) {
         const sp = sourceSvg.querySelector(`#${stateCode}`);
         if (sp) {
             const bb = sp.getBBox();
-            dotX = bb.x + bb.width / 2;
-            dotY = bb.y + bb.height / 2;
+            if (bb.width > 0) {
+                dotX = bb.x + bb.width / 2;
+                dotY = bb.y + bb.height / 2;
+            }
         }
     }
 
@@ -233,17 +237,18 @@ async function generate() {
 
     lastCoords = null;
     let location = raw;
+    let resolved = false;
     try {
         location = (await resolve(raw)) || raw;
-    } catch (_) {
-        location = raw;
-    }
+        resolved = true;
+    } catch (_) {}
 
     btn.disabled = false;
     btn.classList.remove('loading');
 
     document.getElementById('resultText').textContent = `Hi, team! Current location: ${location}`;
-    showMiniMap(location);
+    document.getElementById('copyBtn').disabled = false;
+    if (resolved) showMiniMap(location);
 }
 
 function copyResult() {

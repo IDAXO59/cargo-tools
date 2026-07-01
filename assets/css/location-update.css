@@ -110,6 +110,7 @@
     transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 .btn-copy:hover { border-color: var(--primary); }
+.btn-copy:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
 .btn-copy.ok { background: var(--success); color: #fff; border-color: var(--success); }
 .btn-copy svg { width: 14px; height: 14px; flex-shrink: 0; }
 
