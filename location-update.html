@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Location Update · URSA Express</title>
+<title>Location Update</title>
 <link rel="stylesheet" href="assets/css/shared.css">
 <link rel="stylesheet" href="assets/css/location-update.css">
 </head>
@@ -37,13 +37,28 @@
 
   <main>
     <div class="input-card">
-      <label class="field-label" for="locInput" data-i18n="inputLabel">ZIP, City/State, or Maps link</label>
-      <div class="input-row">
+      <div class="field-group">
+        <label class="field-label" for="startInput" data-i18n="startLabel">Start (optional)</label>
+        <textarea id="startInput" class="loc-input" rows="1"
+          placeholder="Start (optional)"
+          autocomplete="off" spellcheck="false"></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="locInput" data-i18n="inputLabel">ZIP, City/State, or Maps link</label>
         <textarea id="locInput" class="loc-input" rows="2"
           placeholder="ZIP, City/State, or Maps link"
           autocomplete="off" spellcheck="false"></textarea>
-        <button class="btn-generate" id="generateBtn" data-i18n="generateBtn">Go</button>
       </div>
+
+      <div class="field-group">
+        <label class="field-label" for="endInput" data-i18n="endLabel">End (optional)</label>
+        <textarea id="endInput" class="loc-input" rows="1"
+          placeholder="End (optional)"
+          autocomplete="off" spellcheck="false"></textarea>
+      </div>
+
+      <button class="btn-generate" id="generateBtn" data-i18n="generateBtn">Go</button>
     </div>
 
     <div class="result-card" id="resultCard">
