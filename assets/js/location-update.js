@@ -7,7 +7,6 @@ const T = {
 };
 
 let currentLang  = 'en';
-let lastCoords   = null;
 
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
@@ -61,7 +60,6 @@ async function reverseGeocode(lat, lon) {
     const city  = a.city || a.town || a.village || a.county || '';
     const state = stateAbbr(a);
     const zip   = a.postcode ? a.postcode.split('-')[0] : '';
-    lastCoords = { lat, lon };
     return formatLocation(city, state, zip);
 }
 
@@ -71,9 +69,9 @@ async function forwardGeocode(query) {
     if (!r.ok) throw new Error('Nominatim search error');
     const results = await r.json();
     if (!results.length) throw new Error('Not found');
-    const { lat, lon } = results[0];
-    // Reverse geocode the returned coordinates to get postcode
-    return await reverseGeocode(parseFloat(lat), parseFloat(lon));
+    const coords = { lat: parseFloat(results[0].lat), lon: parseFloat(results[0].lon) };
+    const text = await reverseGeocode(coords.lat, coords.lon);
+    return { text, coords };
 }
 
 async function lookupZip(zip) {
@@ -81,8 +79,9 @@ async function lookupZip(zip) {
     if (!r.ok) throw new Error('ZIP not found');
     const d = await r.json();
     const p = d.places[0];
-    lastCoords = { lat: parseFloat(p.latitude), lon: parseFloat(p.longitude) };
-    return formatLocation(p['place name'], p['state abbreviation'], zip);
+    const coords = { lat: parseFloat(p.latitude), lon: parseFloat(p.longitude) };
+    const text = formatLocation(p['place name'], p['state abbreviation'], zip);
+    return { text, coords };
 }
 
 function extractCoords(val) {
@@ -110,13 +109,14 @@ async function resolve(raw) {
         try {
             const u = new URL(val);
             const addr = u.searchParams.get('address') || u.searchParams.get('addr');
-            if (addr) return decodeURIComponent(addr).replace(/\+/g, ' ');
+            if (addr) return { text: decodeURIComponent(addr).replace(/\+/g, ' '), coords: null };
         } catch (_) {}
 
         // Coordinate-based reverse geocoding
         const coords = extractCoords(val);
         if (coords) {
-            return await reverseGeocode(coords.lat, coords.lon);
+            const text = await reverseGeocode(coords.lat, coords.lon);
+            return { text, coords };
         }
 
         // Shortened links (goo.gl/maps, maps.app.goo.gl) redirect server-side —
@@ -133,7 +133,7 @@ async function resolve(raw) {
     try {
         return await forwardGeocode(val);
     } catch (_) {
-        return val;
+        return { text: val, coords: null };
     }
 }
 
