@@ -87,10 +87,10 @@ async function lookupZip(zip) {
 
 function extractCoords(val) {
     const patterns = [
-        /\/@(-?\d+\.\d+),(-?\d+\.\d+)/,
+        /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,
         /[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/,
         /[?&]ll=(-?\d+\.\d+),(-?\d+\.\d+)/,
-        /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,
+        /\/@(-?\d+\.\d+),(-?\d+\.\d+)/,
     ];
     for (const p of patterns) {
         const m = val.match(p);
@@ -103,7 +103,7 @@ async function resolve(raw) {
     const val = raw.trim();
     if (!val) return null;
 
-    const isMapsLink = /maps\.apple\.com|maps\.google\.com|goo\.gl\/maps|google\.com\/maps/i.test(val);
+    const isMapsLink = /maps\.apple\.com|maps\.google\.com|goo\.gl\/maps|google\.com\/maps|maps\.app\.goo\.gl/i.test(val);
 
     if (isMapsLink) {
         // Apple Maps address param → use directly without geocoding
@@ -118,6 +118,10 @@ async function resolve(raw) {
         if (coords) {
             return await reverseGeocode(coords.lat, coords.lon);
         }
+
+        // Shortened links (goo.gl/maps, maps.app.goo.gl) redirect server-side —
+        // a static page can't follow them due to CORS, so ask for the expanded link.
+        throw new Error('SHORT_LINK');
     }
 
     // Plain ZIP
@@ -241,7 +245,13 @@ async function generate() {
     try {
         location = (await resolve(raw)) || raw;
         resolved = true;
-    } catch (_) {}
+    } catch (err) {
+        location = err.message === 'SHORT_LINK'
+            ? (currentLang === 'ru'
+                ? 'Не удалось развернуть короткую ссылку — вставьте полную ссылку на карту'
+                : "Can't expand shortened map link — please paste the full map link")
+            : raw;
+    }
 
     btn.disabled = false;
     btn.classList.remove('loading');
