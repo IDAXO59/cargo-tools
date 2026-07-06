@@ -2,8 +2,8 @@ const LS_THEME = 'ursa-theme';
 const LS_LANG  = 'ursa-lang';
 
 const T = {
-    en: { inputLabel: 'ZIP, City/State, or Maps link', generateBtn: 'Go', copyBtn: 'Copy', copiedBtn: '✓ Copied' },
-    ru: { inputLabel: 'ZIP, Город/Штат или ссылка Maps', generateBtn: 'Go', copyBtn: 'Копировать', copiedBtn: '✓ Скопировано' },
+    en: { inputLabel: 'ZIP, City/State, or Maps link', startLabel: 'Start (optional)', endLabel: 'End (optional)', generateBtn: 'Go', copyBtn: 'Copy', copiedBtn: '✓ Copied' },
+    ru: { inputLabel: 'ZIP, Город/Штат или ссылка Maps', startLabel: 'Старт (опционально)', endLabel: 'Конечная точка (опционально)', generateBtn: 'Go', copyBtn: 'Копировать', copiedBtn: '✓ Скопировано' },
 };
 
 let currentLang  = 'en';
@@ -20,9 +20,13 @@ function applyLang(lang) {
     currentLang = lang;
     const d = T[lang] || T.en;
     document.querySelector('[data-i18n="inputLabel"]').textContent  = d.inputLabel;
+    document.querySelector('[data-i18n="startLabel"]').textContent  = d.startLabel;
+    document.querySelector('[data-i18n="endLabel"]').textContent    = d.endLabel;
     document.querySelector('[data-i18n="generateBtn"]').textContent = d.generateBtn;
     document.querySelector('[data-i18n="copyBtn"]').textContent     = d.copyBtn;
-    document.getElementById('locInput').placeholder = d.inputLabel;
+    document.getElementById('locInput').placeholder   = d.inputLabel;
+    document.getElementById('startInput').placeholder = d.startLabel;
+    document.getElementById('endInput').placeholder   = d.endLabel;
     document.getElementById('langBtn').textContent  = lang === 'en' ? 'RU' : 'EN';
     localStorage.setItem(LS_LANG, lang);
 }
@@ -225,13 +229,39 @@ async function showMiniMap(location) {
 
 /* ── UI ── */
 
+async function resolveOptionalField(raw) {
+    if (!raw || !raw.trim()) return null;
+    try {
+        return await resolve(raw);
+    } catch (_) {
+        return null;
+    }
+}
+
+async function resolveCurrentField(raw) {
+    try {
+        const result = await resolve(raw);
+        return { result, resolved: true };
+    } catch (err) {
+        const text = err.message === 'SHORT_LINK'
+            ? (currentLang === 'ru'
+                ? 'Не удалось развернуть короткую ссылку — вставьте полную ссылку на карту'
+                : "Can't expand shortened map link — please paste the full map link")
+            : raw;
+        return { result: { text, coords: null }, resolved: false };
+    }
+}
+
 async function generate() {
-    const input = document.getElementById('locInput');
-    const raw   = input.value.trim();
+    const startEl   = document.getElementById('startInput');
+    const currentEl = document.getElementById('locInput');
+    const endEl     = document.getElementById('endInput');
+
+    const raw = currentEl.value.trim();
     if (!raw) {
-        input.classList.remove('shake');
-        void input.offsetWidth;
-        input.classList.add('shake');
+        currentEl.classList.remove('shake');
+        void currentEl.offsetWidth;
+        currentEl.classList.add('shake');
         return;
     }
 
@@ -239,26 +269,24 @@ async function generate() {
     btn.disabled = true;
     btn.classList.add('loading');
 
-    lastCoords = null;
-    let location = raw;
-    let resolved = false;
-    try {
-        location = (await resolve(raw)) || raw;
-        resolved = true;
-    } catch (err) {
-        location = err.message === 'SHORT_LINK'
-            ? (currentLang === 'ru'
-                ? 'Не удалось развернуть короткую ссылку — вставьте полную ссылку на карту'
-                : "Can't expand shortened map link — please paste the full map link")
-            : raw;
-    }
+    const [startResult, currentOutcome, endResult] = await Promise.all([
+        resolveOptionalField(startEl.value),
+        resolveCurrentField(raw),
+        resolveOptionalField(endEl.value),
+    ]);
 
     btn.disabled = false;
     btn.classList.remove('loading');
 
+    const location = currentOutcome.result.text;
     document.getElementById('resultText').textContent = `Hi, team! Current location: ${location}`;
     document.getElementById('copyBtn').disabled = false;
-    if (resolved) showMiniMap(location);
+
+    showRouteMap({
+        start:   startResult,
+        current: currentOutcome.resolved ? currentOutcome.result : null,
+        end:     endResult,
+    });
 }
 
 function copyResult() {
@@ -291,8 +319,10 @@ function copyResult() {
     document.getElementById('themeBtn').addEventListener('click', toggleTheme);
     document.getElementById('langBtn').addEventListener('click', toggleLang);
 
-    document.getElementById('locInput').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); }
+    ['startInput', 'locInput', 'endInput'].forEach(function (id) {
+        document.getElementById(id).addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); }
+        });
     });
     document.getElementById('locInput').addEventListener('animationend', function () {
         this.classList.remove('shake');
