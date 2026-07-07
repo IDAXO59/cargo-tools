@@ -161,68 +161,84 @@ function latLonToSvg(lat, lon) {
     return { x: 1137 * ax + 571, y: -1130 * ay + 308 };
 }
 
-async function showMiniMap(location) {
+function pointPosition(sourceSvg, data) {
+    if (!data) return null;
+    if (data.coords) return latLonToSvg(data.coords.lat, data.coords.lon);
+    if (!data.text) return null;
+    const m = data.text.match(/,\s*([A-Z]{2})(?:[,\s]|$)/);
+    if (!m) return null;
+    const sp = sourceSvg.querySelector(`#${m[1]}`);
+    if (!sp) return null;
+    const bb = sp.getBBox();
+    if (bb.width === 0) return null;
+    return { x: bb.x + bb.width / 2, y: bb.y + bb.height / 2 };
+}
+
+async function showRouteMap({ start, current, end }) {
     await (window._mapSvgReady || Promise.resolve());
     const panel     = document.getElementById('miniMap');
     const sourceSvg = document.querySelector('.map-bg svg');
     if (!sourceSvg) { panel.hidden = true; return; }
 
-    const stateMatch = location.match(/,\s*([A-Z]{2})(?:[,\s]|$)/);
-    const stateCode  = stateMatch ? stateMatch[1] : null;
+    const roles = [
+        { role: 'start',   data: start,   color: 'var(--route-start)' },
+        { role: 'current', data: current, color: 'var(--primary)' },
+        { role: 'end',     data: end,     color: 'var(--success)' },
+    ];
+    const positioned = roles
+        .map(r => ({ ...r, pos: pointPosition(sourceSvg, r.data) }))
+        .filter(r => r.pos);
+
+    if (!positioned.length) { panel.hidden = true; return; }
 
     panel.innerHTML = '';
     const svg = sourceSvg.cloneNode(true);
     svg.removeAttribute('style');
     panel.appendChild(svg);
 
+    const stateMatch = current && current.text && current.text.match(/,\s*([A-Z]{2})(?:[,\s]|$)/);
+    const stateCode  = stateMatch ? stateMatch[1] : null;
     if (stateCode) {
         const sp = svg.querySelector(`#${stateCode}`);
         if (sp) sp.classList.add('map-state-active');
     }
 
-    // Dot position: prefer exact lat/lon, fallback to state bbox center
-    let dotX, dotY;
-    if (lastCoords) {
-        const p = latLonToSvg(lastCoords.lat, lastCoords.lon);
-        dotX = p.x; dotY = p.y;
-    } else if (stateCode) {
-        const sp = sourceSvg.querySelector(`#${stateCode}`);
-        if (sp) {
-            const bb = sp.getBBox();
-            if (bb.width > 0) {
-                dotX = bb.x + bb.width / 2;
-                dotY = bb.y + bb.height / 2;
-            }
-        }
+    const ns = 'http://www.w3.org/2000/svg';
+
+    if (positioned.length > 1) {
+        const line = document.createElementNS(ns, 'polyline');
+        line.setAttribute('class', 'route-line');
+        line.setAttribute('points', positioned.map(p => `${p.pos.x},${p.pos.y}`).join(' '));
+        svg.appendChild(line);
     }
 
-    if (dotX !== undefined) {
-        const ns = 'http://www.w3.org/2000/svg';
-
-        const pulse = document.createElementNS(ns, 'circle');
-        pulse.setAttribute('cx', dotX); pulse.setAttribute('cy', dotY);
-        pulse.setAttribute('r', '5'); pulse.setAttribute('fill', 'none');
-        pulse.setAttribute('stroke', 'rgba(255,179,24,0.75)');
-        pulse.setAttribute('stroke-width', '1.5');
-        const aR = document.createElementNS(ns, 'animate');
-        aR.setAttribute('attributeName', 'r'); aR.setAttribute('from', '5');
-        aR.setAttribute('to', '22'); aR.setAttribute('dur', '1.8s');
-        aR.setAttribute('repeatCount', 'indefinite');
-        const aO = document.createElementNS(ns, 'animate');
-        aO.setAttribute('attributeName', 'opacity'); aO.setAttribute('from', '0.8');
-        aO.setAttribute('to', '0'); aO.setAttribute('dur', '1.8s');
-        aO.setAttribute('repeatCount', 'indefinite');
-        pulse.append(aR, aO);
-        svg.appendChild(pulse);
+    positioned.forEach(p => {
+        if (p.role === 'current') {
+            const pulse = document.createElementNS(ns, 'circle');
+            pulse.setAttribute('cx', p.pos.x); pulse.setAttribute('cy', p.pos.y);
+            pulse.setAttribute('r', '5'); pulse.setAttribute('fill', 'none');
+            pulse.setAttribute('stroke', 'rgba(255,179,24,0.75)');
+            pulse.setAttribute('stroke-width', '1.5');
+            const aR = document.createElementNS(ns, 'animate');
+            aR.setAttribute('attributeName', 'r'); aR.setAttribute('from', '5');
+            aR.setAttribute('to', '22'); aR.setAttribute('dur', '1.8s');
+            aR.setAttribute('repeatCount', 'indefinite');
+            const aO = document.createElementNS(ns, 'animate');
+            aO.setAttribute('attributeName', 'opacity'); aO.setAttribute('from', '0.8');
+            aO.setAttribute('to', '0'); aO.setAttribute('dur', '1.8s');
+            aO.setAttribute('repeatCount', 'indefinite');
+            pulse.append(aR, aO);
+            svg.appendChild(pulse);
+        }
 
         const dot = document.createElementNS(ns, 'circle');
-        dot.setAttribute('cx', dotX); dot.setAttribute('cy', dotY);
+        dot.setAttribute('cx', p.pos.x); dot.setAttribute('cy', p.pos.y);
         dot.setAttribute('r', '5');
-        dot.setAttribute('fill', 'var(--primary)');
+        dot.setAttribute('fill', p.color);
         dot.setAttribute('stroke', 'var(--on-primary)');
         dot.setAttribute('stroke-width', '1.5');
         svg.appendChild(dot);
-    }
+    });
 
     panel.hidden = false;
 }
