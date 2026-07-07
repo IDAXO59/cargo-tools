@@ -1,6 +1,12 @@
 const LS_THEME = 'ursa-theme';
 const LS_LANG  = 'ursa-lang';
 
+// Cloudflare Worker that expands shortened map links (goo.gl, maps.apple/p/…)
+// into coordinates — the browser can't follow those redirects itself (CORS).
+// Deploy worker/ and paste its https://…workers.dev URL here. Leave empty to
+// fall back to asking the user for the full link. See worker/README.md.
+const PROXY_URL = 'https://cargo-map-resolver.2x2gcn2sdr.workers.dev';
+
 const T = {
     en: { inputLabel: 'ZIP, City/State, or Maps link', startLabel: 'Start (optional)', endLabel: 'End (optional)', generateBtn: 'Go', copyBtn: 'Copy', copiedBtn: '✓ Copied' },
     ru: { inputLabel: 'ZIP, Город/Штат или ссылка Maps', startLabel: 'Старт (опционально)', endLabel: 'Конечная точка (опционально)', generateBtn: 'Go', copyBtn: 'Копировать', copiedBtn: '✓ Скопировано' },
@@ -88,6 +94,19 @@ async function lookupZip(zip) {
     return { text, coords };
 }
 
+async function resolveViaProxy(link) {
+    if (!PROXY_URL) return null;
+    try {
+        const r = await fetch(`${PROXY_URL}?url=${encodeURIComponent(link)}`);
+        if (!r.ok) return null;
+        const d = await r.json();
+        if (Number.isFinite(d.lat) && Number.isFinite(d.lon)) {
+            return { lat: d.lat, lon: d.lon, text: d.text || null };
+        }
+    } catch (_) {}
+    return null;
+}
+
 function extractCoords(val) {
     const patterns = [
         /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,
@@ -106,7 +125,7 @@ async function resolve(raw) {
     const val = raw.trim();
     if (!val) return null;
 
-    const isMapsLink = /maps\.apple\.com|maps\.google\.com|goo\.gl\/maps|google\.com\/maps|maps\.app\.goo\.gl/i.test(val);
+    const isMapsLink = /maps\.apple|maps\.google\.com|goo\.gl\/maps|google\.com\/maps|maps\.app\.goo\.gl/i.test(val);
 
     if (isMapsLink) {
         // Apple Maps address param → use directly without geocoding
@@ -123,8 +142,19 @@ async function resolve(raw) {
             return { text, coords };
         }
 
-        // Shortened links (goo.gl/maps, maps.app.goo.gl) redirect server-side —
-        // a static page can't follow them due to CORS, so ask for the expanded link.
+        // Shortened / place links (goo.gl, maps.app.goo.gl, maps.apple/p/…)
+        // redirect server-side; a static page can't follow them due to CORS.
+        // Resolve via the Worker, then reverse-geocode to a readable place.
+        const proxied = await resolveViaProxy(val);
+        if (proxied) {
+            // The Worker reverse-geocodes server-side (the browser can't reach
+            // Nominatim reliably); fall back to coords if it returned no name.
+            const coords = { lat: proxied.lat, lon: proxied.lon };
+            const text = proxied.text || `${proxied.lat}, ${proxied.lon}`;
+            return { text, coords };
+        }
+
+        // No proxy configured / proxy failed — ask for the expanded link.
         throw new Error('SHORT_LINK');
     }
 
@@ -261,8 +291,8 @@ async function resolveCurrentField(raw) {
     } catch (err) {
         const text = err.message === 'SHORT_LINK'
             ? (currentLang === 'ru'
-                ? 'Не удалось развернуть короткую ссылку — вставьте полную ссылку на карту'
-                : "Can't expand shortened map link — please paste the full map link")
+                ? 'Не удалось определить место по этой ссылке. Пришлите ссылку Google Maps или поделитесь геопозицией (в Apple Maps: «Поделиться» → «Поделиться геопозицией»).'
+                : "Couldn't get a location from this link. Please send a Google Maps link, or share your position (Apple Maps: Share → Share My Location).")
             : raw;
         return { result: { text, coords: null }, resolved: false };
     }
