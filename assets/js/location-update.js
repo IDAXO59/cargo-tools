@@ -59,7 +59,21 @@ function stateAbbr(a) {
     return st.length === 2 ? st : '';
 }
 
+// Geocoding runs through the Worker: the browser can't call Nominatim reliably
+// (it blocks cross-origin/headless requests). Direct Nominatim is kept only as
+// a fallback for when PROXY_URL is left empty (undeployed / local dev).
+
 async function reverseGeocode(lat, lon) {
+    if (PROXY_URL) {
+        try {
+            const r = await fetch(`${PROXY_URL}?rev=${lat},${lon}`);
+            if (r.ok) {
+                const d = await r.json();
+                if (d.text) return d.text;
+            }
+        } catch (_) {}
+        return `${lat}, ${lon}`;   // best effort — coords are still useful
+    }
     const r = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
         { headers: { 'Accept-Language': 'en' } }
@@ -74,6 +88,13 @@ async function reverseGeocode(lat, lon) {
 }
 
 async function forwardGeocode(query) {
+    if (PROXY_URL) {
+        const r = await fetch(`${PROXY_URL}?q=${encodeURIComponent(query)}`);
+        if (!r.ok) throw new Error('Not found');
+        const d = await r.json();
+        if (!Number.isFinite(d.lat) || !Number.isFinite(d.lon)) throw new Error('Not found');
+        return { text: d.text || `${d.lat}, ${d.lon}`, coords: { lat: d.lat, lon: d.lon } };
+    }
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&countrycodes=us&limit=1&addressdetails=1`;
     const r = await fetch(url, { headers: { 'Accept-Language': 'en' } });
     if (!r.ok) throw new Error('Nominatim search error');

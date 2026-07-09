@@ -81,8 +81,30 @@ function coordsFromHtml(html) {
 }
 
 async function handle(request) {
-  const target = new URL(request.url).searchParams.get('url');
-  if (!target) return json({ error: 'missing url param' }, 400);
+  const params = new URL(request.url).searchParams;
+
+  // ?rev=lat,lon — reverse-geocode coordinates to a place name.
+  const rev = params.get('rev');
+  if (rev) {
+    const m = rev.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+    if (!m) return json({ error: 'bad rev param' }, 400);
+    const lat = +m[1], lon = +m[2];
+    const text = await reverseGeocode(lat, lon);
+    return json({ lat, lon, text });
+  }
+
+  // ?q=free text — forward-geocode a ZIP / city,state / place to coords + name.
+  const q = params.get('q');
+  if (q) {
+    const coords = await forwardGeocode(q);
+    if (!coords) return json({ error: 'not found' }, 404);
+    const text = await reverseGeocode(coords.lat, coords.lon);
+    return json({ lat: coords.lat, lon: coords.lon, text });
+  }
+
+  // ?url=map link — expand a shortened/place link to coords + name.
+  const target = params.get('url');
+  if (!target) return json({ error: 'missing url/rev/q param' }, 400);
 
   let parsed;
   try {
@@ -158,17 +180,35 @@ function stateAbbr(a) {
   return st.length === 2 ? st : '';
 }
 
+// Nominatim's usage policy requires an identifying User-Agent.
+const NOMINATIM_HEADERS = {
+  'User-Agent': 'cargo-tools-map-resolver (pavel@ursaexpress.com)',
+  'Accept-Language': 'en',
+};
+
+async function forwardGeocode(query) {
+  try {
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}` +
+        `&format=json&countrycodes=us&limit=1&addressdetails=1`,
+      { headers: NOMINATIM_HEADERS }
+    );
+    if (!r.ok) return null;
+    const results = await r.json();
+    if (!results.length) return null;
+    const lat = parseFloat(results[0].lat), lon = parseFloat(results[0].lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    return { lat, lon };
+  } catch {
+    return null;
+  }
+}
+
 async function reverseGeocode(lat, lon) {
   try {
     const r = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-      {
-        headers: {
-          // Nominatim's usage policy requires an identifying User-Agent.
-          'User-Agent': 'cargo-tools-map-resolver (pavel@ursaexpress.com)',
-          'Accept-Language': 'en',
-        },
-      }
+      { headers: NOMINATIM_HEADERS }
     );
     if (!r.ok) return null;
     const d = await r.json();
