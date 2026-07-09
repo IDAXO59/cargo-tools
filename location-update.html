@@ -19,6 +19,7 @@
     <p class="page-subtitle">Convert a location into a team message</p>
     <div class="header-controls">
       <a href="index.html" class="hdr-btn back-btn">← Main</a>
+      <button class="hdr-btn" id="helpBtn" aria-label="Help">?</button>
       <button class="hdr-btn" id="langBtn">RU</button>
       <button class="hdr-btn" id="themeBtn" aria-label="Toggle theme">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -62,7 +63,7 @@
     </div>
 
     <div class="result-card" id="resultCard">
-      <div class="result-text" id="resultText">Hi, team! Current location: <span class="loc-placeholder">[Current Location]</span></div>
+      <div class="result-text" id="resultText">Current location: <span class="loc-placeholder">[Current Location]</span></div>
       <button class="btn-copy" id="copyBtn" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="9" y="9" width="13" height="13" rx="2"/>
@@ -74,6 +75,24 @@
 
     <div id="miniMap" hidden></div>
   </main>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-card" role="dialog" aria-labelledby="helpTitle">
+    <div class="help-head">
+      <div class="help-title" id="helpTitle" data-i18n="helpTitle">How Location Update Works</div>
+      <button class="help-close" id="helpClose" aria-label="Close">×</button>
+    </div>
+    <p class="help-desc" data-i18n="helpDesc">Turns a ZIP, a City/State, or a map link into a ready-to-send team message with the location.</p>
+    <div class="help-section" data-i18n="helpHow">How to use</div>
+    <ol class="help-steps">
+      <li><span class="help-num">1</span><span data-i18n="helpStep1">Enter the current location: a 5-digit ZIP, a "City, ST", or a Google/Apple Maps link.</span></li>
+      <li><span class="help-num">2</span><span data-i18n="helpStep2">Optionally add a Start and End point to draw the route on the map.</span></li>
+      <li><span class="help-num">3</span><span data-i18n="helpStep3">Press Go — the location is resolved to a "City, ST ZIP" and shown on the mini map.</span></li>
+      <li><span class="help-num">4</span><span data-i18n="helpStep4">Shortened Apple links (maps.apple/p/…) can't be read — send a Google Maps link or share your position instead.</span></li>
+      <li><span class="help-num">5</span><span data-i18n="helpStep5">Press Copy and paste the message into your team chat.</span></li>
+    </ol>
+  </div>
 </div>
 
 <script src="assets/js/map.js"></script>

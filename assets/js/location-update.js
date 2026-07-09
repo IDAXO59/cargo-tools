@@ -8,8 +8,30 @@ const LS_LANG  = 'ursa-lang';
 const PROXY_URL = 'https://cargo-map-resolver.2x2gcn2sdr.workers.dev';
 
 const T = {
-    en: { inputLabel: 'ZIP, City/State, or Maps link', startLabel: 'Start (optional)', endLabel: 'End (optional)', generateBtn: 'Go', copyBtn: 'Copy', copiedBtn: '✓ Copied' },
-    ru: { inputLabel: 'ZIP, Город/Штат или ссылка Maps', startLabel: 'Старт (опционально)', endLabel: 'Конечная точка (опционально)', generateBtn: 'Go', copyBtn: 'Копировать', copiedBtn: '✓ Скопировано' },
+    en: {
+        inputLabel: 'ZIP, City/State, or Maps link', startLabel: 'Start (optional)', endLabel: 'End (optional)',
+        generateBtn: 'Go', copyBtn: 'Copy', copiedBtn: '✓ Copied',
+        helpTitle: 'How Location Update Works',
+        helpDesc: 'Turns a ZIP, a City/State, or a map link into a ready-to-send team message with the location.',
+        helpHow: 'How to use',
+        helpStep1: 'Enter the current location: a 5-digit ZIP, a "City, ST", or a Google/Apple Maps link.',
+        helpStep2: 'Optionally add a Start and End point to draw the route on the map.',
+        helpStep3: 'Press Go — the location is resolved to a "City, ST ZIP" and shown on the mini map.',
+        helpStep4: "Shortened Apple links (maps.apple/p/…) can't be read — send a Google Maps link or share your position instead.",
+        helpStep5: 'Press Copy and paste the message into your team chat.',
+    },
+    ru: {
+        inputLabel: 'ZIP, Город/Штат или ссылка Maps', startLabel: 'Старт (опционально)', endLabel: 'Конечная точка (опционально)',
+        generateBtn: 'Go', copyBtn: 'Копировать', copiedBtn: '✓ Скопировано',
+        helpTitle: 'Как работает Location Update',
+        helpDesc: 'Превращает ZIP, «Город/Штат» или ссылку на карту в готовое сообщение для команды с локацией.',
+        helpHow: 'Как пользоваться',
+        helpStep1: 'Введите текущую локацию: 5-значный ZIP, «Город, Штат» или ссылку Google/Apple Maps.',
+        helpStep2: 'При необходимости добавьте точки Старт и Конечная, чтобы построить маршрут на карте.',
+        helpStep3: 'Нажмите Go — локация определится как «Город, ШТ ZIP» и появится на мини-карте.',
+        helpStep4: 'Короткие ссылки Apple (maps.apple/p/…) прочитать нельзя — пришлите ссылку Google Maps или поделитесь геопозицией.',
+        helpStep5: 'Нажмите «Копировать» и вставьте сообщение в чат команды.',
+    },
 };
 
 let currentLang  = 'en';
@@ -25,11 +47,9 @@ function toggleTheme() {
 function applyLang(lang) {
     currentLang = lang;
     const d = T[lang] || T.en;
-    document.querySelector('[data-i18n="inputLabel"]').textContent  = d.inputLabel;
-    document.querySelector('[data-i18n="startLabel"]').textContent  = d.startLabel;
-    document.querySelector('[data-i18n="endLabel"]').textContent    = d.endLabel;
-    document.querySelector('[data-i18n="generateBtn"]').textContent = d.generateBtn;
-    document.querySelector('[data-i18n="copyBtn"]').textContent     = d.copyBtn;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        if (d[el.dataset.i18n] != null) el.textContent = d[el.dataset.i18n];
+    });
     document.getElementById('locInput').placeholder   = d.inputLabel;
     document.getElementById('startInput').placeholder = d.startLabel;
     document.getElementById('endInput').placeholder   = d.endLabel;
@@ -346,7 +366,7 @@ async function generate() {
     btn.classList.remove('loading');
 
     const location = currentOutcome.result.text;
-    document.getElementById('resultText').textContent = `Hi, team! Current location: ${location}`;
+    document.getElementById('resultText').textContent = `Current location: ${location}`;
     document.getElementById('copyBtn').disabled = false;
 
     showRouteMap({
@@ -385,6 +405,12 @@ function copyResult() {
     document.getElementById('copyBtn').addEventListener('click', copyResult);
     document.getElementById('themeBtn').addEventListener('click', toggleTheme);
     document.getElementById('langBtn').addEventListener('click', toggleLang);
+
+    const helpOverlay = document.getElementById('helpOverlay');
+    document.getElementById('helpBtn').addEventListener('click', () => helpOverlay.classList.add('open'));
+    document.getElementById('helpClose').addEventListener('click', () => helpOverlay.classList.remove('open'));
+    helpOverlay.addEventListener('click', e => { if (e.target === helpOverlay) helpOverlay.classList.remove('open'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') helpOverlay.classList.remove('open'); });
 
     ['startInput', 'locInput', 'endInput'].forEach(function (id) {
         document.getElementById(id).addEventListener('keydown', function (e) {

@@ -214,10 +214,33 @@ async function reverseGeocode(lat, lon) {
     const d = await r.json();
     const a = d.address || {};
     const city = a.city || a.town || a.village || a.county || '';
-    const zip = a.postcode ? a.postcode.split('-')[0] : '';
+    let zip = a.postcode ? a.postcode.split('-')[0] : '';
+    // The team message must always end with a ZIP. If OSM has none for this
+    // point, fall back to the nearest US ZIP (Census ZCTA).
+    if (!zip) zip = await nearestZip(lat, lon);
     return formatLocation(city, stateAbbr(a), zip) || null;
   } catch {
     return null;
+  }
+}
+
+// Coordinates → nearest US ZIP via the keyless US Census geocoder.
+async function nearestZip(lat, lon) {
+  try {
+    const r = await fetch(
+      'https://geocoding.geo.census.gov/geocoder/geographies/coordinates' +
+        `?x=${lon}&y=${lat}&benchmark=Public_AR_Current&vintage=Current_Current` +
+        '&layers=all&format=json',
+      { headers: { 'User-Agent': NOMINATIM_HEADERS['User-Agent'] } }
+    );
+    if (!r.ok) return '';
+    const d = await r.json();
+    const geos = (d.result && d.result.geographies) || {};
+    const zcta = geos['2020 Census ZIP Code Tabulation Areas'];
+    if (zcta && zcta.length) return zcta[0].ZCTA5 || zcta[0].BASENAME || '';
+    return '';
+  } catch {
+    return '';
   }
 }
 
