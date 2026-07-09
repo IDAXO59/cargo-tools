@@ -204,11 +204,12 @@ async function resolve(raw) {
         return await lookupZip(val);
     }
 
-    // City name / free text — forward geocode, fallback to raw text
+    // City name / free text — forward geocode. If nothing matches (e.g. a
+    // typo), signal not-found rather than echoing the raw text back.
     try {
         return await forwardGeocode(val);
     } catch (_) {
-        return { text: val, coords: null };
+        throw new Error('NOT_FOUND');
     }
 }
 
@@ -330,11 +331,18 @@ async function resolveCurrentField(raw) {
         const result = await resolve(raw);
         return { result, resolved: true };
     } catch (err) {
-        const text = err.message === 'SHORT_LINK'
-            ? (currentLang === 'ru'
-                ? 'Не удалось определить место по этой ссылке. Пришлите ссылку Google Maps или поделитесь геопозицией (в Apple Maps: «Поделиться» → «Поделиться геопозицией»).'
-                : "Couldn't get a location from this link. Please send a Google Maps link, or share your position (Apple Maps: Share → Share My Location).")
-            : raw;
+        const msg = {
+            SHORT_LINK: {
+                ru: 'Не удалось определить место по этой ссылке. Пришлите ссылку Google Maps или поделитесь геопозицией (в Apple Maps: «Поделиться» → «Поделиться геопозицией»).',
+                en: "Couldn't get a location from this link. Please send a Google Maps link, or share your position (Apple Maps: Share → Share My Location).",
+            },
+            NOT_FOUND: {
+                ru: 'Не удалось найти это место — проверьте написание или введите ZIP-код либо ссылку на карту.',
+                en: "Couldn't find that place — check the spelling, or enter a ZIP code or map link.",
+            },
+        };
+        const key  = msg[err.message] ? err.message : 'NOT_FOUND';
+        const text = msg[key][currentLang] || msg[key].en;
         return { result: { text, coords: null }, resolved: false };
     }
 }
