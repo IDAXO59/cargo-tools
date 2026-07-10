@@ -36,9 +36,9 @@
     position: relative;
     text-align: center;
     margin-bottom: 36px;
+    padding-top: 48px;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--divider);
-    min-height: 52px;
     opacity: 0;
     animation: ttIn 0.4s ease-out 0.1s forwards;
 }
@@ -56,9 +56,8 @@
 .page-subtitle { margin-top: 6px; color: var(--muted); font-size: 0.875rem; }
 
 .header-controls {
-    position: absolute; top: 50%; left: 0;
-    transform: translateY(-50%);
-    display: flex; gap: 6px; align-items: center;
+    position: absolute; top: 0; left: 0;
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
 }
 
 .hdr-btn.back-btn {
@@ -80,9 +79,8 @@
 .hdr-btn:hover { background-position: 0% 0; border-color: var(--primary); color: var(--on-primary); }
 .hdr-btn svg { width: 16px; height: 16px; }
 
-@media (max-width: 600px) {
-    .topbar { padding-top: 60px; }
-    .header-controls { top: 0; transform: none; flex-wrap: wrap; }
+@media (max-width: 360px) {
+    .topbar { padding-top: 88px; }  /* room if the control buttons wrap */
 }
 
 /* ── Input card ── */
