@@ -269,92 +269,17 @@ function fmtElapsed(h) {
 
 // ── HOS Simulation ────────────────────────────────────────────────────────────
 
-function simulateTrip(totalMiles, params) {
-    const SPEED      = params.speed;
-    const SHIFT_MAX  = params.shift;
-    const CONT_MAX   = params.cont;
-    const BREAK_DUR  = params.breakMin / 60;
-    const FUEL_EVERY = params.fuelMi;
-    const FUEL_DUR   = params.fuelMin / 60;
-    const REST_DUR   = params.rest;
-    const EPS        = 1e-4;
-
-    let remaining = totalMiles, shiftH = 0, contH = 0, milesFuel = 0;
-    let totalDrive = 0, totalElapsed = 0, hosRests = 0, fuelStops = 0;
-    const steps = [];
-
-    for (let i = 0; i < 5000 && remaining > EPS; i++) {
-        const tBreak  = CONT_MAX - contH;
-        const tFuel   = (FUEL_EVERY - milesFuel) / SPEED;
-        const tHOS    = SHIFT_MAX - shiftH;
-        const tFinish = remaining / SPEED;
-
-        const drive  = Math.min(tBreak, tFuel, tHOS, tFinish);
-        const dMiles = drive * SPEED;
-
-        remaining    -= dMiles;
-        totalDrive   += drive;
-        totalElapsed += drive;
-        shiftH       += drive;
-        contH        += drive;
-        milesFuel    += dMiles;
-
-        steps.push({ type: 'drive', hours: drive, miles: dMiles });
-        if (remaining <= EPS) break;
-
-        if (shiftH + EPS >= SHIFT_MAX) {
-            hosRests++;
-            totalElapsed += REST_DUR;
-            shiftH = 0; contH = 0;
-            steps.push({ type: 'rest', hours: REST_DUR });
-        } else if (milesFuel + EPS >= FUEL_EVERY) {
-            fuelStops++;
-            totalElapsed += FUEL_DUR;
-            milesFuel = 0; contH = 0;
-            steps.push({ type: 'fuel', hours: FUEL_DUR });
-        } else {
-            totalElapsed += BREAK_DUR;
-            contH = 0;
-            steps.push({ type: 'brk', hours: BREAK_DUR });
-        }
-    }
-
-    steps.push({ type: 'done' });
-    return { totalDrive, totalElapsed, hosRests, fuelStops, steps };
-}
-
 // ── API ───────────────────────────────────────────────────────────────────────
-
-async function timed(url, ms = 12000) {
-    const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), ms);
-    try {
-        const r = await fetch(url, { signal: ctrl.signal });
-        clearTimeout(tid); return r;
-    } catch (e) {
-        clearTimeout(tid);
-        if (e.name === 'AbortError') throw new Error('Request timed out — please try again.');
-        throw e;
-    }
-}
+// simulateTrip + fetchRoadMiles now live in assets/js/hos.js (window.HOS).
 
 async function lookupZip(zip) {
-    const r = await timed(`https://api.zippopotam.us/us/${zip}`);
+    const r = await HOS.timed(`https://api.zippopotam.us/us/${zip}`);
     if (r.status === 404) throw new Error(`ZIP ${zip} not found.`);
     if (!r.ok) throw new Error(`ZIP ${zip} lookup failed (HTTP ${r.status}).`);
     const d = await r.json();
     if (!d.places || !d.places.length) throw new Error(`ZIP ${zip} not found.`);
     const p = d.places[0];
     return { lat: parseFloat(p.latitude), lng: parseFloat(p.longitude), city: p['place name'], state: p['state abbreviation'] };
-}
-
-async function fetchRoadMiles(o, d) {
-    const url = `https://router.project-osrm.org/route/v1/driving/${o.lng},${o.lat};${d.lng},${d.lat}?overview=false`;
-    const r   = await timed(url);
-    if (!r.ok) throw new Error(t('errRoute'));
-    const data = await r.json();
-    if (data.code !== 'Ok' || !data.routes?.length) throw new Error(t('errRoute'));
-    return data.routes[0].distance / 1609.344;
 }
 
 // ── UI ────────────────────────────────────────────────────────────────────────
@@ -409,7 +334,7 @@ function renderTimeline(steps) {
 }
 
 function renderResults(miles, origin, dest, params) {
-    const { totalDrive, totalElapsed, hosRests, fuelStops, steps } = simulateTrip(miles, params);
+    const { totalDrive, totalElapsed, hosRests, fuelStops, steps } = HOS.simulateTrip(miles, params);
 
     document.getElementById('routeLabel').textContent =
         `${origin.city}, ${origin.state} → ${dest.city}, ${dest.state}`;
@@ -454,7 +379,7 @@ async function calculate() {
             [origin, dest] = await Promise.all([lookupZip(originVal), lookupZip(destVal)]);
 
             showMsg(t('loadingRoute'), 'loading');
-            miles = await fetchRoadMiles(origin, dest);
+            miles = await HOS.fetchRoadMiles(origin, dest);
 
             if (miles < 1) { showMsg(t('errClose')); return; }
             _cache = { originZip: originVal, destZip: destVal, miles, origin, dest };
@@ -469,7 +394,7 @@ async function calculate() {
         document.getElementById('staleHint').classList.remove('show');
 
     } catch (err) {
-        showMsg(err.message || t('errRoute'));
+        showMsg(err.code === 'ROUTE' ? t('errRoute') : (err.message || t('errRoute')));
     } finally {
         btn.disabled = false;
     }

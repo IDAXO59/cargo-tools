@@ -19,6 +19,16 @@ const T = {
         helpStep3: 'Press Go — the location is resolved to a "City, ST ZIP" and shown on the mini map.',
         helpStep4: "Shortened Apple links (maps.apple/p/…) can't be read — send a Google Maps link or share your position instead.",
         helpStep5: 'Press Copy and paste the message into your team chat.',
+        etaTitle: 'Time on the road', paramsToggle: '⚙ Parameters', etaCalcBtn: 'Calculate time',
+        paramSpeed: 'Speed', paramRest: 'Rest / sleep', paramFuelEvery: 'Fuel every', paramFuelDur: 'Fuel stop',
+        unitMph: 'mph', unitH: 'h', unitMi: 'mi', unitMin: 'min',
+        etaRemaining: 'Remaining (Current → End)',
+        statDrive: '🚗 Driving', statElapsed: '⏱️ Total time', statRests: '🛏️ HOS rests', statFuel: '⛽ Fuel stops',
+        etaProgress: 'Progress', etaTraveled: 'Traveled', etaTotal: 'Whole trip',
+        etaArrival: v => `Arrival ≈ ${v}`, roadMiles: n => `${n} mi by road`,
+        errEnd: 'Enter the End point to calculate the remaining time.',
+        errCalcFind: "Couldn't resolve the route points — check the addresses.",
+        errCalcRoute: "Couldn't get the road distance — please try again.",
     },
     ru: {
         inputLabel: 'ZIP, Город/Штат или ссылка Maps', startLabel: 'Старт (опционально)', endLabel: 'Конечная точка (опционально)',
@@ -31,6 +41,16 @@ const T = {
         helpStep3: 'Нажмите Go — локация определится как «Город, ШТ ZIP» и появится на мини-карте.',
         helpStep4: 'Короткие ссылки Apple (maps.apple/p/…) прочитать нельзя — пришлите ссылку Google Maps или поделитесь геопозицией.',
         helpStep5: 'Нажмите «Копировать» и вставьте сообщение в чат команды.',
+        etaTitle: 'Время в пути', paramsToggle: '⚙ Параметры', etaCalcBtn: 'Рассчитать время',
+        paramSpeed: 'Скорость', paramRest: 'Отдых / сон', paramFuelEvery: 'Заправка каждые', paramFuelDur: 'Заправка',
+        unitMph: 'mph', unitH: 'ч', unitMi: 'мили', unitMin: 'мин',
+        etaRemaining: 'Осталось (Current → End)',
+        statDrive: '🚗 За рулём', statElapsed: '⏱️ Всего', statRests: '🛏️ Отдыхи HOS', statFuel: '⛽ Заправки',
+        etaProgress: 'Прогресс', etaTraveled: 'Пройдено', etaTotal: 'Весь путь',
+        etaArrival: v => `Прибытие ≈ ${v}`, roadMiles: n => `${n} миль по дороге`,
+        errEnd: 'Укажите конечную точку (End), чтобы рассчитать остаток пути.',
+        errCalcFind: 'Не удалось определить точки маршрута — проверьте адреса.',
+        errCalcRoute: 'Не удалось получить дорожное расстояние — попробуйте ещё раз.',
     },
 };
 
@@ -48,7 +68,7 @@ function applyLang(lang) {
     currentLang = lang;
     const d = T[lang] || T.en;
     document.querySelectorAll('[data-i18n]').forEach(el => {
-        if (d[el.dataset.i18n] != null) el.textContent = d[el.dataset.i18n];
+        if (typeof d[el.dataset.i18n] === 'string') el.textContent = d[el.dataset.i18n];
     });
     document.getElementById('locInput').placeholder   = d.inputLabel;
     document.getElementById('startInput').placeholder = d.startLabel;
@@ -404,6 +424,143 @@ function copyResult() {
     setTimeout(reset, 1500);
 }
 
+/* ── ETA / drive-time calculator ── */
+
+function tr(key, arg) {
+    const d = T[currentLang] || T.en;
+    const v = d[key] != null ? d[key] : T.en[key];
+    return typeof v === 'function' ? v(arg) : v;
+}
+
+function clamp(v, min, max) { return isNaN(v) ? NaN : Math.min(max, Math.max(min, v)); }
+
+const ETA_DEFAULTS = { speed: 50, rest: 10, fuelMi: 500, fuelMin: 30 };
+
+function getEtaParams() {
+    const num = (id, min, max, def) =>
+        clamp(parseFloat(document.getElementById(id).value), min, max) || def;
+    return {
+        speed:   num('p-speed',    10, 120,  ETA_DEFAULTS.speed),
+        rest:    num('p-rest',      1,  24,  ETA_DEFAULTS.rest),
+        fuelMi:  num('p-fuel-mi', 100, 2000, ETA_DEFAULTS.fuelMi),
+        fuelMin: num('p-fuel-min',  5, 120,  ETA_DEFAULTS.fuelMin),
+        shift: 11, cont: 8, breakMin: 30,   // fixed HOS limits
+    };
+}
+
+function fmtHours(h) {
+    const ru = currentLang === 'ru';
+    const hrs = Math.floor(h + 1e-6);
+    const mins = Math.round((h - hrs) * 60);
+    const H = ru ? 'ч' : 'h', M = ru ? 'мин' : 'min';
+    if (hrs === 0) return `${mins} ${M}`;
+    if (mins === 0) return `${hrs} ${H}`;
+    return `${hrs} ${H} ${mins} ${M}`;
+}
+
+function fmtElapsed(h) {
+    const ru = currentLang === 'ru';
+    const total = Math.round(h * 60);
+    const d = Math.floor(total / 1440), hh = Math.floor((total % 1440) / 60), mm = total % 60;
+    const parts = [];
+    if (d)  parts.push(`${d} ${ru ? 'д' : 'd'}`);
+    if (hh) parts.push(`${hh} ${ru ? 'ч' : 'h'}`);
+    if (mm || !parts.length) parts.push(`${mm} ${ru ? 'мин' : 'min'}`);
+    return parts.join(' ');
+}
+
+async function resolveCoords(raw) {
+    if (!raw || !raw.trim()) return null;
+    try {
+        const r = await resolve(raw);
+        return r && r.coords ? r.coords : null;
+    } catch (_) {
+        return null;
+    }
+}
+
+function showEtaMsg(text) {
+    const m = document.getElementById('etaMsg');
+    m.textContent = text; m.hidden = false;
+    document.getElementById('etaResults').hidden = true;
+}
+
+async function calcEta() {
+    const currentRaw = document.getElementById('locInput').value.trim();
+    const endRaw     = document.getElementById('endInput').value.trim();
+    const startRaw   = document.getElementById('startInput').value.trim();
+
+    if (!currentRaw) {
+        const el = document.getElementById('locInput');
+        el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+        return;
+    }
+    if (!endRaw) { showEtaMsg(tr('errEnd')); return; }
+
+    const params = getEtaParams();
+    const btn = document.getElementById('etaCalcBtn');
+    btn.disabled = true; btn.classList.add('loading');
+
+    try {
+        const [current, end, start] = await Promise.all([
+            resolveCoords(currentRaw),
+            resolveCoords(endRaw),
+            startRaw ? resolveCoords(startRaw) : Promise.resolve(null),
+        ]);
+        if (!current || !end) { showEtaMsg(tr('errCalcFind')); return; }
+
+        let remMiles, travMiles = null;
+        try {
+            remMiles = await HOS.fetchRoadMiles(current, end);
+            if (start) travMiles = await HOS.fetchRoadMiles(start, current);
+        } catch (_) {
+            showEtaMsg(tr('errCalcRoute')); return;
+        }
+
+        renderEta(HOS.simulateTrip(remMiles, params), remMiles, travMiles);
+    } finally {
+        btn.disabled = false; btn.classList.remove('loading');
+    }
+}
+
+function renderEta(rem, remMiles, travMiles) {
+    const ru = currentLang === 'ru';
+    document.getElementById('etaMsg').hidden = true;
+
+    document.getElementById('etaDrive').textContent   = fmtHours(rem.totalDrive);
+    document.getElementById('etaElapsed').textContent = fmtElapsed(rem.totalElapsed);
+    document.getElementById('etaRests').textContent   = rem.hosRests  || '—';
+    document.getElementById('etaFuel').textContent    = rem.fuelStops || '—';
+    document.getElementById('etaRoad').textContent    = tr('roadMiles', Math.round(remMiles));
+
+    // Arrival clock: now + total elapsed, in local time.
+    const arr = new Date(Date.now() + rem.totalElapsed * 3600 * 1000);
+    const hh  = String(arr.getHours()).padStart(2, '0');
+    const mm  = String(arr.getMinutes()).padStart(2, '0');
+    const dayDiff = Math.round(
+        (new Date(arr).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000);
+    let clock = `${hh}:${mm}`;
+    if (dayDiff > 0) clock += ` (+${dayDiff}${ru ? 'д' : 'd'})`;
+    document.getElementById('etaArrival').textContent = tr('etaArrival', clock);
+
+    // Progress bar (only when a Start point is given).
+    const wrap = document.getElementById('etaProgressWrap');
+    if (travMiles != null && (travMiles + remMiles) > 0) {
+        const pct = Math.round(travMiles / (travMiles + remMiles) * 100);
+        document.getElementById('etaProgressPct').textContent  = `${pct}%`;
+        document.getElementById('etaProgressFill').style.width = `${pct}%`;
+        document.getElementById('etaTraveledVal').textContent  =
+            `${tr('etaTraveled')}: ${Math.round(travMiles)} ${ru ? 'миль' : 'mi'}`;
+        document.getElementById('etaTotalVal').textContent     =
+            `${tr('etaTotal')}: ${Math.round(travMiles + remMiles)} ${ru ? 'миль' : 'mi'}`;
+        wrap.hidden = false;
+    } else {
+        wrap.hidden = true;
+    }
+
+    document.getElementById('etaResults').hidden = false;
+}
+
 /* ── Init ── */
 (function () {
     applyTheme(localStorage.getItem(LS_THEME) || 'dark');
@@ -419,6 +576,13 @@ function copyResult() {
     document.getElementById('helpClose').addEventListener('click', () => helpOverlay.classList.remove('open'));
     helpOverlay.addEventListener('click', e => { if (e.target === helpOverlay) helpOverlay.classList.remove('open'); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') helpOverlay.classList.remove('open'); });
+
+    document.getElementById('etaCalcBtn').addEventListener('click', calcEta);
+    document.getElementById('etaParamsToggle').addEventListener('click', function () {
+        const pane = document.getElementById('etaParams');
+        pane.hidden = !pane.hidden;
+        this.classList.toggle('open', !pane.hidden);
+    });
 
     ['startInput', 'locInput', 'endInput'].forEach(function (id) {
         document.getElementById(id).addEventListener('keydown', function (e) {

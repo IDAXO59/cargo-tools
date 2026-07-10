@@ -202,3 +202,85 @@
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 700; margin-top: 1px;
 }
+
+/* ── ETA / drive-time calculator ── */
+.eta-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 22px; margin-top: 14px;
+    display: flex; flex-direction: column; gap: 14px;
+}
+.eta-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.eta-title { font-size: 0.95rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+.eta-params-toggle {
+    background: none; border: none; color: var(--muted);
+    font-size: 0.78rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; padding: 4px 0; transition: color 0.15s;
+}
+.eta-params-toggle:hover, .eta-params-toggle.open { color: var(--text); }
+
+.eta-params {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px;
+    padding: 4px 0 2px;
+}
+.param-row { display: flex; flex-direction: column; gap: 5px; }
+.param-label {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--muted);
+}
+.param-field { display: flex; align-items: center; gap: 6px; }
+.param-input {
+    flex: 1; min-width: 0; width: 100%;
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 0.95rem;
+    font-weight: 600; padding: 8px 10px; outline: none; font-family: inherit;
+    -moz-appearance: textfield; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.param-input::-webkit-inner-spin-button,
+.param-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.param-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft); }
+.param-unit { font-size: 0.75rem; color: var(--muted); white-space: nowrap; min-width: 26px; flex-shrink: 0; }
+
+.eta-calc-btn { height: 44px; }
+
+.eta-msg {
+    font-size: 0.85rem; line-height: 1.5; color: var(--text);
+    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px; padding: 10px 14px;
+}
+
+.eta-results { display: flex; flex-direction: column; gap: 12px; }
+.eta-remaining-label {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--muted);
+}
+.eta-road { font-size: 0.85rem; color: var(--muted); margin-top: -6px; }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat {
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px;
+}
+.stat-val { font-size: 1.25rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.stat-label {
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--muted); margin-top: 4px;
+}
+.eta-arrival {
+    font-size: 1rem; font-weight: 700; color: var(--primary);
+    text-align: center; padding: 4px 0;
+}
+
+.eta-progress-wrap { display: flex; flex-direction: column; gap: 7px; padding-top: 4px; border-top: 1px solid var(--divider); }
+.eta-progress-head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--muted); padding-top: 8px;
+}
+.eta-progress-head span:last-child { color: var(--primary); }
+.eta-progress-bar { height: 8px; background: var(--input-bg); border-radius: 999px; overflow: hidden; }
+.eta-progress-fill { height: 100%; background: var(--primary); border-radius: 999px; transition: width 0.4s ease; }
+.eta-progress-legend { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); }
+
+@media (max-width: 480px) {
+    .eta-params, .stat-grid { grid-template-columns: 1fr; }
+}

@@ -74,6 +74,54 @@
     </div>
 
     <div id="miniMap" hidden></div>
+
+    <div class="eta-card" id="etaCard">
+      <div class="eta-head">
+        <div class="eta-title" data-i18n="etaTitle">Time on the road</div>
+        <button class="eta-params-toggle" id="etaParamsToggle" data-i18n="paramsToggle">⚙ Parameters</button>
+      </div>
+
+      <div class="eta-params" id="etaParams" hidden>
+        <div class="param-row">
+          <label class="param-label" for="p-speed" data-i18n="paramSpeed">Speed</label>
+          <div class="param-field"><input id="p-speed" class="param-input" type="number" inputmode="numeric" value="50"><span class="param-unit" data-i18n="unitMph">mph</span></div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="p-rest" data-i18n="paramRest">Rest / sleep</label>
+          <div class="param-field"><input id="p-rest" class="param-input" type="number" inputmode="numeric" value="10"><span class="param-unit" data-i18n="unitH">h</span></div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="p-fuel-mi" data-i18n="paramFuelEvery">Fuel every</label>
+          <div class="param-field"><input id="p-fuel-mi" class="param-input" type="number" inputmode="numeric" value="500"><span class="param-unit" data-i18n="unitMi">mi</span></div>
+        </div>
+        <div class="param-row">
+          <label class="param-label" for="p-fuel-min" data-i18n="paramFuelDur">Fuel stop</label>
+          <div class="param-field"><input id="p-fuel-min" class="param-input" type="number" inputmode="numeric" value="30"><span class="param-unit" data-i18n="unitMin">min</span></div>
+        </div>
+      </div>
+
+      <button class="btn-generate eta-calc-btn" id="etaCalcBtn" data-i18n="etaCalcBtn">Calculate time</button>
+
+      <div class="eta-msg" id="etaMsg" hidden></div>
+
+      <div class="eta-results" id="etaResults" hidden>
+        <div class="eta-remaining-label" data-i18n="etaRemaining">Remaining (Current → End)</div>
+        <div class="eta-road" id="etaRoad"></div>
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-val" id="etaDrive">—</div><div class="stat-label" data-i18n="statDrive">🚗 Driving</div></div>
+          <div class="stat"><div class="stat-val" id="etaElapsed">—</div><div class="stat-label" data-i18n="statElapsed">⏱️ Total time</div></div>
+          <div class="stat"><div class="stat-val" id="etaRests">—</div><div class="stat-label" data-i18n="statRests">🛏️ HOS rests</div></div>
+          <div class="stat"><div class="stat-val" id="etaFuel">—</div><div class="stat-label" data-i18n="statFuel">⛽ Fuel stops</div></div>
+        </div>
+        <div class="eta-arrival" id="etaArrival"></div>
+
+        <div class="eta-progress-wrap" id="etaProgressWrap" hidden>
+          <div class="eta-progress-head"><span data-i18n="etaProgress">Progress</span><span id="etaProgressPct"></span></div>
+          <div class="eta-progress-bar"><div class="eta-progress-fill" id="etaProgressFill"></div></div>
+          <div class="eta-progress-legend"><span id="etaTraveledVal"></span><span id="etaTotalVal"></span></div>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -96,6 +144,7 @@
 </div>
 
 <script src="assets/js/map.js"></script>
+<script src="assets/js/hos.js"></script>
 <script src="assets/js/location-update.js"></script>
 </body>
 </html>
